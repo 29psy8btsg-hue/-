@@ -124,6 +124,7 @@ body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
 .turn-center{ text-align:center; }
 
 .cmd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:11px; }
+.cmd.wide{ grid-column:span 2; }
 .cmd{ display:flex; align-items:center; gap:8px; border:2px solid; border-radius:13px; padding:9px 9px; background:#fff;
   font-family:inherit; cursor:pointer; transition:.12s; text-align:left; box-shadow:0 2px 0 rgba(0,0,0,.08); position:relative; }
 .cmd:active{ transform:translateY(2px); box-shadow:none; }
@@ -323,8 +324,9 @@ const SKILLS=[
   {key:'social',      name:'なかまの声', icon:'📣', color:'#22C55E', type:'atk',  cost:2, min:11,max:15, msg:'なかまの声が ひびく！ みんなの力！'},
   {key:'heart',       name:'いやしの光', icon:'✨', color:'#E8197D', type:'heal', cost:3, amt:22,          msg:'やさしい光に つつまれた。げんきが かいふく！'},
   {key:'patience',    name:'ガード',     icon:'🛡️', color:'#EF4444', type:'guard',cost:1,                  msg:'ぐっと こらえる かまえ！ つぎの ダメージ半分。'},
-  {key:'atkup',       name:'こうげき力アップ', icon:'🔥', color:'#F97316', type:'atkup', cost:2,            msg:'力が みなぎる！ しばらく 攻撃アップ！'},
-  {key:'defup',       name:'ぼうぎょ力アップ', icon:'🛡', color:'#2563EB', type:'defup', cost:2,            msg:'体が かたくなる！ しばらく 防御アップ！'},
+  {key:'atkup',       name:'こうげき力アップ', icon:'🔥', color:'#F97316', type:'atkup',     cost:2,            msg:'力が みなぎる！ しばらく 攻撃アップ！'},
+  {key:'defup',       name:'ぼうぎょ力アップ', icon:'🛡', color:'#2563EB', type:'defup',     cost:2,            msg:'体が かたくなる！ しばらく 防御アップ！'},
+  {key:'charge',      name:'きあいをためる',   icon:'💫', color:'#FFD23F', type:'apcharge',  cost:0, apgain:3,  msg:'すーはー、すーはー…　気合いをため直した！', wide:true},
 ];
 
 /* 敵の行動（typeで分岐） */
@@ -391,17 +393,24 @@ function hitFx(target){
 function refreshCmd(){
   document.querySelectorAll('.cmd').forEach(b=>{
     const s=SKILLS[+b.dataset.i];
-    b.disabled = (turn!=='player') || busy || (s.cost>ap);
+    // apcharge は AP_MAX未満のときだけ意味あるが使用は常時可（cost=0）
+    const apLock = s.type==='apcharge' ? false : s.cost>ap;
+    b.disabled = (turn!=='player') || busy || apLock;
   });
 }
 el('cmdGrid').innerHTML=SKILLS.map((s,i)=>{
-  const info = s.type==='heal' ? `HP かいふく +${s.amt}`
-    : s.type==='guard' ? 'つぎの被ダメ半分'
-    : s.type==='atkup' ? `攻撃力アップ(${BUFF_TURNS}回)`
-    : s.type==='defup' ? `防御力アップ(${BUFF_TURNS}回)`
+  const info = s.type==='heal'     ? `HP かいふく +${s.amt}`
+    : s.type==='guard'    ? 'つぎの被ダメ半分'
+    : s.type==='atkup'    ? `攻撃力アップ(${BUFF_TURNS}回)`
+    : s.type==='defup'    ? `防御力アップ(${BUFF_TURNS}回)`
+    : s.type==='apcharge' ? `⚡きあい +${s.apgain} かいふく`
     : `ダメージ ${s.min}〜${s.max}`;
-  return `<button class="cmd" data-i="${i}" style="border-color:${s.color}">
-    <span class="cost">⚡${s.cost}</span>
+  const costBadge = s.cost===0
+    ? `<span class="cost" style="color:#FFD23F">FREE</span>`
+    : `<span class="cost">⚡${s.cost}</span>`;
+  const wideClass = s.wide ? ' wide' : '';
+  return `<button class="cmd${wideClass}" data-i="${i}" style="border-color:${s.color}">
+    ${costBadge}
     <span class="ci">${s.icon}</span>
     <span class="ct"><span class="cname" style="color:${s.color}">${s.name}</span><br>
     <span class="cinfo">${info}</span></span></button>`;
@@ -430,6 +439,9 @@ function playerTurn(s){
     heroAtk=BUFF_TURNS+1; popDmg('heroSlot','ATK↑','buff'); log('👉 '+s.msg);
   } else if(s.type==='defup'){
     heroDef=BUFF_TURNS+1; popDmg('heroSlot','DEF↑','buff'); log('👉 '+s.msg);
+  } else if(s.type==='apcharge'){
+    ap=Math.min(AP_MAX, ap+s.apgain); setAP();
+    popDmg('heroSlot','⚡+'+s.apgain,'buff'); log('👉 '+s.msg+'<br><span style="color:#FFD23F">⚡きあいが <b>'+s.apgain+'</b> かいふく！</span>');
   }
   setHP(); drawChars(); renderBadges();
   if(enemyHP<=0){ setTimeout(winBattle,650); return; }

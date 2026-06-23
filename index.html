@@ -1,4 +1,2013 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>404</title></head>
-<body style="background:#fff;color:#fff;font-size:1px">.</body>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="夢門塾冒険の書">
+<title>夢門塾 冒険の書</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none; }
+:root{
+  --sky:#4EC5E0; --sky-d:#2BA8C9; --pink:#E8197D; --pink-l:#F687C0;
+  --navy:#1A3A6B; --yellow:#FFC93C; --green:#22C55E; --purple:#8B5CF6;
+  --red:#EF4444; --orange:#FF8C42;
+}
+html,body{ height:100%; }
+body{
+  font-family:-apple-system,'Hiragino Kaku Gothic ProN','Hiragino Sans',sans-serif;
+  background:linear-gradient(180deg,#4EC5E0 0%,#7DD8EC 40%,#E0F7FD 100%);
+  background-attachment:fixed; color:var(--navy);
+  padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+  -webkit-text-size-adjust:100%;
+}
+.clouds{ position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+.cloud{ position:absolute; background:rgba(255,255,255,.5); border-radius:50%; animation:cloudFloat linear infinite; }
+@keyframes cloudFloat{
+  from{transform:translateX(-120%)}
+  to{transform:translateX(110vw)}
+}
+.wrap{ position:relative; z-index:1; max-width:700px; margin:0 auto; padding:16px 16px 40px; }
+
+/* === ヘッダー === */
+.header{ background:#fff; border-radius:22px; padding:16px 18px; margin-bottom:14px;
+  box-shadow:0 6px 22px rgba(26,58,107,.15); border:3px solid var(--sky); }
+.hrow{ display:flex; align-items:center; gap:12px; }
+.havatar{ width:62px; height:62px; border-radius:18px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--sky),var(--pink)); display:flex;
+  align-items:center; justify-content:center; font-size:32px;
+  animation:floaty 3s ease-in-out infinite; cursor:pointer;
+  box-shadow:0 4px 12px rgba(78,197,224,.4); transition:.2s; }
+.havatar:active{ transform:scale(.92); }
+@keyframes floaty{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+.hname{ flex:1; }
+.hname input{ border:none; border-bottom:2px dashed var(--sky); background:transparent;
+  font-size:17px; font-weight:800; color:var(--navy); width:100%; padding:3px 0; outline:none;
+  -webkit-user-select:text; user-select:text; }
+.hrank{ font-size:13px; font-weight:700; margin-top:3px; display:flex; align-items:center; gap:4px; }
+.hpt{ text-align:center; background:rgba(255,201,60,.18); border-radius:14px; padding:7px 14px; border:2px solid var(--yellow); }
+.hpt b{ font-size:22px; font-weight:900; color:var(--orange); line-height:1; display:block; }
+.hpt span{ font-size:10px; font-weight:700; }
+.pbar-wrap{ margin-top:12px; }
+.pbar-label{ font-size:11px; display:flex; justify-content:space-between; margin-bottom:4px; }
+.pbar{ height:9px; background:#E5E7EB; border-radius:6px; overflow:hidden; }
+.pbar-fill{ height:100%; background:linear-gradient(90deg,var(--sky),var(--pink)); border-radius:6px; transition:width .6s ease; }
+
+/* === タブ === */
+.tabs{ display:flex; gap:5px; margin-bottom:14px; flex-wrap:nowrap; overflow-x:auto; }
+.tabs::-webkit-scrollbar{ display:none; }
+.tab{ flex:0 0 auto; padding:9px 8px; border-radius:13px; border:none; background:#fff; color:var(--navy);
+  font-weight:800; font-size:11px; box-shadow:0 2px 7px rgba(0,0,0,.08); cursor:pointer; transition:.2s;
+  font-family:inherit; min-width:56px; }
+.tab .ti{ font-size:17px; display:block; margin-bottom:2px; }
+.tab.active{ background:linear-gradient(135deg,var(--pink),var(--pink-l)); color:#fff;
+  box-shadow:0 4px 13px rgba(232,25,125,.4); }
+.tab:active{ transform:scale(.94); }
+
+/* === セクション === */
+.sect{ margin-bottom:14px; }
+.sect-h{ display:flex; align-items:center; gap:9px; }
+.sect-bar{ width:5px; height:23px; border-radius:3px; }
+.sect-icon{ font-size:18px; }
+.sect-title{ font-size:17px; font-weight:900; }
+.sect-sub{ font-size:11px; color:#6B7280; margin-left:19px; margin-top:1px; }
+
+/* === ミッション === */
+.mission{ display:flex; align-items:center; gap:11px; background:#fff; border-radius:15px;
+  padding:13px 13px; margin-bottom:8px; border:2px solid #E5E7EB; transition:.2s; cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.mission:active{ transform:scale(.97); }
+.mission.done{ background:rgba(34,197,94,.10); border-color:var(--green); }
+.mcheck{ width:30px; height:30px; border-radius:9px; flex-shrink:0; background:#fff;
+  border:2.5px solid var(--sky); display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:16px; font-weight:900; transition:.3s; }
+.mission.done .mcheck{ background:var(--green); border-color:var(--green); animation:checkPop .4s ease; }
+@keyframes checkPop{ 0%{transform:scale(.5)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+.micon{ font-size:20px; }
+.mtext{ flex:1; font-size:14px; font-weight:700; line-height:1.3; }
+.mission.done .mtext{ text-decoration:line-through; color:#9CA3AF; }
+.mstat{ font-size:10px; font-weight:700; padding:3px 8px; border-radius:9px; white-space:nowrap; }
+.mpt{ font-size:12px; font-weight:800; color:var(--orange); white-space:nowrap; }
+
+/* === ウィークリー === */
+.wcard{ background:#fff; border-radius:15px; padding:13px; margin-bottom:8px;
+  border:2px solid #E5E7EB; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.wcard.done{ border-color:var(--yellow); }
+.wtop{ display:flex; align-items:center; gap:9px; margin-bottom:9px; }
+.wbtn{ background:linear-gradient(135deg,var(--purple),#A78BFA); color:#fff; border:none;
+  border-radius:10px; padding:8px 16px; font-size:12px; font-weight:800; cursor:pointer;
+  font-family:inherit; transition:.2s; }
+.wbtn:active{ transform:scale(.94); }
+.wprog{ display:flex; align-items:center; gap:9px; }
+.wbar{ flex:1; height:10px; background:#E5E7EB; border-radius:5px; overflow:hidden; }
+.wbar-fill{ height:100%; border-radius:5px; transition:width .5s ease; }
+
+/* === ストーリー === */
+.story{ background:linear-gradient(135deg,var(--navy),#2D4F8B); border-radius:17px; padding:15px;
+  margin-bottom:10px; color:#fff; box-shadow:0 4px 14px rgba(26,58,107,.3); }
+.story-top{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.story-bar{ flex:1; height:12px; background:rgba(255,255,255,.2); border-radius:6px; overflow:hidden; }
+.story-fill{ height:100%; background:linear-gradient(90deg,var(--yellow),var(--orange)); border-radius:6px; transition:width .6s ease; }
+
+/* === インフォ === */
+.info{ border-radius:15px; padding:13px 15px; margin-top:14px; font-size:12px; line-height:1.55; }
+.info-green{ background:rgba(34,197,94,.13); border:2px dashed var(--green); }
+.info-yellow{ background:rgba(255,201,60,.18); border:2px solid var(--yellow); }
+.info-sky{ background:rgba(78,197,224,.13); border:2px dashed var(--sky); }
+
+/* === ステータス === */
+.chartbox{ background:#fff; border-radius:18px; padding:14px 8px; margin-bottom:14px;
+  border:3px solid var(--sky); box-shadow:0 4px 14px rgba(78,197,224,.2); }
+.statgrid{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.statcard{ background:#fff; border-radius:15px; padding:12px 13px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.statcard-top{ display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.statcard-icon{ font-size:19px; }
+.statcard-name{ font-size:13px; font-weight:800; }
+.statcard-lv{ margin-left:auto; font-size:16px; font-weight:900; }
+.statbar{ height:8px; background:#EEF2F5; border-radius:4px; overflow:hidden; margin-bottom:5px; }
+.statbar-fill{ height:100%; border-radius:4px; transition:width .5s ease; }
+.statdesc{ font-size:9px; color:#6B7280; line-height:1.3; }
+.staffbox{ margin-top:14px; background:rgba(26,58,107,.05); border-radius:15px; padding:13px; border:2px solid rgba(26,58,107,.13); }
+.staffbtns{ display:flex; flex-wrap:wrap; gap:7px; }
+.staffbtn{ border-radius:11px; padding:9px 13px; font-size:12px; font-weight:800; cursor:pointer; font-family:inherit; border-width:2px; border-style:solid; background:#fff; transition:.2s; }
+.staffbtn:active{ transform:scale(.94); }
+
+/* === タイマー === */
+.timer-wrap{ background:#fff; border-radius:22px; padding:24px; margin-bottom:14px;
+  border:3px solid var(--sky); box-shadow:0 4px 14px rgba(78,197,224,.2); text-align:center; }
+.timer-presets{ display:flex; gap:8px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+.timer-preset{ border:2.5px solid var(--sky); border-radius:12px; padding:9px 16px; background:#fff;
+  font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; color:var(--navy); transition:.2s; }
+.timer-preset.sel{ background:linear-gradient(135deg,var(--sky),var(--sky-d)); color:#fff; border-color:var(--sky-d); }
+.timer-preset:active{ transform:scale(.94); }
+.timer-ring{ position:relative; width:200px; height:200px; margin:0 auto 20px; }
+.timer-ring svg{ transform:rotate(-90deg); }
+.timer-ring-bg{ fill:none; stroke:#E5E7EB; stroke-width:12; }
+.timer-ring-fg{ fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset .9s linear, stroke .4s; }
+.timer-time{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-size:38px; font-weight:900; color:var(--navy); line-height:1; }
+.timer-phase{ position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+  font-size:11px; font-weight:800; color:#6B7280; white-space:nowrap; }
+.timer-btns{ display:flex; gap:10px; justify-content:center; }
+.timer-btn{ border:none; border-radius:16px; padding:14px 28px; font-size:15px; font-weight:900;
+  cursor:pointer; font-family:inherit; transition:.2s; color:#fff; }
+.timer-btn:active{ transform:scale(.95); }
+.timer-btn.start{ background:linear-gradient(135deg,var(--green),#16A34A); box-shadow:0 4px 14px rgba(34,197,94,.4); }
+.timer-btn.stop{ background:linear-gradient(135deg,var(--red),#DC2626); box-shadow:0 4px 14px rgba(239,68,68,.35); }
+.timer-btn.reset{ background:#E5E7EB; color:#6B7280; }
+.timer-streak{ background:rgba(255,201,60,.18); border:2px solid var(--yellow);
+  border-radius:14px; padding:11px 14px; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.timer-tip{ background:rgba(139,92,246,.12); border:2px dashed var(--purple); border-radius:14px; padding:12px 14px; font-size:12px; line-height:1.6; }
+
+/* === バッジ === */
+.badge-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.badge-card{ background:#fff; border-radius:15px; padding:12px 8px; text-align:center;
+  border:2.5px solid #E5E7EB; transition:.2s; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.badge-card.unlocked{ border-color:var(--yellow); background:rgba(255,201,60,.08); animation:badgePop .5s ease; }
+@keyframes badgePop{ 0%{transform:scale(.8);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+.badge-emoji{ font-size:32px; margin-bottom:6px; display:block;
+  filter:grayscale(1); transition:.4s; }
+.badge-card.unlocked .badge-emoji{ filter:none; }
+.badge-name{ font-size:10px; font-weight:800; color:#1A3A6B; line-height:1.3; }
+.badge-card:not(.unlocked) .badge-name{ color:#9CA3AF; }
+.badge-cond{ font-size:9px; color:#6B7280; margin-top:2px; line-height:1.2; }
+
+/* === 感情 === */
+.emo{ border-radius:15px; padding:13px 15px; margin-bottom:9px; border-width:2.5px; border-style:solid;
+  display:flex; align-items:center; gap:13px; cursor:pointer; transition:.2s;
+  box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.emo:active{ transform:scale(.97); }
+.emo-emoji{ font-size:28px; transition:.3s; }
+.emo.active .emo-emoji{ animation:emoWiggle .5s ease; }
+@keyframes emoWiggle{ 0%,100%{transform:rotate(0)} 25%{transform:rotate(-10deg)} 75%{transform:rotate(10deg)} }
+.emo-label{ font-size:14px; font-weight:800; }
+.emo-advice{ font-size:11px; color:#fff; margin-top:4px; line-height:1.5; display:none; }
+.emo.active .emo-advice{ display:block; }
+.emo-bars{ display:flex; gap:3px; margin-left:auto; }
+.emo-bar{ width:7px; height:22px; border-radius:3px; opacity:.85; }
+
+/* === ごほうび === */
+.reward{ background:#fff; border-radius:15px; padding:13px 15px; margin-bottom:9px;
+  border:2px solid #E5E7EB; display:flex; align-items:center; gap:13px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.reward.can{ border-color:var(--orange); }
+.reward.cant{ opacity:.6; }
+.reward-icon{ font-size:28px; }
+.reward-text{ flex:1; font-size:13px; font-weight:700; }
+.reward-btn{ border:none; border-radius:12px; padding:10px 16px; font-size:13px; font-weight:800;
+  white-space:nowrap; font-family:inherit; cursor:pointer; transition:.2s; }
+.reward-btn:active{ transform:scale(.94); }
+.reward-btn.can{ background:linear-gradient(135deg,var(--orange),var(--yellow)); color:#fff;
+  box-shadow:0 3px 10px rgba(255,140,66,.4); }
+.reward-btn.cant{ background:#E5E7EB; color:#9CA3AF; }
+.claimed{ display:flex; align-items:center; gap:9px; background:rgba(34,197,94,.10);
+  border-radius:12px; padding:9px 13px; margin-bottom:7px; }
+
+/* === きろく === */
+.hist-card{ background:#fff; border-radius:14px; padding:12px 14px; margin-bottom:9px;
+  border:2px solid #E5E7EB; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.hist-card.today{ border-color:var(--sky); }
+
+/* === 保存バー === */
+.savebar{ display:flex; gap:8px; margin-top:18px; }
+.savebtn{ flex:1; border:none; border-radius:14px; padding:14px; font-size:13px; font-weight:800;
+  font-family:inherit; cursor:pointer; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,.12); transition:.2s; }
+.savebtn:active{ transform:scale(.97); }
+.savebtn.export{ background:linear-gradient(135deg,var(--green),#16A34A); }
+.savebtn.import{ background:linear-gradient(135deg,var(--sky),var(--sky-d)); }
+.savebtn.reset{ background:#fff; color:var(--red); border:2px solid var(--red); box-shadow:none; }
+.savenote{ font-size:10px; color:var(--navy); opacity:.7; text-align:center; margin-top:10px; line-height:1.5; }
+
+/* === フラッシュ === */
+.flash{ position:fixed; top:calc(env(safe-area-inset-top) + 14px); left:50%; transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--pink),var(--orange)); color:#fff; padding:13px 24px;
+  border-radius:16px; z-index:300; font-size:14px; font-weight:800;
+  box-shadow:0 8px 25px rgba(232,25,125,.5); max-width:90%; text-align:center;
+  animation:pop .4s ease; display:none; }
+@keyframes pop{ 0%{transform:translateX(-50%) scale(.7);opacity:0} 55%{transform:translateX(-50%) scale(1.08)} 100%{transform:translateX(-50%) scale(1);opacity:1} }
+.fade{ animation:fadein .3s ease; }
+@keyframes fadein{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* === コンフェッティ === */
+.confetti-piece{ position:fixed; width:10px; height:10px; border-radius:2px;
+  pointer-events:none; z-index:400; }
+
+/* === キャラ選択 === */
+.avatar-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px; }
+.avatar-opt{ font-size:28px; text-align:center; padding:8px; border-radius:12px;
+  border:2px solid transparent; cursor:pointer; transition:.2s; background:#fff; }
+.avatar-opt.sel{ border-color:var(--pink); background:rgba(232,25,125,.1); }
+.avatar-opt:active{ transform:scale(.9); }
+
+/* === PINロック === */
+.pin-pad button{ transition:.15s; }
+.pin-pad button:active{ transform:scale(.9); background:#E0F7FD !important; }
+</style>
+</head>
+<body>
+<div class="clouds" id="clouds"></div>
+<div class="flash" id="flash"></div>
+<div class="wrap">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="hrow">
+      <div class="havatar" id="avatar" onclick="openProfileModal()" title="タップして冒険者を切りかえる">🌱</div>
+      <div class="hname">
+        <input id="nameInput" placeholder="なまえを入力" maxlength="12" autocomplete="off">
+        <div class="hrank" id="rankLabel">見習い冒険者</div>
+      </div>
+      <div class="hpt"><b id="availPt">0</b><span>つかえるpt</span></div>
+    </div>
+    <div class="pbar-wrap" id="rankProgWrap">
+      <div class="pbar-label"><span id="nextRankText"></span><span id="nextRankPt"></span></div>
+      <div class="pbar"><div class="pbar-fill" id="rankProg" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- タブ -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- コンテンツ -->
+  <div id="content"></div>
+
+  <!-- 保存バー -->
+  <div class="savebar">
+    <button class="savebtn export" onclick="exportData()">📤 記録を書き出す</button>
+    <button class="savebtn import" onclick="document.getElementById('fileInput').click()">📥 読み込む</button>
+  </div>
+  <div class="savebar">
+    <button class="savebtn reset" onclick="resetData()">🔄 さいしょから</button>
+  </div>
+  <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importData(event)">
+  <div class="savenote">
+    記録はこのタブレットの中に自動で保存されます（アプリを閉じても残ります）。<br>
+    「書き出す」を押すと「ファイル」アプリやiCloudに保存できます。
+  </div>
+</div>
+
+<script>
+/* ======================================================
+   セキュリティ：HTMLエスケープ（XSS防止）
+====================================================== */
+function esc(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+/* ======================================================
+   データ定義
+====================================================== */
+const AVATARS = ['🌱','🐉','🦊','🐺','🦁','🐯','🦅','🐸','🦄','🐲',
+                 '⚔️','🛡️','🧙','🏹','🌟','🔥','💎','🏆','👑','🌈'];
+
+const STATS = [
+  { key:"focus",       label:"集中力",   icon:"🎯", color:"#4EC5E0", desc:"集中タイム達成で上がる" },
+  { key:"patience",    label:"がまん力", icon:"🛡️", color:"#EF4444", desc:"3秒ルール成功で上がる" },
+  { key:"heart",       label:"こころ力", icon:"❤️", color:"#E8197D", desc:"クールダウン成功で上がる" },
+  { key:"social",      label:"なかま力", icon:"🤝", color:"#22C55E", desc:"友達との関わりで上がる" },
+  { key:"physical",    label:"フィジカル",icon:"💪", color:"#FF8C42", desc:"運動・体を動かすと上がる" },
+  { key:"intelligence",label:"知性",     icon:"🧠", color:"#8B5CF6", desc:"宿題・勉強で上がる" },
+];
+
+// 累積ポイントで決まる基本ランク（勇者への道）
+// 初動は約3日(8pt)、以降は増分を約1.5倍ずつ、伝説だけ2倍で重め
+const RANKS = [
+  { name:"見習い冒険者", min:0,   icon:"🌱", color:"#94A3B8" },
+  { name:"駆け出し戦士", min:8,   icon:"🗡️", color:"#8B5E3C" },
+  { name:"銅の冒険者",   min:20,  icon:"🥉", color:"#CD7F32" },
+  { name:"銀の騎士",     min:38,  icon:"🥈", color:"#94A3B8" },
+  { name:"金の英雄",     min:65,  icon:"🥇", color:"#FFC93C" },
+  { name:"紅蓮の勇者",   min:105, icon:"🔥", color:"#FF6B35" },
+  { name:"伝説の勇者",   min:185, icon:"👑", color:"#FF3B6B" },
+];
+
+// 転生システム：伝説の勇者(185pt)で解放。以降 +100ptごとに転生できる
+const REBIRTH_MIN  = 185;   // 最初の転生に必要な累積pt
+const REBIRTH_STEP = 100;   // 2回目以降、次の転生までの間隔
+
+// 転生で就ける最上位職（DQ/FFの上位職を6ステータスに対応づけ）
+const REBIRTH_JOBS = [
+  { id:"sage",     name:"賢者",       icon:"🧙", color:"#8B5CF6", stat:"intelligence", desc:"知性をきわめし者。あらゆる知をあやつる。" },
+  { id:"archmage", name:"大魔道士",   icon:"🔮", color:"#4EC5E0", stat:"focus",        desc:"集中の極み。最強の魔法を放つ。" },
+  { id:"paladin",  name:"パラディン", icon:"🛡️", color:"#EF4444", stat:"patience",     desc:"鉄壁のがまん力で仲間を守る聖騎士。" },
+  { id:"dragoon",  name:"竜騎士",     icon:"🐉", color:"#FF8C42", stat:"physical",     desc:"天高くジャンプする運動の達人。" },
+  { id:"saint",    name:"白の聖者",   icon:"😇", color:"#E8197D", stat:"heart",        desc:"やさしいこころで皆を癒やす白の賢者。" },
+  { id:"guild",    name:"ギルドマスター", icon:"🤝", color:"#22C55E", stat:"social",   desc:"仲間を束ねる冒険者ギルドの長。" },
+  // 隠し職
+  { id:"battle",   name:"バトルマスター", icon:"⚔️", color:"#1A3A6B", hidden:"stat",   desc:"全ステータスLv8以上で覚醒する武の頂点。" },
+  { id:"mime",     name:"ものまね士",     icon:"🎭", color:"#FFC93C", hidden:"collect", desc:"全ての職をきわめた者だけがなれる究極職。" },
+];
+
+const DAILY = [
+  { id:"d1", text:"ギルドにあいさつする",       icon:"👋", pt:1, stat:"social" },
+  { id:"d2", text:"3秒ルールを1回つかう",       icon:"⚔️", pt:1, stat:"patience" },
+  { id:"d3", text:"集中タイムを1回クリア",      icon:"🎯", pt:1, stat:"focus" },
+  { id:"d4", text:"体を動かす（運動）",         icon:"🏃", pt:1, stat:"physical" },
+  { id:"d5", text:"宿題にとりくむ",            icon:"📖", pt:1, stat:"intelligence" },
+  { id:"d6", text:"片付けをする",              icon:"🧹", pt:1, stat:"physical" },
+];
+
+const WEEKLY = [
+  { id:"w1", text:"集中タイムを5回クリア",          icon:"🔭", goal:5, pt:5, stat:"focus" },
+  { id:"w2", text:"友達に自分から3回はなしかける", icon:"🤝", goal:3, pt:5, stat:"social" },
+  { id:"w3", text:"宿題を3日つづける",              icon:"🧠", goal:3, pt:5, stat:"intelligence" },
+  { id:"w4", text:"運動クエストを3回やる",          icon:"💪", goal:3, pt:5, stat:"physical" },
+];
+
+const STORY = [
+  { id:"s1", text:"10個のスキルを集めて「伝説の剣」を完成させる", icon:"⚔️", goal:10, pt:15 },
+  { id:"s2", text:"ぜんぶのステータスをレベル5以上にする",       icon:"🌟", goal:6,  pt:20 },
+];
+
+const REWARDS = [
+  { id:"r1", text:"好きな活動を15分えらべる券", icon:"🎫", cost:5 },
+  { id:"r2", text:"スタッフと一緒にゲーム",     icon:"🎮", cost:8 },
+  { id:"r3", text:"ギルドマスターの称号カード",  icon:"📜", cost:10 },
+  { id:"r4", text:"好きなシール1枚もらえる",    icon:"✨", cost:3 },
+  { id:"r5", text:"冒険者リーダーになれる1日",  icon:"👑", cost:15 },
+];
+
+const EMOTIONS = [
+  { lv:1, label:"おだやか",       emoji:"😊", color:"#22C55E", advice:"今のままで大丈夫！冒険を続けよう！" },
+  { lv:2, label:"ちょっとモヤモヤ",emoji:"😤", color:"#FFC93C", advice:"深呼吸しよう。スーッと吸って、フーッと吐く。" },
+  { lv:3, label:"熱くなってきた！",emoji:"🔥", color:"#FF8C42", advice:"3秒ルール！1・2・3と数えてから動こう。" },
+  { lv:4, label:"爆発しそう！",   emoji:"💥", color:"#EF4444", advice:"スタッフに声をかけよう！ひとりで頑張らなくていい。" },
+  { lv:5, label:"魔法陣へGO！",   emoji:"❄️", color:"#1A3A6B", advice:"クールダウンコーナーへ！落ち着いたら最強の魔法が使える。" },
+];
+
+const BADGES = [
+  { id:"b1",  name:"初めての一歩",   emoji:"👣", cond:"初めてミッションを達成", check:s=>s.skillCount>=1 },
+  { id:"b2",  name:"3連続達成！",   emoji:"🔥", cond:"デイリー3つクリア",     check:s=>s.dailyDone.length>=3 },
+  { id:"b3",  name:"完全クリア！",   emoji:"⭐", cond:"デイリー全クリア",       check:s=>s.dailyDone.length>=6 },
+  { id:"b4",  name:"集中のツワモノ", emoji:"🎯", cond:"集中Lv5達成",           check:s=>s.stats.focus>=5 },
+  { id:"b5",  name:"がまんの勇士",  emoji:"🛡️", cond:"がまんLv5達成",         check:s=>s.stats.patience>=5 },
+  { id:"b6",  name:"なかまの星",    emoji:"🤝", cond:"なかまLv5達成",         check:s=>s.stats.social>=5 },
+  { id:"b7",  name:"10pt獲得！",    emoji:"💰", cond:"合計10pt以上",           check:s=>s.points>=10 },
+  { id:"b8",  name:"50pt達成！",    emoji:"💎", cond:"合計50pt以上",           check:s=>s.points>=50 },
+  { id:"b9",  name:"100ptレジェンド",emoji:"👑",cond:"合計100pt以上",          check:s=>s.points>=100 },
+  { id:"b10", name:"タイマー勇者",   emoji:"⏱️", cond:"集中タイマー完走5回",   check:s=>(s.timerComplete||0)>=5 },
+  { id:"b11", name:"全能力覚醒！",   emoji:"🌟", cond:"全ステータスLv3以上",   check:s=>STATS.every(st=>s.stats[st.key]>=3) },
+  { id:"b12", name:"伝説の勇者",    emoji:"🐲", cond:"伝説の勇者に到達(185pt)", check:s=>s.points>=185 },
+  { id:"b13", name:"転生者",        emoji:"🌟", cond:"はじめて転生する",        check:s=>(s.rebirthStar||0)>=1 },
+  { id:"b14", name:"全職マスター",   emoji:"🎭", cond:"6つの職をすべて集める",   check:s=>(s.rebirthJobs||[]).filter(id=>id!=='mime').length>=6 },
+];
+
+const TABS = [
+  { id:0, label:"ミッション", icon:"📋" },
+  { id:1, label:"タイマー",   icon:"⏱️" },
+  { id:2, label:"ステータス", icon:"📊" },
+  { id:3, label:"バッジ",     icon:"🏅" },
+  { id:4, label:"感情",       icon:"🌡️" },
+  { id:5, label:"ごほうび",   icon:"🎁" },
+  { id:6, label:"きろく",     icon:"📖" },
+  { id:7, label:"設定",       icon:"⚙️" },
+];
+
+/* ======================================================
+   状態管理
+====================================================== */
+const ROOT_KEY = "yumemon_root_v1";
+const OLD_KEY  = "yumemon_v3";
+let ROOT = loadRoot();
+let S = ROOT.profiles[ROOT.current];   // 現在えらばれている児童のデータ
+let tab = 0;
+
+// --- 児童ごとの進捗データ ---
+function defaultProfile(name, avatar){
+  return {
+    name:name||"", avatar:avatar||"🌱",
+    points:0, spent:0,
+    stats:{ focus:1, patience:1, heart:1, social:1, physical:1, intelligence:1 },
+    dailyDone:[], weekly:{}, skillCount:0, claimed:[], emotion:null,
+    lastDate:"", lastWeek:-1, history:[], badges:[], timerComplete:0,
+    rankSeen:0,                 // 昇格演出を見せ終えたランク番号
+    rebirthStar:0,              // 転生した回数（☆の数）
+    rebirthJob:null,            // 現在の転生職ID
+    rebirthJobs:[],             // これまで就いた職のコレクション
+    customStats:null            // この児童だけのステータス表示上書き（null=既定）
+  };
+}
+// 旧コードとの互換（リセット時などに新規プロフィールを返す）
+function defaultData(){ return defaultProfile(); }
+
+// --- 施設で共通の設定 ＋ 児童プロフィール集合 ---
+function defaultRoot(){
+  const id="p"+Date.now();
+  return {
+    current:id,
+    staffPin:"1111",
+    customDaily:null, customWeekly:null, customRewards:null,
+    profiles:{ [id]: defaultProfile() }
+  };
+}
+
+function loadRoot(){
+  // 新フォーマットを優先
+  try{
+    const r=localStorage.getItem(ROOT_KEY);
+    if(r){
+      const root=Object.assign(defaultRoot(), JSON.parse(r));
+      if(!root.profiles || typeof root.profiles!=='object' || Object.keys(root.profiles).length===0){
+        const d=defaultRoot(); root.profiles=d.profiles; root.current=d.current;
+      }
+      // 欠損キーを補完
+      for(const id in root.profiles){
+        const raw=root.profiles[id];
+        const p=Object.assign(defaultProfile(), raw);
+        // 既存ユーザー（rankSeen未保持）は現ランクを既読扱いにし、過去ぶんの昇格演出が一気に出ないようにする
+        if(raw && typeof raw==='object' && !('rankSeen' in raw)) p.rankSeen=rankIndex(p.points);
+        root.profiles[id]=p;
+      }
+      if(!root.profiles[root.current]) root.current=Object.keys(root.profiles)[0];
+      return root;
+    }
+  }catch(e){}
+  // 旧フォーマット（単一児童 yumemon_v3）からの自動移行
+  try{
+    const old=localStorage.getItem(OLD_KEY);
+    if(old){
+      const o=JSON.parse(old);
+      const root=defaultRoot();
+      const id=root.current;
+      root.staffPin     = o.staffPin     || "1111";
+      root.customDaily  = o.customDaily  || null;
+      root.customWeekly = o.customWeekly || null;
+      root.customRewards= o.customRewards|| null;
+      root.profiles[id] = Object.assign(defaultProfile(), {
+        name:o.name, avatar:o.avatar, points:o.points, spent:o.spent,
+        stats:o.stats, dailyDone:o.dailyDone, weekly:o.weekly,
+        skillCount:o.skillCount, claimed:o.claimed, emotion:o.emotion,
+        lastDate:o.lastDate, lastWeek:o.lastWeek, history:o.history,
+        badges:o.badges, timerComplete:o.timerComplete
+      });
+      localStorage.setItem(ROOT_KEY, JSON.stringify(root));
+      return root;
+    }
+  }catch(e){}
+  return defaultRoot();
+}
+
+function save(){ try{ localStorage.setItem(ROOT_KEY, JSON.stringify(ROOT)); }catch(e){} }
+
+/* ======================================================
+   児童プロフィール管理
+====================================================== */
+function profileList(){
+  return Object.keys(ROOT.profiles).map(id=>({ id, ...ROOT.profiles[id] }));
+}
+
+function switchProfile(id){
+  if(!ROOT.profiles[id] || id===ROOT.current){ closeProfileModal(); return; }
+  ROOT.current=id;
+  S=ROOT.profiles[id];
+  save();
+  closeProfileModal();
+  checkDateReset();      // 切替先の児童も日付リセットを反映
+  checkBadges(); save();
+  tab=0; render();
+  playSound('tap');
+  flash('🔄 「'+(S.name||'冒険者')+'」に切りかえたよ！');
+}
+
+function addProfile(){
+  if(Object.keys(ROOT.profiles).length>=20){ flash('⚠️ 冒険者は最大20人までだよ'); return; }
+  const name=prompt("新しい冒険者の なまえ を入力してください");
+  if(name===null) return;
+  const id="p"+Date.now();
+  ROOT.profiles[id]=defaultProfile((name||"").trim().slice(0,12), AVATARS[Math.floor(Math.random()*AVATARS.length)]);
+  ROOT.current=id;
+  S=ROOT.profiles[id];
+  save();
+  closeProfileModal();
+  checkDateReset(); save();
+  tab=0; render();
+  confetti(); playSound('reward');
+  flash('🎉 新しい冒険者を追加したよ！');
+}
+
+function deleteProfile(id){
+  if(Object.keys(ROOT.profiles).length<=1){ flash('⚠️ 最後の1人は削除できないよ'); return; }
+  const p=ROOT.profiles[id]; if(!p) return;
+  if(!confirm('「'+(p.name||'冒険者')+'」の記録をすべて削除しますか？\nこの操作は元に戻せません。')) return;
+  delete ROOT.profiles[id];
+  if(ROOT.current===id){ ROOT.current=Object.keys(ROOT.profiles)[0]; S=ROOT.profiles[ROOT.current]; }
+  save(); render();
+  flash('🗑️ 削除しました');
+}
+
+function renameProfile(id){
+  const p=ROOT.profiles[id]; if(!p) return;
+  const name=prompt("なまえを変更", p.name);
+  if(name===null) return;
+  p.name=(name||"").trim().slice(0,12);
+  save(); render();
+  flash('✅ なまえを変更しました');
+}
+
+/* ======================================================
+   ヘルパー
+====================================================== */
+function getRank(pt){ let r=RANKS[0]; for(const x of RANKS) if(pt>=x.min) r=x; return r; }
+function getNextRank(pt){ for(const x of RANKS) if(pt<x.min) return x; return null; }
+function rankIndex(pt){ let idx=0; for(let i=0;i<RANKS.length;i++) if(pt>=RANKS[i].min) idx=i; return idx; }
+
+/* ---- 転生（プレステージ）ヘルパー ---- */
+function jobOf(id){ return REBIRTH_JOBS.find(j=>j.id===id); }
+// 累積ptから「これまでに得られた転生回数」
+function rebirthSlots(pt){ return pt<REBIRTH_MIN ? 0 : Math.floor((pt-REBIRTH_MIN)/REBIRTH_STEP)+1; }
+// いま転生できるか（得た回数 > 使った回数）
+function rebirthAvailable(){ return rebirthSlots(S.points) > (S.rebirthStar||0); }
+// 次の転生に必要な累積pt
+function nextRebirthAt(){ return REBIRTH_MIN + REBIRTH_STEP*(S.rebirthStar||0); }
+// 隠し職の解放条件
+function jobUnlocked(job){
+  if(job.hidden==='stat')    return STATS.every(s=>S.stats[s.key]>=8);          // 全ステLv8以上
+  if(job.hidden==='collect') return (S.rebirthJobs||[]).filter(id=>id!=='mime').length>=6; // 6職コンプ
+  return true;
+}
+// ヘッダー等に出す現在の称号（転生後は職＋☆）。引数省略時は現在の児童
+function displayRank(p){
+  p=p||S;
+  if((p.rebirthStar||0)>0 && p.rebirthJob){
+    const j=jobOf(p.rebirthJob);
+    if(j) return { name:j.name+' ☆'+p.rebirthStar, icon:j.icon, color:j.color, rebirth:true };
+  }
+  return getRank(p.points);
+}
+// 現在の児童のステータス定義（customStatsで表示名/アイコン/説明を上書き可能。keyとcolorは固定）
+function statsDef(){
+  const c = S && S.customStats;
+  if(c && typeof c==='object'){
+    return STATS.map(s=>({
+      key:s.key, color:s.color,
+      label:(c[s.key] && c[s.key].label) || s.label,
+      icon :(c[s.key] && c[s.key].icon ) || s.icon,
+      desc :(c[s.key] && c[s.key].desc ) || s.desc
+    }));
+  }
+  return STATS;
+}
+function statOf(k){ return statsDef().find(s=>s.key===k) || STATS.find(s=>s.key===k); }
+function avail(){ return S.points - S.spent; }
+function bump(k, n=1){ S.stats[k]=Math.min(10, S.stats[k]+n); }
+function getDaily(){   return ROOT.customDaily   || DAILY;   }
+function getWeekly(){  return ROOT.customWeekly  || WEEKLY;  }
+function getRewards(){ return ROOT.customRewards || REWARDS; }
+
+let flashTimer;
+function flash(msg){
+  const f=document.getElementById('flash');
+  f.textContent=msg; f.style.display='block';
+  f.style.animation='none'; void f.offsetWidth; f.style.animation='pop .4s ease';
+  clearTimeout(flashTimer);
+  flashTimer=setTimeout(()=>{ f.style.display='none'; }, 2400);
+}
+
+/* ======================================================
+   バッジチェック
+====================================================== */
+function checkBadges(){
+  let newBadges=[];
+  for(const b of BADGES){
+    if(!S.badges.includes(b.id) && b.check(S)){
+      S.badges.push(b.id);
+      newBadges.push(b);
+    }
+  }
+  return newBadges;
+}
+
+// 累積ptが上がってランクが進んだか判定（複数段抜けにも対応）
+function checkRankUp(){
+  const idx=rankIndex(S.points);
+  if(idx>(S.rankSeen||0)){
+    const reached=RANKS[idx];           // 到達した最上位ランク
+    S.rankSeen=idx;
+    return reached;
+  }
+  return null;
+}
+
+function afterAction(){
+  const ru=checkRankUp();               // 先にランク判定（rankSeenを更新）
+  const nb=checkBadges();
+  save();
+  render();
+  let delay=300;
+  if(ru){
+    setTimeout(()=>showRankUp(ru), delay);
+    delay += 2600;                       // ランクカードを見せ終えてからバッジへ
+  }
+  if(nb.length){
+    setTimeout(()=>{
+      nb.forEach((b,i)=>{
+        setTimeout(()=>{
+          playSound('badge');
+          confetti();
+          flash('🏅 バッジ獲得！「'+b.name+'」');
+        }, i*1000);
+      });
+    }, delay);
+  }
+}
+
+/* ======================================================
+   昇格演出：全画面の称号カード
+====================================================== */
+function showRankUp(rank){
+  const legend = rank.min>=REBIRTH_MIN;             // 伝説の勇者に到達したか
+  playSound('reward'); confetti(); confetti();
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.72);z-index:600;display:flex;align-items:center;justify-content:center;animation:pop .4s ease;';
+  const box=document.createElement('div');
+  box.style.cssText='background:linear-gradient(160deg,#fff,#F3F6FF);border-radius:26px;padding:30px 26px;max-width:330px;width:88%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);border:3px solid '+rank.color+';';
+  box.innerHTML=
+    '<div style="font-size:13px;font-weight:900;letter-spacing:2px;color:'+rank.color+'">⭐ ランクアップ！ ⭐</div>'+
+    '<div style="font-size:72px;margin:10px 0;line-height:1">'+esc(rank.icon)+'</div>'+
+    '<div style="font-size:24px;font-weight:900;color:'+rank.color+'">'+esc(rank.name)+'</div>'+
+    '<div style="font-size:12px;color:#6B7280;margin-top:8px">累計 '+S.points+'pt 達成！</div>'+
+    (legend
+      ? '<div style="margin-top:14px;padding:11px;border-radius:14px;background:#FFF4E5;color:#B45309;font-size:12px;font-weight:800;line-height:1.6">🌟 ついに頂点へ！<br>「転生」して最上位職をめざせる！<br>ステータス画面でチェック！</div>'
+      : '<div style="font-size:12px;color:#9CA3AF;margin-top:12px">この調子で冒険をつづけよう！</div>')+
+    '<button onclick="this.closest(\'[data-rankup]\').remove()" style="margin-top:18px;width:100%;padding:12px;border:none;border-radius:13px;background:'+rank.color+';color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit">やったー！</button>';
+  modal.setAttribute('data-rankup','1');
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+/* ======================================================
+   コンフェッティ
+====================================================== */
+const CONFETTI_COLORS=['#E8197D','#4EC5E0','#FFC93C','#22C55E','#8B5CF6','#FF8C42','#FF6B35','#fff'];
+function confetti(cx, cy){
+  const container=document.body;
+  const bx=cx||window.innerWidth/2;
+  const by=cy||window.innerHeight*0.3;
+  for(let i=0;i<38;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    const color=CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)];
+    const size=6+Math.random()*8;
+    const angle=Math.random()*360;
+    const vx=(Math.random()-0.5)*14;
+    const vy=-(Math.random()*12+4);
+    p.style.cssText=`left:${bx}px;top:${by}px;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random()>0.5?'50%':'2px'};transform:rotate(${angle}deg);position:fixed;pointer-events:none;z-index:400;`;
+    container.appendChild(p);
+    let posX=bx, posY=by, velX=vx, velY=vy, alpha=1, rot=angle;
+    const gravity=0.55, drag=0.97;
+    let frame;
+    (function animate(){
+      velY+=gravity; velX*=drag; posX+=velX; posY+=velY; alpha-=0.018; rot+=velX*2;
+      p.style.left=posX+'px'; p.style.top=posY+'px';
+      p.style.opacity=Math.max(0,alpha);
+      p.style.transform=`rotate(${rot}deg)`;
+      if(alpha>0){ frame=requestAnimationFrame(animate); }
+      else{ cancelAnimationFrame(frame); if(p.parentNode) p.parentNode.removeChild(p); }
+    })();
+  }
+}
+
+/* ======================================================
+   Web Audio API 効果音
+====================================================== */
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq=520, dur=0.12, type='sine', vol=0.25){
+  try{
+    const ctx=getAudioCtx();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type=type; osc.frequency.setValueAtTime(freq,ctx.currentTime);
+    gain.gain.setValueAtTime(vol,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    osc.start(); osc.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
+function playSound(type){
+  if(type==='mission'){ beep(660,.09); setTimeout(()=>beep(880,.12),100); }
+  else if(type==='badge'){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.15),i*80)); }
+  else if(type==='timer'){ [440,554,659,880].forEach((f,i)=>setTimeout(()=>beep(f,.2),i*120)); }
+  else if(type==='reward'){ beep(784,.1); setTimeout(()=>beep(1047,.18),120); }
+  else if(type==='tap'){ beep(440,.07,'sine',0.15); }
+}
+
+/* ======================================================
+   集中タイマー
+====================================================== */
+let timerSec=0, timerTotal=0, timerRunning=false, timerInterval=null, timerPhaseBreak=false;
+const TIMER_PRESETS=[
+  {label:'5分',  focus:5*60,  brk:60,   emoji:'🌟'},
+  {label:'10分', focus:10*60, brk:2*60, emoji:'⚡'},
+  {label:'15分', focus:15*60, brk:3*60, emoji:'🔥'},
+  {label:'25分', focus:25*60, brk:5*60, emoji:'💎'},
+];
+let timerPresetIdx=1;
+
+function setTimerPreset(i){
+  if(timerRunning) return;
+  timerPresetIdx=i;
+  timerTotal=TIMER_PRESETS[i].focus;
+  timerSec=timerTotal;
+  timerPhaseBreak=false;
+  updateTimerUI();
+}
+
+function startTimer(){
+  if(timerRunning) return;
+  if(timerSec<=0){ setTimerPreset(timerPresetIdx); }
+  timerRunning=true;
+  timerInterval=setInterval(tickTimer,1000);
+  updateTimerUI();
+  beep(440,.06);
+}
+
+function stopTimer(){
+  timerRunning=false;
+  clearInterval(timerInterval);
+  updateTimerUI();
+  beep(330,.08);
+}
+
+function resetTimer(){
+  stopTimer();
+  timerPhaseBreak=false;
+  timerTotal=TIMER_PRESETS[timerPresetIdx].focus;
+  timerSec=timerTotal;
+  updateTimerUI();
+}
+
+function tickTimer(){
+  timerSec--;
+  if(timerSec<=0){
+    clearInterval(timerInterval);
+    timerRunning=false;
+    if(!timerPhaseBreak){
+      // 集中フェーズ完了
+      S.timerComplete=(S.timerComplete||0)+1;
+      bump('focus');
+      S.points+=2;
+      playSound('timer');
+      confetti();
+      flash('🎯 集中タイム完了！ +2pt 集中力UP！');
+      afterAction();
+      // 休憩フェーズへ
+      timerPhaseBreak=true;
+      timerTotal=TIMER_PRESETS[timerPresetIdx].brk;
+      timerSec=timerTotal;
+      setTimeout(()=>{
+        timerRunning=true;
+        timerInterval=setInterval(tickTimer,1000);
+        updateTimerUI();
+      }, 2000);
+    } else {
+      // 休憩完了
+      timerPhaseBreak=false;
+      timerTotal=TIMER_PRESETS[timerPresetIdx].focus;
+      timerSec=timerTotal;
+      playSound('tap');
+      flash('😊 休憩おわり！また集中しよう！');
+    }
+  }
+  updateTimerUI();
+}
+
+function updateTimerUI(){
+  const ring=document.getElementById('timerRingFg');
+  const timeEl=document.getElementById('timerTime');
+  const phaseEl=document.getElementById('timerPhase');
+  const startBtn=document.getElementById('timerStartBtn');
+  const stopBtn=document.getElementById('timerStopBtn');
+  if(!ring||!timeEl) return;
+
+  const total=timerTotal||1;
+  const pct=timerSec/total;
+  const circumference=2*Math.PI*80;
+  ring.style.strokeDasharray=circumference;
+  ring.style.strokeDashoffset=circumference*(1-pct);
+
+  const color=timerPhaseBreak?'#22C55E':(timerSec<60?'#EF4444':
+               timerSec<timerTotal*0.3?'#FF8C42':'#4EC5E0');
+  ring.style.stroke=color;
+
+  const m=Math.floor(timerSec/60);
+  const s=timerSec%60;
+  timeEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  timeEl.style.color=color;
+
+  if(phaseEl) phaseEl.textContent=timerPhaseBreak?'😊 休憩タイム中':'🎯 集中タイム中';
+  if(startBtn) startBtn.style.display=timerRunning?'none':'block';
+  if(stopBtn)  stopBtn.style.display=timerRunning?'block':'none';
+}
+
+/* ======================================================
+   児童プロフィール切替モーダル
+====================================================== */
+function closeProfileModal(){
+  const m=document.getElementById('profileModal');
+  if(m) m.remove();
+}
+
+function openProfileModal(){
+  const existing=document.getElementById('profileModal');
+  if(existing){ existing.remove(); return; }
+  const modal=document.createElement('div');
+  modal.id='profileModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:22px;padding:20px;max-width:380px;width:100%;';
+  let h='<div style="font-size:16px;font-weight:900;color:#1A3A6B;margin-bottom:4px;text-align:center">🐾 冒険者をえらぶ</div>'+
+    '<div style="font-size:11px;color:#6B7280;text-align:center;margin-bottom:14px">タップで切りかえ・もう一度タップで見た目変更</div>';
+  profileList().forEach(p=>{
+    const rank=displayRank(p);
+    const cur=p.id===ROOT.current;
+    h+='<div onclick="onProfileRowTap(\''+p.id+'\')" style="display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:8px;border-radius:14px;cursor:pointer;'+
+       'border:2.5px solid '+(cur?'#E8197D':'#E5E7EB')+';background:'+(cur?'rgba(232,25,125,.06)':'#fff')+'">'+
+       '<div style="width:46px;height:46px;border-radius:13px;flex-shrink:0;background:linear-gradient(135deg,#4EC5E0,#E8197D);display:flex;align-items:center;justify-content:center;font-size:26px">'+esc(p.avatar||rank.icon)+'</div>'+
+       '<div style="flex:1;min-width:0">'+
+       '<div style="font-size:14px;font-weight:800;color:#1A3A6B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(p.name||'なまえ未設定')+'</div>'+
+       '<div style="font-size:11px;font-weight:700;color:'+rank.color+'">'+esc(rank.icon)+' '+esc(rank.name)+' ・ '+p.points+'pt</div>'+
+       '</div>'+
+       (cur?'<span style="font-size:11px;font-weight:800;color:#E8197D;white-space:nowrap">✓ いま</span>':'<span style="font-size:18px;color:#9CA3AF">›</span>')+
+       '</div>';
+  });
+  h+='<button onclick="addProfile()" style="width:100%;padding:12px;border:2px dashed #22C55E;border-radius:13px;background:transparent;color:#22C55E;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">＋ 新しい冒険者を追加</button>';
+  h+='<button onclick="closeProfileModal()" style="width:100%;padding:11px;border:none;border-radius:12px;background:#1A3A6B;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:8px">とじる</button>';
+  h+='<div style="font-size:10px;color:#9CA3AF;text-align:center;margin-top:10px;line-height:1.5">なまえ変更・削除はスタッフ設定（⚙️）からできます</div>';
+  box.innerHTML=h;
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+// 行タップ：他の児童なら切替、現在の児童ならアバター変更へ
+function onProfileRowTap(id){
+  if(id!==ROOT.current){ switchProfile(id); return; }
+  openAvatarPicker();
+}
+
+function openAvatarPicker(){
+  closeProfileModal();
+  const existing=document.getElementById('avatarModal');
+  if(existing){ existing.remove(); return; }
+  const modal=document.createElement('div');
+  modal.id='avatarModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:22px;padding:20px;max-width:340px;width:90%;';
+  box.innerHTML='<div style="font-size:16px;font-weight:900;color:#1A3A6B;margin-bottom:4px;text-align:center">🐾 キャラクターをえらぼう</div>'+
+    '<div style="font-size:11px;color:#6B7280;text-align:center;margin-bottom:12px">「'+esc(S.name||'冒険者')+'」の見た目</div>'+
+    '<div class="avatar-grid">'+
+    AVATARS.map(a=>'<div class="avatar-opt'+(S.avatar===a?' sel':'')+'" onclick="pickAvatar(\''+a+'\')">'+a+'</div>').join('')+
+    '</div>'+
+    '<button onclick="document.getElementById(\'avatarModal\').remove()" style="margin-top:14px;width:100%;padding:11px;border:none;border-radius:12px;background:#1A3A6B;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">とじる</button>';
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+/* ======================================================
+   転生（プレステージ）モーダル
+====================================================== */
+function jobCellHTML(job, selectable){
+  const got=(S.rebirthJobs||[]).includes(job.id);
+  const unlocked=jobUnlocked(job);
+  const st=job.stat?statOf(job.stat):null;
+  if(job.hidden && !unlocked){
+    const cond = job.hidden==='stat' ? '全ステータスLv8で解放' : '6つの職をきわめると解放';
+    return '<div style="border:2px dashed #D1D5DB;border-radius:14px;padding:12px 8px;text-align:center;background:#F9FAFB;opacity:.85">'+
+      '<div style="font-size:30px;filter:grayscale(1);opacity:.5">'+esc(job.icon)+'</div>'+
+      '<div style="font-size:12px;font-weight:800;color:#9CA3AF;margin-top:3px">🔒 ？？？</div>'+
+      '<div style="font-size:9px;color:#9CA3AF;margin-top:3px;line-height:1.4">'+esc(cond)+'</div></div>';
+  }
+  const tag = (selectable?'button':'div');
+  const click = (selectable && unlocked) ? ' onclick="doRebirth(\''+job.id+'\')"' : '';
+  const cursor = (selectable && unlocked) ? 'cursor:pointer;' : 'cursor:default;';
+  return '<'+tag+(selectable?' type="button"':'')+click+' style="border:2px solid '+job.color+(got?'':'66')+';border-radius:14px;padding:12px 8px;text-align:center;background:'+job.color+(got?'22':'0D')+';font-family:inherit;'+cursor+'width:100%">'+
+    '<div style="font-size:30px">'+esc(job.icon)+'</div>'+
+    '<div style="font-size:13px;font-weight:900;color:'+job.color+';margin-top:2px">'+esc(job.name)+(got?' ✓':'')+'</div>'+
+    (st?'<div style="font-size:9px;color:#6B7280;margin-top:2px">'+esc(st.icon)+esc(st.label)+'タイプ</div>':
+        '<div style="font-size:9px;color:#6B7280;margin-top:2px">隠し職</div>')+
+    '</'+tag+'>';
+}
+
+function openRebirthModal(){
+  const existing=document.getElementById('rebirthModal');
+  if(existing){ existing.remove(); return; }
+  const avail=rebirthAvailable();
+  const modal=document.createElement('div');
+  modal.id='rebirthModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.65);z-index:520;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:22px;padding:22px 18px;max-width:360px;width:100%;max-height:90vh;overflow:auto;';
+
+  let h='<div style="font-size:18px;font-weight:900;color:#1A3A6B;text-align:center">🌟 転生のとびら</div>';
+  if((S.rebirthStar||0)>0 && S.rebirthJob){
+    const cj=jobOf(S.rebirthJob);
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin-top:4px">いまの称号：<b style="color:'+cj.color+'">'+esc(cj.icon)+' '+esc(cj.name)+' ☆'+S.rebirthStar+'</b></div>';
+  }
+
+  if(avail){
+    h+='<div style="text-align:center;font-size:12px;color:#B45309;font-weight:800;margin:10px 0;line-height:1.6">好きな最上位職をえらんで転生しよう！<br>☆がひとつ増えて、職がコレクションに加わるよ。</div>';
+  } else if(S.points<REBIRTH_MIN){
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin:10px 0;line-height:1.6">「伝説の勇者」になると転生できる！<br>あと <b style="color:#E8197D">'+(REBIRTH_MIN-S.points)+'pt</b> 集めよう。</div>';
+  } else {
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin:10px 0;line-height:1.6">次の転生まで あと <b style="color:#E8197D">'+(nextRebirthAt()-S.points)+'pt</b>！<br>これまで集めた職のコレクション👇</div>';
+  }
+
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px">';
+  REBIRTH_JOBS.forEach(j=>{ h+=jobCellHTML(j, avail); });
+  h+='</div>';
+
+  const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
+  h+='<div style="font-size:11px;color:#9CA3AF;text-align:center;margin-top:12px">職コレクション '+coll+' / 6（全部集めると隠し職が解放！）</div>';
+  h+='<button onclick="document.getElementById(\'rebirthModal\').remove()" style="margin-top:14px;width:100%;padding:12px;border:none;border-radius:13px;background:#1A3A6B;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">とじる</button>';
+
+  box.innerHTML=h;
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+function doRebirth(id){
+  if(!rebirthAvailable()) return;
+  const job=jobOf(id);
+  if(!job || !jobUnlocked(job)) return;
+  S.rebirthStar=(S.rebirthStar||0)+1;
+  S.rebirthJob=id;
+  if(!S.rebirthJobs) S.rebirthJobs=[];
+  const isNew=!S.rebirthJobs.includes(id);
+  if(isNew) S.rebirthJobs.push(id);
+  save();
+  const m=document.getElementById('rebirthModal'); if(m) m.remove();
+  showRebirthCelebrate(job, isNew);
+  render();
+}
+
+function showRebirthCelebrate(job, isNew){
+  playSound('reward'); confetti(); confetti(); setTimeout(confetti,200);
+  const modal=document.createElement('div');
+  modal.setAttribute('data-rankup','1');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.78);z-index:620;display:flex;align-items:center;justify-content:center;animation:pop .4s ease;';
+  const box=document.createElement('div');
+  box.style.cssText='background:linear-gradient(160deg,#fff,#F3F6FF);border-radius:26px;padding:30px 26px;max-width:330px;width:88%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45);border:3px solid '+job.color+';';
+  const first=!!isNew;
+  box.innerHTML=
+    '<div style="font-size:13px;font-weight:900;letter-spacing:2px;color:'+job.color+'">✨ 転生せいこう！ ✨</div>'+
+    '<div style="font-size:72px;margin:10px 0;line-height:1">'+esc(job.icon)+'</div>'+
+    '<div style="font-size:24px;font-weight:900;color:'+job.color+'">'+esc(job.name)+' ☆'+S.rebirthStar+'</div>'+
+    '<div style="font-size:12px;color:#6B7280;margin-top:8px;line-height:1.6">'+esc(job.desc)+'</div>'+
+    (first?'<div style="margin-top:12px;padding:9px;border-radius:12px;background:#EFFAF1;color:#15803D;font-size:11px;font-weight:800">🎴 新しい職をコレクションに加えた！</div>':'')+
+    '<button onclick="this.closest(\'[data-rankup]\').remove()" style="margin-top:18px;width:100%;padding:12px;border:none;border-radius:13px;background:'+job.color+';color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit">最高だ！</button>';
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+function pickAvatar(a){
+  S.avatar=a; save();
+  document.getElementById('avatar').textContent=a;
+  playSound('tap');
+  const modal=document.getElementById('avatarModal');
+  if(modal) modal.remove();
+  flash('✨ キャラクターを変えたよ！');
+}
+
+/* ======================================================
+   描画：ヘッダー
+====================================================== */
+function renderHeader(){
+  const rank=displayRank(), next=getNextRank(S.points);
+  document.getElementById('avatar').textContent=S.avatar||rank.icon;
+  document.getElementById('rankLabel').innerHTML=
+    '<span style="color:'+rank.color+'">'+esc(rank.icon)+' '+esc(rank.name)+'</span>';
+  document.getElementById('availPt').textContent=avail();
+  const ni=document.getElementById('nameInput');
+  if(ni.value!==S.name) ni.value=S.name;
+
+  const wrap=document.getElementById('rankProgWrap');
+  const fill=document.getElementById('rankProg');
+  const tEl=document.getElementById('nextRankText');
+  const pEl=document.getElementById('nextRankPt');
+  wrap.onclick=null; wrap.style.cursor='';
+
+  if(rebirthAvailable()){
+    // 転生できる：タップで転生モーダルへ
+    wrap.style.display='block';
+    tEl.textContent='🌟 転生できる！';
+    pEl.textContent='タップ ▶';
+    fill.style.width='100%'; fill.style.background='linear-gradient(90deg,#FFC93C,#FF6B35,#E8197D)';
+    wrap.style.cursor='pointer';
+    wrap.onclick=openRebirthModal;
+  } else if(next){
+    // 通常の次ランクまで（伝説の勇者の手前まで）
+    const cur=getRank(S.points);
+    wrap.style.display='block';
+    tEl.textContent='次のランク「'+next.name+'」まで';
+    pEl.textContent='あと'+(next.min-S.points)+'pt';
+    fill.style.width=((S.points-cur.min)/(next.min-cur.min)*100)+'%';
+    fill.style.background='';
+  } else {
+    // 伝説の勇者に到達済み：次の転生までの進捗を表示
+    const base=nextRebirthAt()-REBIRTH_STEP, target=nextRebirthAt();
+    wrap.style.display='block';
+    tEl.textContent='次の転生まで';
+    pEl.textContent='あと'+(target-S.points)+'pt';
+    fill.style.width=Math.max(0,Math.min(100,(S.points-base)/(target-base)*100))+'%';
+    fill.style.background='linear-gradient(90deg,#8B5CF6,#E8197D)';
+  }
+}
+
+/* ======================================================
+   描画：タブ
+====================================================== */
+function renderTabs(){
+  const el=document.getElementById('tabs');
+  el.innerHTML='';
+  TABS.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='tab'+(tab===t.id?' active':'');
+    b.innerHTML='<span class="ti">'+t.icon+'</span>'+t.label;
+    b.onclick=()=>{ tab=t.id; playSound('tap'); render(); };
+    el.appendChild(b);
+  });
+}
+
+function sectHTML(icon, title, sub, color){
+  return '<div class="sect-h">'+
+    '<div class="sect-bar" style="background:'+color+'"></div>'+
+    '<span class="sect-icon">'+icon+'</span>'+
+    '<span class="sect-title">'+esc(title)+'</span></div>'+
+    (sub?'<div class="sect-sub">'+esc(sub)+'</div>':'');
+}
+
+/* ======================================================
+   メイン描画
+====================================================== */
+function render(){
+  renderHeader(); renderTabs();
+  const c=document.getElementById('content');
+  c.className='fade';
+  if(tab===0)      c.innerHTML=renderMissions();
+  else if(tab===1){ c.innerHTML=renderTimer(); updateTimerUI(); }
+  else if(tab===2){ c.innerHTML=renderStatus(); drawRadar(); }
+  else if(tab===3) c.innerHTML=renderBadges();
+  else if(tab===4) c.innerHTML=renderEmotion();
+  else if(tab===5) c.innerHTML=renderRewards();
+  else if(tab===6) c.innerHTML=renderHistory();
+  else if(tab===7) c.innerHTML=renderSettings();
+  attachHandlers();
+}
+
+/* ======================================================
+   描画：ミッション
+====================================================== */
+function renderDateWidget(){
+  const now=new Date();
+  const days=['日','月','火','水','木','金','土'];
+  return '<div style="background:linear-gradient(135deg,#1A3A6B,#2D4F8B);border-radius:14px;padding:10px 14px;margin-bottom:12px;color:#fff;display:flex;align-items:center;gap:12px">'+
+    '<div style="font-size:28px">📅</div>'+
+    '<div>'+
+    '<div style="font-size:15px;font-weight:800">'+esc(now.toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric"}))+'</div>'+
+    '<div style="font-size:11px;color:#A78BFA;margin-top:1px">'+esc(days[now.getDay()])+'曜日 ― 今日も冒険しよう！</div>'+
+    '</div></div>';
+}
+
+function renderMissions(){
+  let h=renderDateWidget()+'<div class="sect">'+sectHTML('☀️','デイリーミッション','毎日のちいさな目標','#4EC5E0')+'</div>';
+  getDaily().forEach(m=>{
+    const done=S.dailyDone.includes(m.id);
+    const st=statOf(m.stat)||{color:'#4EC5E0',icon:'⭐',label:''};
+    h+='<div class="mission'+(done?' done':'')+'" data-daily="'+esc(m.id)+'">'+
+      '<div class="mcheck">'+(done?'✓':'')+'</div>'+
+      '<span class="micon">'+esc(m.icon)+'</span>'+
+      '<span class="mtext">'+esc(m.text)+'</span>'+
+      '<span class="mstat" style="color:'+st.color+';background:'+st.color+'22">'+esc(st.icon)+esc(st.label)+'</span>'+
+      '<span class="mpt">+'+esc(String(m.pt))+'</span></div>';
+  });
+
+  h+='<div class="sect" style="margin-top:18px">'+sectHTML('📅','ウィークリーミッション','1週間かけて達成しよう','#8B5CF6')+'</div>';
+  getWeekly().forEach(m=>{
+    const cur=S.weekly[m.id]||0; const done=cur>=m.goal;
+    h+='<div class="wcard'+(done?' done':'')+'">'+
+      '<div class="wtop"><span class="micon">'+esc(m.icon)+'</span>'+
+      '<span class="mtext">'+esc(m.text)+'</span>'+
+      (done?'<span style="font-size:12px;font-weight:800;color:#FFC93C">達成！🎉</span>':
+            '<button class="wbtn" data-weekly="'+esc(m.id)+'">+1する</button>')+'</div>'+
+      '<div class="wprog"><div class="wbar"><div class="wbar-fill" style="width:'+(cur/m.goal*100).toFixed(1)+'%;background:'+(done?'#FFC93C':'#8B5CF6')+'"></div></div>'+
+      '<span style="font-size:11px;font-weight:700">'+cur+'/'+m.goal+'</span>'+
+      '<span style="font-size:10px;color:#FF8C42;font-weight:800">+'+m.pt+'pt</span></div></div>';
+  });
+
+  h+='<div class="sect" style="margin-top:18px">'+sectHTML('⚔️','ストーリークエスト','長い冒険のおおきな目標','#E8197D')+'</div>';
+  const sp={ s1:Math.min(S.skillCount,10), s2:STATS.filter(s=>S.stats[s.key]>=5).length };
+  STORY.forEach(q=>{
+    const cur=sp[q.id]||0; const done=cur>=q.goal;
+    h+='<div class="story"><div class="story-top"><span style="font-size:26px">'+esc(q.icon)+'</span>'+
+      '<span class="mtext" style="line-height:1.4">'+esc(q.text)+'</span></div>'+
+      '<div class="wprog"><div class="story-bar"><div class="story-fill" style="width:'+(cur/q.goal*100).toFixed(1)+'%"></div></div>'+
+      '<span style="font-size:12px;font-weight:800;color:#FFC93C">'+cur+'/'+q.goal+'</span></div>'+
+      (done?'<div style="margin-top:8px;font-size:12px;font-weight:800;color:#FFC93C;text-align:center">🎊 クエストクリア！ +'+q.pt+'pt 🎊</div>':'')+'</div>';
+  });
+
+  h+='<div class="info info-green"><b style="color:#22C55E">💚 できなくても大丈夫！</b><br>'+
+    'ミッションは失敗してもポイントは減らないよ。今日できなかったら明日もう一度チャレンジ！何回でも挑戦できる。</div>';
+  return h;
+}
+
+/* ======================================================
+   描画：集中タイマー
+====================================================== */
+function renderTimer(){
+  const p=TIMER_PRESETS[timerPresetIdx];
+  const circumference=2*Math.PI*80;
+  const pct=timerSec/Math.max(timerTotal,1);
+  let h='';
+  h+='<div class="timer-streak"><span style="font-size:24px">⏱️</span>'+
+    '<div><div style="font-size:13px;font-weight:800">集中タイム完走: '+( S.timerComplete||0)+'回</div>'+
+    '<div style="font-size:10px;color:#6B7280;margin-top:2px">完走するたびに集中力+1・+2pt！</div></div></div>';
+  h+='<div class="timer-wrap">';
+  h+='<div style="font-size:14px;font-weight:800;margin-bottom:14px;color:#1A3A6B">⏱️ 集中タイマー</div>';
+  h+='<div class="timer-presets">';
+  TIMER_PRESETS.forEach((pr,i)=>{
+    h+='<button class="timer-preset'+(timerPresetIdx===i?' sel':'')+'" onclick="setTimerPreset('+i+');render()">'+esc(pr.emoji)+' '+esc(pr.label)+'</button>';
+  });
+  h+='</div>';
+  h+='<div class="timer-ring">'+
+    '<svg width="200" height="200" viewBox="0 0 200 200">'+
+    '<circle class="timer-ring-bg" cx="100" cy="100" r="80"/>'+
+    '<circle id="timerRingFg" class="timer-ring-fg" cx="100" cy="100" r="80"'+
+    ' stroke="#4EC5E0"'+
+    ' stroke-dasharray="'+circumference.toFixed(2)+'"'+
+    ' stroke-dashoffset="'+(circumference*(1-pct)).toFixed(2)+'"/>'+
+    '</svg>'+
+    '<div class="timer-time" id="timerTime">'+
+    (()=>{ const m=Math.floor(timerSec/60); const s=timerSec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; })()+'</div>'+
+    '<div class="timer-phase" id="timerPhase">'+(timerPhaseBreak?'😊 休憩タイム中':'🎯 集中タイム中')+'</div>'+
+    '</div>';
+  h+='<div class="timer-btns">'+
+    '<button id="timerStartBtn" class="timer-btn start" onclick="startTimer()" style="display:'+(timerRunning?'none':'block')+'">▶ スタート</button>'+
+    '<button id="timerStopBtn" class="timer-btn stop"  onclick="stopTimer()"  style="display:'+(timerRunning?'block':'none')+'">⏸ ストップ</button>'+
+    '<button class="timer-btn reset" onclick="resetTimer()">↺ リセット</button>'+
+    '</div>';
+  h+='</div>';
+  h+='<div class="timer-tip">'+
+    '<b style="color:#8B5CF6">🧠 タイマーの使い方ガイド</b><br>'+
+    '① 時間をえらぶ（最初は5〜10分がおすすめ）<br>'+
+    '② スタートを押して、タイマーが終わるまで1つのことに集中！<br>'+
+    '③ 終わったら自動で休憩タイムになるよ。<br>'+
+    '④ 集中タイム完走で <b>+2pt・集中力+1</b> もらえる！</div>';
+  return h;
+}
+
+/* ======================================================
+   描画：ステータス
+====================================================== */
+function renderStatus(){
+  let h='<div class="sect">'+sectHTML('📊','冒険者ステータス','ミッションをこなして成長しよう','#4EC5E0')+'</div>';
+  h+=renderRankHero();
+  h+=renderRankRoadmap();
+  h+=renderRebirthFlow();
+  h+='<div class="chartbox"><canvas id="radar" width="600" height="520" style="width:100%;height:auto"></canvas></div>';
+  h+='<div class="statgrid">';
+  statsDef().forEach(s=>{
+    const lv=S.stats[s.key];
+    h+='<div class="statcard" style="border:2px solid '+s.color+'40">'+
+      '<div class="statcard-top"><span class="statcard-icon">'+esc(s.icon)+'</span>'+
+      '<span class="statcard-name">'+esc(s.label)+'</span>'+
+      '<span class="statcard-lv" style="color:'+s.color+'">Lv.'+lv+'</span></div>'+
+      '<div class="statbar"><div class="statbar-fill" style="width:'+(lv*10)+'%;background:'+s.color+'"></div></div>'+
+      '<div class="statdesc">'+esc(s.desc)+'</div></div>';
+  });
+  h+='</div>';
+  h+='<div class="staffbox"><div style="font-size:11px;font-weight:800;margin-bottom:8px">🎖️ スタッフ用：できたことを記録（+1 Lv / +1pt）</div>'+
+    '<div class="staffbtns">';
+  statsDef().forEach(s=>{
+    h+='<button class="staffbtn" data-bump="'+esc(s.key)+'" style="border-color:'+s.color+';color:'+s.color+';background:'+s.color+'18">'+esc(s.icon)+esc(s.label)+' +1</button>';
+  });
+  h+='</div></div>';
+  return h;
+}
+
+/* ① 現在の職業（ランク）ヒーローカード */
+function renderRankHero(){
+  const dr=displayRank();
+  let pct=0, label='';
+  if(rebirthAvailable()){
+    pct=100; label='🌟 転生できる！ 下の「転生フロー」へ';
+  } else {
+    const next=getNextRank(S.points);
+    if(next){
+      const cur=getRank(S.points);
+      pct=(S.points-cur.min)/(next.min-cur.min)*100;
+      label='次は「'+next.name+'」まで あと'+(next.min-S.points)+'pt';
+    } else {
+      const base=nextRebirthAt()-REBIRTH_STEP, target=nextRebirthAt();
+      pct=(S.points-base)/(target-base)*100;
+      label='次の転生まで あと'+(target-S.points)+'pt';
+    }
+  }
+  pct=Math.max(0,Math.min(100,pct));
+  return '<div style="border-radius:18px;padding:16px 16px 14px;margin-bottom:14px;color:#fff;'+
+      'background:linear-gradient(135deg,'+dr.color+',#1A3A6B);box-shadow:0 6px 18px '+dr.color+'55">'+
+    '<div style="display:flex;align-items:center;gap:13px">'+
+      '<div style="width:56px;height:56px;border-radius:16px;flex-shrink:0;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:32px">'+esc(S.avatar||dr.icon)+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">げんざいの しょくぎょう</div>'+
+        '<div style="font-size:19px;font-weight:900;line-height:1.2">'+esc(dr.icon)+' '+esc(dr.name)+'</div>'+
+        '<div style="font-size:11px;opacity:.9;margin-top:2px">累計 '+S.points+'pt ・ つかえる '+avail()+'pt</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-top:12px">'+
+      '<div style="font-size:11px;font-weight:700;margin-bottom:5px">'+esc(label)+'</div>'+
+      '<div style="height:9px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden">'+
+        '<div style="height:100%;width:'+pct.toFixed(1)+'%;border-radius:6px;background:#fff"></div></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ② 称号ロードマップ（昇格〜転生のフローを可視化） */
+function renderRankRoadmap(){
+  const idx=rankIndex(S.points);
+  const star=S.rebirthStar||0;
+  const legend=S.points>=REBIRTH_MIN;
+  let h='<div style="font-size:12px;font-weight:900;color:#1A3A6B;margin:2px 0 8px">🗺️ 称号ロードマップ</div>';
+  h+='<div style="border:2px solid #E5E7EB;border-radius:16px;padding:8px 12px;margin-bottom:14px;background:#fff">';
+  RANKS.forEach((r,i)=>{
+    const done=i<idx, here=i===idx;
+    const active=done||here;
+    const txt = here?r.color : (done?'#374151':'#9CA3AF');
+    const status = here? '★ いま' : (done? '達成' : 'あと'+(r.min-S.points)+'pt');
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:10px;'+(here?'background:'+r.color+'14':'')+'">'+
+      '<div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;'+
+        'background:'+(active?r.color+'22':'#F3F4F6')+';border:2px solid '+(active?r.color:'#E5E7EB')+';color:'+(active?r.color:'#9CA3AF')+'">'+(done?'✓':esc(r.icon))+'</div>'+
+      '<div style="flex:1;min-width:0;font-size:13px;font-weight:'+(here?'900':'700')+';color:'+txt+'">'+esc(r.name)+'<span style="font-size:10px;font-weight:700;color:#9CA3AF;margin-left:6px">'+r.min+'pt〜</span></div>'+
+      '<div style="font-size:10px;font-weight:800;color:'+txt+';white-space:nowrap">'+status+'</div>'+
+    '</div>';
+  });
+  // 転生ゲート
+  const gateStatus = legend ? (star>0? '☆'+star+' 転生中' : '🔓 解放！') : '👑 伝説で解放';
+  const gateColor  = legend ? '#8B5CF6' : '#9CA3AF';
+  h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 6px 4px;margin-top:4px;border-top:1px dashed #E5E7EB">'+
+    '<div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;background:'+(legend?'#F3E8FF':'#F3F4F6')+';border:2px solid '+(legend?'#8B5CF6':'#E5E7EB')+'">🌟</div>'+
+    '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:900;color:'+gateColor+'">転生システム</div>'+
+      '<div style="font-size:10px;color:#9CA3AF">最上位職へ・無限の挑戦</div></div>'+
+    '<div style="font-size:10px;font-weight:800;color:'+gateColor+';white-space:nowrap">'+gateStatus+'</div>'+
+  '</div>';
+  h+='</div>';
+  return h;
+}
+
+/* 転生職のミニ図鑑セル */
+function jobMiniCell(j){
+  const got=(S.rebirthJobs||[]).includes(j.id);
+  const unlocked=jobUnlocked(j);
+  const cur=S.rebirthJob===j.id;
+  if(j.hidden && !unlocked){
+    return '<div title="？？？" style="aspect-ratio:1;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#F9FAFB;border:2px dashed #E5E7EB;color:#C7CCD4;font-size:20px">🔒</div>';
+  }
+  return '<div title="'+esc(j.name)+'" style="aspect-ratio:1;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;'+
+    'background:'+j.color+(got?'22':'0D')+';border:2px solid '+(cur?j.color:(got?j.color+'88':'#E5E7EB'))+';'+(cur?'box-shadow:0 0 0 2px '+j.color+'40':'')+'">'+
+    '<div style="font-size:21px;'+(got?'':'filter:grayscale(.5);opacity:.55')+'">'+esc(j.icon)+'</div>'+
+    '<div style="font-size:8px;font-weight:800;color:'+(got?j.color:'#9CA3AF')+';margin-top:1px">'+(got?'✓':'')+'</div>'+
+  '</div>';
+}
+
+/* ③ 転生フロー詳細（伝説到達後に表示） */
+function renderRebirthFlow(){
+  const star=S.rebirthStar||0;
+  const legend=S.points>=REBIRTH_MIN;
+  if(star===0 && !legend) return '';     // 伝説前はロードマップの「転生ゲート」で十分
+  const avail=rebirthAvailable();
+  const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
+
+  let h='<div style="border:2px solid #C7B3F0;border-radius:16px;padding:14px;margin-bottom:14px;background:linear-gradient(160deg,#FAF8FF,#FFF)">';
+  h+='<div style="font-size:13px;font-weight:900;color:#8B5CF6;margin-bottom:10px">🌟 転生フロー</div>';
+
+  // フローの4ステップ
+  const steps=[
+    {ic:'👑', t:'伝説の勇者', on:legend},
+    {ic:'🌟', t:'転生する',   on:star>0||avail},
+    {ic:'🎴', t:'職をえらぶ', on:star>0},
+    {ic:'⭐', t:'☆を重ねる', on:star>0},
+  ];
+  h+='<div style="display:flex;align-items:stretch;gap:2px;margin-bottom:12px">';
+  steps.forEach((s,i)=>{
+    if(i>0) h+='<div style="display:flex;align-items:center;color:#C7B3F0;font-weight:900;font-size:12px">›</div>';
+    h+='<div style="flex:1;text-align:center;border-radius:10px;padding:7px 2px;background:'+(s.on?'#8B5CF6':'#F3F4F6')+';color:'+(s.on?'#fff':'#9CA3AF')+'">'+
+      '<div style="font-size:18px;line-height:1">'+s.ic+'</div>'+
+      '<div style="font-size:9px;font-weight:800;margin-top:2px">'+s.t+'</div></div>';
+  });
+  h+='</div>';
+
+  // 現在の称号
+  if(star>0 && S.rebirthJob){
+    const cj=jobOf(S.rebirthJob);
+    h+='<div style="text-align:center;font-size:13px;font-weight:900;color:'+cj.color+';margin-bottom:8px">いまの称号：'+esc(cj.icon)+' '+esc(cj.name)+' ☆'+star+'</div>';
+  }
+
+  // 職コレクション・ミニ図鑑
+  h+='<div style="font-size:10px;font-weight:800;color:#6B7280;margin-bottom:5px">最上位職コレクション　'+coll+' / 6'+(coll>=6?'　🎉隠し職 解放！':'')+'</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">';
+  REBIRTH_JOBS.forEach(j=>{ h+=jobMiniCell(j); });
+  h+='</div>';
+
+  // 転生ボタン
+  const btnStyle = avail
+    ? 'background:linear-gradient(90deg,#FFC93C,#FF6B35,#E8197D);color:#fff;animation:pop .6s ease infinite alternate;'
+    : 'background:#fff;color:#8B5CF6;border:2px solid #C7B3F0;';
+  h+='<button onclick="openRebirthModal()" style="margin-top:12px;width:100%;padding:11px;border:none;border-radius:12px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;'+btnStyle+'">'+
+    (avail?'🌟 いま転生する！':'転生のとびらをひらく')+'</button>';
+  h+='</div>';
+  return h;
+}
+
+/* ======================================================
+   レーダーチャート
+====================================================== */
+function drawRadar(){
+  const cv=document.getElementById('radar'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width, H=cv.height, cx=W/2, cy=H/2+10, R=Math.min(W,H)*0.34;
+  const SD=statsDef();
+  const n=SD.length;
+  ctx.clearRect(0,0,W,H);
+  for(let ring=1; ring<=5; ring++){
+    const rr=R*ring/5;
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){
+      const a=-Math.PI/2+i*2*Math.PI/n;
+      const x=cx+rr*Math.cos(a), y=cy+rr*Math.sin(a);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle='#D1E9F0'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+  for(let i=0;i<n;i++){
+    const a=-Math.PI/2+i*2*Math.PI/n;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+R*Math.cos(a), cy+R*Math.sin(a));
+    ctx.strokeStyle='#D1E9F0'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+  ctx.beginPath();
+  for(let i=0;i<=n;i++){
+    const idx=i%n;
+    const a=-Math.PI/2+idx*2*Math.PI/n;
+    const v=S.stats[SD[idx].key]/10;
+    const x=cx+R*v*Math.cos(a), y=cy+R*v*Math.sin(a);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(232,25,125,0.38)'; ctx.fill();
+  ctx.strokeStyle='#E8197D'; ctx.lineWidth=3; ctx.stroke();
+  for(let i=0;i<n;i++){
+    const a=-Math.PI/2+i*2*Math.PI/n;
+    const v=S.stats[SD[i].key]/10;
+    const x=cx+R*v*Math.cos(a), y=cy+R*v*Math.sin(a);
+    ctx.beginPath(); ctx.arc(x,y,5,0,2*Math.PI);
+    ctx.fillStyle='#E8197D'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  }
+  ctx.font='bold 22px -apple-system,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let i=0;i<n;i++){
+    const a=-Math.PI/2+i*2*Math.PI/n;
+    const lr=R+38;
+    const x=cx+lr*Math.cos(a), y=cy+lr*Math.sin(a);
+    ctx.fillStyle='#1A3A6B';
+    ctx.fillText(SD[i].icon+SD[i].label, x, y);
+  }
+}
+
+/* ======================================================
+   描画：バッジ
+====================================================== */
+function renderBadges(){
+  const total=BADGES.length, unlocked=BADGES.filter(b=>S.badges.includes(b.id)).length;
+  let h='<div class="sect">'+sectHTML('🏅','バッジコレクション','実績を達成してバッジをゲットしよう！','#FFC93C')+'</div>';
+  h+='<div style="background:rgba(255,201,60,.18);border:2px solid #FFC93C;border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px">'+
+    '<span style="font-size:28px">🏅</span>'+
+    '<div><div style="font-size:16px;font-weight:900;color:#1A3A6B">'+unlocked+' / '+total+'個 獲得！</div>'+
+    '<div style="font-size:11px;color:#6B7280;margin-top:2px">全部集めるとスペシャルな称号が手に入る！</div></div></div>';
+  h+='<div class="badge-grid">';
+  BADGES.forEach(b=>{
+    const got=S.badges.includes(b.id);
+    h+='<div class="badge-card'+(got?' unlocked':'')+'">'+
+      '<span class="badge-emoji">'+esc(b.emoji)+'</span>'+
+      '<div class="badge-name">'+esc(b.name)+'</div>'+
+      '<div class="badge-cond">'+esc(b.cond)+'</div></div>';
+  });
+  h+='</div>';
+  if(unlocked===total){
+    h+='<div style="margin-top:16px;background:linear-gradient(135deg,#FFC93C,#FF8C42);border-radius:16px;padding:16px;text-align:center;color:#fff">'+
+      '<div style="font-size:28px;margin-bottom:6px">🎊</div>'+
+      '<div style="font-size:15px;font-weight:900">全バッジ獲得おめでとう！</div>'+
+      '<div style="font-size:12px;margin-top:4px">あなたは真の伝説の冒険者です！</div></div>';
+  }
+  return h;
+}
+
+/* ======================================================
+   描画：感情温度計
+====================================================== */
+function renderEmotion(){
+  let h='<div class="sect">'+sectHTML('🌡️','感情温度計','今の気持ちを正直に教えてね','#E8197D')+'</div>';
+  EMOTIONS.forEach(e=>{
+    const active=S.emotion===e.lv;
+    h+='<div class="emo'+(active?' active':'')+'" data-emo="'+e.lv+'" style="border-color:'+e.color+';background:'+(active?e.color:'#fff')+'">'+
+      '<span class="emo-emoji">'+e.emoji+'</span>'+
+      '<div style="flex:1"><div class="emo-label" style="color:'+(active?'#fff':e.color)+'">'+e.lv+'度：'+esc(e.label)+'</div>'+
+      '<div class="emo-advice">'+esc(e.advice)+'</div></div>'+
+      '<div class="emo-bars">'+Array.from({length:e.lv}).map(()=>'<div class="emo-bar" style="background:'+(active?'#fff':e.color)+'"></div>').join('')+'</div></div>';
+  });
+  h+='<div class="info info-yellow">⚔️ 強い冒険者ほど、剣を抜くのがゆっくり。クールダウンコーナーへ行くのは弱さじゃなくて「スキル」だよ！</div>';
+  return h;
+}
+
+/* ======================================================
+   描画：ごほうび
+====================================================== */
+function renderRewards(){
+  let h='<div class="sect">'+sectHTML('🎁','ごほうび交換所','つかえるポイント：'+avail()+'pt','#FF8C42')+'</div>';
+  getRewards().forEach(r=>{
+    const can=avail()>=r.cost;
+    h+='<div class="reward '+(can?'can':'cant')+'">'+
+      '<span class="reward-icon">'+esc(r.icon)+'</span>'+
+      '<span class="reward-text">'+esc(r.text)+'</span>'+
+      '<button class="reward-btn '+(can?'can':'cant')+'" data-reward="'+esc(r.id)+'">'+esc(String(r.cost))+'pt</button></div>';
+  });
+  if(S.claimed.length){
+    h+='<div style="font-size:12px;font-weight:800;margin:14px 0 8px">🏅 もらったごほうび</div>';
+    S.claimed.slice().reverse().forEach(r=>{
+      h+='<div class="claimed"><span style="font-size:18px">'+esc(r.icon)+'</span>'+
+        '<span style="flex:1;font-size:12px;font-weight:700">'+esc(r.text)+'</span>'+
+        '<span style="font-size:10px;color:#6B7280">'+esc(r.date)+'</span></div>';
+    });
+  }
+  h+='<div class="info info-sky">💡 ごほうびは「モノ」より「体験」がおすすめ。好きな活動を選べる券やスタッフと遊べる時間は、施設のコストも抑えられて続けやすいよ。</div>';
+  return h;
+}
+
+/* ======================================================
+   描画：きろく
+====================================================== */
+function renderHistory(){
+  let h='<div class="sect">'+sectHTML('📖','きろく（あゆみ）','これまでの冒険の記録','#1A3A6B')+'</div>';
+  if(!S.history||S.history.length===0){
+    h+='<div class="info info-sky" style="text-align:center;padding:24px">'+
+      '<div style="font-size:36px;margin-bottom:8px">📖</div>'+
+      '<div style="font-size:13px;font-weight:700">まだ記録がないよ</div>'+
+      '<div style="font-size:11px;margin-top:4px;color:#6B7280">次の日からここに記録が残るよ！</div></div>';
+    return h;
+  }
+  S.history.forEach((rec,i)=>{
+    const stars=rec.dailyDone?rec.dailyDone.length:0;
+    h+='<div class="hist-card'+(i===0?' today':'')+'">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">'+
+      '<span style="font-size:15px">📅</span>'+
+      '<span style="font-size:13px;font-weight:800;color:#1A3A6B">'+esc(rec.date)+'</span>'+
+      (i===0?'<span style="font-size:10px;background:#4EC5E0;color:#fff;border-radius:8px;padding:2px 8px;margin-left:auto">昨日</span>':'')+'</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      '<span style="font-size:11px;background:#E0F7FD;color:#1A3A6B;border-radius:9px;padding:4px 10px;font-weight:700">'+
+      '✅ ミッション '+stars+'個クリア</span>'+
+      (rec.emotion?'<span style="font-size:11px;background:#FDE8F3;color:#E8197D;border-radius:9px;padding:4px 10px;font-weight:700">🌡️ 感情 '+rec.emotion+'度</span>':'')+'</div></div>';
+  });
+  return h;
+}
+
+/* ======================================================
+   設定画面（PINロック付き）
+====================================================== */
+let staffUnlocked=false, pinInput="";
+
+function renderSettings(){
+  if(!staffUnlocked) return renderPinLock();
+  return renderSettingsMain();
+}
+
+function renderPinLock(){
+  const dots='●'.repeat(pinInput.length)+'○'.repeat(Math.max(0,4-pinInput.length));
+  const numKeys=[1,2,3,4,5,6,7,8,9,0];
+  let html='<div style="text-align:center;padding:30px 10px">';
+  html+='<div style="font-size:50px;margin-bottom:12px">🔒</div>';
+  html+='<div style="font-size:17px;font-weight:800;color:#1A3A6B;margin-bottom:6px">スタッフ専用設定</div>';
+  html+='<div style="font-size:12px;color:#6B7280;margin-bottom:24px">PINコードを入力してください<br><span style="color:#EF4444">(初期値：1111)</span></div>';
+  html+='<div id="pinDisplay" style="font-size:32px;font-weight:900;letter-spacing:14px;color:#1A3A6B;margin-bottom:20px;min-height:44px">'+dots+'</div>';
+  html+='<div class="pin-pad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto">';
+  for(let ki=0;ki<9;ki++){
+    html+='<button onclick="pinPress(\''+numKeys[ki]+'\')" style="padding:18px;border-radius:14px;border:2px solid #E5E7EB;background:#fff;font-size:22px;font-weight:800;color:#1A3A6B;cursor:pointer;font-family:inherit;transition:.15s">'+numKeys[ki]+'</button>';
+  }
+  html+='<div></div>';
+  html+='<button onclick="pinPress(\'0\')" style="padding:18px;border-radius:14px;border:2px solid #E5E7EB;background:#fff;font-size:22px;font-weight:800;color:#1A3A6B;cursor:pointer;font-family:inherit;transition:.15s">0</button>';
+  html+='<button onclick="pinPress(\'⌫\')" style="padding:18px;border-radius:14px;border:2px solid #E5E7EB;background:#fff;font-size:22px;font-weight:800;color:#1A3A6B;cursor:pointer;font-family:inherit;transition:.15s">⌫</button>';
+  html+='</div></div>';
+  return html;
+}
+
+function pinPress(key){
+  playSound('tap');
+  if(key==='⌫'){
+    pinInput=pinInput.slice(0,-1);
+  } else if(/^\d$/.test(key) && pinInput.length<4){
+    pinInput+=key;
+  }
+  if(pinInput.length===4){
+    if(pinInput===ROOT.staffPin){
+      staffUnlocked=true; pinInput='';
+      flash('🔓 スタッフモード解除！');
+      render();
+    } else {
+      flash('❌ PINが違います'); pinInput='';
+      render();
+    }
+    return;
+  }
+  // 入力表示だけ更新
+  const disp=document.getElementById('pinDisplay');
+  if(disp){
+    disp.textContent='●'.repeat(pinInput.length)+'○'.repeat(Math.max(0,4-pinInput.length));
+  }
+}
+
+function renderSettingsMain(){
+  const dl=getDaily(), wl=getWeekly(), rl=getRewards();
+  let h='<div class="sect">'+sectHTML('⚙️','設定・カスタマイズ','ミッション・ごほうびを自由に編集','#FF8C42')+'</div>';
+
+  // PINコード変更
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #E5E7EB">'+
+    '<div style="font-size:12px;font-weight:800;color:#1A3A6B;margin-bottom:8px">🔑 PINコードを変更する</div>'+
+    '<div style="display:flex;gap:8px">'+
+    '<input id="newPin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="新しい4桁のPIN" '+
+    'style="-webkit-user-select:text;user-select:text;flex:1;border:2px solid #E5E7EB;border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none">'+
+    '<button onclick="changePin()" style="background:#1A3A6B;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">変更</button>'+
+    '</div></div>';
+
+  // 児童プロフィール管理
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #E8197D">'+
+    '<div style="font-size:13px;font-weight:800;color:#1A3A6B;margin-bottom:10px">👦👧 冒険者（児童）の管理</div>';
+  profileList().forEach(function(p){
+    const rank=getRank(p.points);
+    const cur=p.id===ROOT.current;
+    h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;background:'+(cur?'rgba(232,25,125,.06)':'#FDF2F8')+';border-radius:10px;padding:8px 10px">'+
+      '<span style="font-size:20px">'+esc(p.avatar||rank.icon)+'</span>'+
+      '<span style="flex:1;font-size:12px;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(p.name||'なまえ未設定')+(cur?' <span style="color:#E8197D;font-size:10px">(いま)</span>':'')+'</span>'+
+      '<span style="font-size:10px;color:#6B7280;font-weight:700">'+p.points+'pt</span>'+
+      '<button onclick="renameProfile(\''+p.id+'\')" style="background:#FCE7F3;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">✏️</button>'+
+      '<button onclick="deleteProfile(\''+p.id+'\')" style="background:#FEE2E2;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">🗑️</button>'+
+      '</div>';
+  });
+  h+='<button onclick="addProfile()" style="width:100%;padding:10px;border:2px dashed #E8197D;border-radius:10px;background:transparent;color:#E8197D;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">＋ 新しい冒険者を追加</button>'+
+    '<div style="font-size:10px;color:#9CA3AF;margin-top:8px;line-height:1.5">※ ミッション・ごほうび・PINは全員で共通の設定です。ポイント・バッジ・ステータス表示は冒険者ごとに別々です。</div>'+
+    '</div>';
+
+  // ステータス表示のカスタマイズ（この冒険者だけ）
+  const sdef=statsDef();
+  const customized=!!(S.customStats);
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #4EC5E0">'+
+    '<div style="font-size:13px;font-weight:800;color:#1A3A6B;margin-bottom:4px">📊 ステータス表示（この冒険者だけ）</div>'+
+    '<div style="font-size:10px;color:#6B7280;margin-bottom:10px;line-height:1.5">いま選択中の冒険者「<b style="color:#E8197D">'+esc(S.name||'なまえ未設定')+'</b>」の能力の<b>表示名・アイコン・せつめい</b>を変えられます。'+(customized?'<span style="color:#4EC5E0;font-weight:800">（カスタム中）</span>':'')+'</div>';
+  sdef.forEach(function(s){
+    h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;background:'+s.color+'14;border-radius:10px;padding:8px 10px">'+
+      '<span style="font-size:18px">'+esc(s.icon)+'</span>'+
+      '<span style="flex:1;font-size:12px;font-weight:700;color:'+s.color+';min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(s.label)+'</span>'+
+      '<button onclick="editStatDef(\''+s.key+'\')" style="background:#E0F7FD;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">✏️ 編集</button>'+
+      '</div>';
+  });
+  if(customized){
+    h+='<button onclick="resetStatDefs()" style="width:100%;padding:9px;border:2px dashed #94A3B8;border-radius:10px;background:transparent;color:#64748B;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">🔄 この冒険者のステータス表示を初期化</button>';
+  }
+  h+='<div style="font-size:10px;color:#9CA3AF;margin-top:8px;line-height:1.5">※ 能力の中身（集中力・がまん力…）の種類や色は共通です。表示名だけを一人ひとりに合わせられます。別の冒険者を編集するときはアイコンから切りかえてください。</div>'+
+    '</div>';
+
+  // デイリーミッション
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #4EC5E0">'+
+    '<div style="font-size:13px;font-weight:800;color:#1A3A6B;margin-bottom:10px">☀️ デイリーミッション</div>';
+  dl.forEach(function(m,i){
+    h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;background:#F0FBFF;border-radius:10px;padding:8px 10px">'+
+      '<span style="font-size:18px">'+esc(m.icon)+'</span>'+
+      '<span style="flex:1;font-size:12px;font-weight:700">'+esc(m.text)+'</span>'+
+      '<span style="font-size:10px;color:#FF8C42;font-weight:800">+'+esc(String(m.pt))+'pt</span>'+
+      '<button onclick="editMission(\'daily\','+i+')" style="background:#E0F7FD;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">✏️</button>'+
+      '<button onclick="deleteMission(\'daily\','+i+')" style="background:#FEE2E2;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">🗑️</button>'+
+      '</div>';
+  });
+  h+='<button onclick="addMission(\'daily\')" style="width:100%;padding:10px;border:2px dashed #4EC5E0;border-radius:10px;background:transparent;color:#4EC5E0;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">＋ ミッションを追加</button>'+
+    '</div>';
+
+  // ウィークリーミッション
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #8B5CF6">'+
+    '<div style="font-size:13px;font-weight:800;color:#1A3A6B;margin-bottom:10px">📅 ウィークリーミッション</div>';
+  wl.forEach(function(m,i){
+    h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;background:#F5F3FF;border-radius:10px;padding:8px 10px">'+
+      '<span style="font-size:18px">'+esc(m.icon)+'</span>'+
+      '<span style="flex:1;font-size:12px;font-weight:700">'+esc(m.text)+'（目標:'+m.goal+'回）</span>'+
+      '<button onclick="editMission(\'weekly\','+i+')" style="background:#EDE9FE;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">✏️</button>'+
+      '<button onclick="deleteMission(\'weekly\','+i+')" style="background:#FEE2E2;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">🗑️</button>'+
+      '</div>';
+  });
+  h+='<button onclick="addMission(\'weekly\')" style="width:100%;padding:10px;border:2px dashed #8B5CF6;border-radius:10px;background:transparent;color:#8B5CF6;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">＋ ミッションを追加</button>'+
+    '</div>';
+
+  // ごほうび
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #FF8C42">'+
+    '<div style="font-size:13px;font-weight:800;color:#1A3A6B;margin-bottom:10px">🎁 ごほうび</div>';
+  rl.forEach(function(r,i){
+    h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;background:#FFF7ED;border-radius:10px;padding:8px 10px">'+
+      '<span style="font-size:18px">'+esc(r.icon)+'</span>'+
+      '<span style="flex:1;font-size:12px;font-weight:700">'+esc(r.text)+'</span>'+
+      '<span style="font-size:10px;color:#FF8C42;font-weight:800">'+esc(String(r.cost))+'pt</span>'+
+      '<button onclick="editReward('+i+')" style="background:#FEF3C7;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">✏️</button>'+
+      '<button onclick="deleteReward('+i+')" style="background:#FEE2E2;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">🗑️</button>'+
+      '</div>';
+  });
+  h+='<button onclick="addReward()" style="width:100%;padding:10px;border:2px dashed #FF8C42;border-radius:10px;background:transparent;color:#FF8C42;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">＋ ごほうびを追加</button>'+
+    '</div>';
+
+  // 操作ボタン
+  h+='<div style="display:flex;gap:8px;margin-top:4px">'+
+    '<button onclick="resetCustom()" style="flex:1;padding:12px;border:2px solid #EF4444;border-radius:12px;background:#fff;color:#EF4444;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">🔄 初期設定に戻す</button>'+
+    '<button onclick="staffUnlocked=false;render()" style="flex:1;padding:12px;border:none;border-radius:12px;background:#1A3A6B;color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">🔒 ロックする</button>'+
+    '</div>';
+  return h;
+}
+
+/* ======================================================
+   設定操作
+====================================================== */
+function changePin(){
+  const v=document.getElementById("newPin").value.trim();
+  if(!v||v.length!==4||!/^\d{4}$/.test(v)){ flash("❌ 4桁の数字を入力してください"); return; }
+  ROOT.staffPin=v; save(); flash("✅ PINコードを変更しました");
+}
+
+function addMission(type){
+  const text=prompt("ミッションの内容を入力してください");
+  if(!text||!text.trim()) return;
+  const icon=prompt("絵文字を入力（例: ⭐ 🎯 📚）")||"⭐";
+  const ptStr=prompt("ポイント数（例: 1）")||"1";
+  const pt=Math.max(1,Math.min(20,parseInt(ptStr)||1));
+  const stat=prompt("関連スキル (focus/patience/heart/social/physical/intelligence)")||"focus";
+  const validStat=STATS.find(s=>s.key===stat)?stat:"focus";
+  const newM={ id:"c"+Date.now(), text:text.trim(), icon:icon.trim()||"⭐", pt, stat:validStat };
+  if(type==="daily"){
+    ROOT.customDaily=[...getDaily(), newM];
+  } else {
+    const goalStr=prompt("目標回数（例: 3）")||"3";
+    const goal=Math.max(1,Math.min(30,parseInt(goalStr)||3));
+    newM.goal=goal; newM.pt=pt*3;
+    ROOT.customWeekly=[...getWeekly(), newM];
+  }
+  save(); render(); flash("✅ ミッションを追加しました");
+}
+
+function editMission(type,i){
+  const list=type==="daily"?getDaily():getWeekly();
+  const m={...list[i]};
+  const text=prompt("ミッションの内容", m.text);
+  if(!text||!text.trim()) return;
+  m.text=text.trim();
+  m.icon=(prompt("絵文字", m.icon)||m.icon).trim()||m.icon;
+  m.pt=Math.max(1,Math.min(20,parseInt(prompt("ポイント数", m.pt)||m.pt)||m.pt));
+  if(type==="daily"){
+    const d=[...getDaily()]; d[i]=m; ROOT.customDaily=d;
+  } else {
+    m.goal=Math.max(1,Math.min(30,parseInt(prompt("目標回数", m.goal)||m.goal)||m.goal));
+    const w=[...getWeekly()]; w[i]=m; ROOT.customWeekly=w;
+  }
+  save(); render(); flash("✅ ミッションを更新しました");
+}
+
+function deleteMission(type,i){
+  if(!confirm("このミッションを削除しますか？")) return;
+  if(type==="daily"){ const d=[...getDaily()]; d.splice(i,1); ROOT.customDaily=d; }
+  else { const w=[...getWeekly()]; w.splice(i,1); ROOT.customWeekly=w; }
+  save(); render(); flash("🗑️ 削除しました");
+}
+
+function addReward(){
+  const text=prompt("ごほうびの内容を入力してください");
+  if(!text||!text.trim()) return;
+  const icon=(prompt("絵文字（例: 🎫 🎮 🎁）")||"🎁").trim()||"🎁";
+  const cost=Math.max(1,Math.min(100,parseInt(prompt("必要ポイント数（例: 5）")||"5")||5));
+  ROOT.customRewards=[...getRewards(), {id:"cr"+Date.now(), text:text.trim(), icon, cost}];
+  save(); render(); flash("✅ ごほうびを追加しました");
+}
+
+function editReward(i){
+  const r={...getRewards()[i]};
+  const text=prompt("ごほうびの内容", r.text);
+  if(!text||!text.trim()) return;
+  r.text=text.trim();
+  r.icon=(prompt("絵文字", r.icon)||r.icon).trim()||r.icon;
+  r.cost=Math.max(1,Math.min(100,parseInt(prompt("必要ポイント数", r.cost)||r.cost)||r.cost));
+  const arr=[...getRewards()]; arr[i]=r; ROOT.customRewards=arr;
+  save(); render(); flash("✅ ごほうびを更新しました");
+}
+
+function deleteReward(i){
+  if(!confirm("このごほうびを削除しますか？")) return;
+  const arr=[...getRewards()]; arr.splice(i,1); ROOT.customRewards=arr;
+  save(); render(); flash("🗑️ 削除しました");
+}
+
+function resetCustom(){
+  if(!confirm("ミッション・ごほうびを初期設定に戻しますか？")) return;
+  ROOT.customDaily=null; ROOT.customWeekly=null; ROOT.customRewards=null;
+  save(); render(); flash("🔄 初期設定に戻しました");
+}
+
+/* この冒険者だけのステータス表示を編集（表示名・アイコン・せつめい） */
+function editStatDef(key){
+  const base=STATS.find(s=>s.key===key); if(!base) return;
+  const cur=statsDef().find(s=>s.key===key)||base;
+  const label=prompt("「"+cur.label+"」の表示名（この冒険者だけ）", cur.label);
+  if(label===null) return;
+  const icon=prompt("アイコン（絵文字1つ）", cur.icon);
+  if(icon===null) return;
+  const desc=prompt("せつめい", cur.desc);
+  if(desc===null) return;
+  if(!S.customStats) S.customStats={};
+  S.customStats[key]={
+    label:(label||"").trim().slice(0,10) || base.label,
+    icon :(icon ||"").trim().slice(0,4)  || base.icon,
+    desc :(desc ||"").trim().slice(0,40) || base.desc
+  };
+  save(); render(); flash("✅ ステータス表示を更新しました");
+}
+
+function resetStatDefs(){
+  if(!confirm("「"+(S.name||'この冒険者')+"」のステータス表示を初期設定に戻しますか？")) return;
+  S.customStats=null;
+  save(); render(); flash("🔄 ステータス表示を初期化しました");
+}
+
+/* ======================================================
+   イベントハンドラ
+====================================================== */
+function attachHandlers(){
+  document.querySelectorAll('[data-daily]').forEach(el=>{
+    el.onclick=()=>{
+      const id=el.getAttribute('data-daily');
+      if(S.dailyDone.includes(id)) return;
+      const m=getDaily().find(x=>x.id===id);
+      if(!m) return;
+      S.dailyDone.push(id); S.points+=m.pt; bump(m.stat); S.skillCount++;
+      playSound('mission');
+      confetti();
+      flash('✨ ミッション達成！「'+m.text+'」 +'+m.pt+'pt');
+      afterAction();
+    };
+  });
+
+  document.querySelectorAll('[data-weekly]').forEach(el=>{
+    el.onclick=(ev)=>{
+      ev.stopPropagation();
+      const id=el.getAttribute('data-weekly');
+      const m=getWeekly().find(x=>x.id===id);
+      if(!m) return;
+      const cur=S.weekly[id]||0;
+      if(cur>=m.goal) return;
+      const next=cur+1; S.weekly[id]=next; bump(m.stat);
+      if(next>=m.goal){
+        S.points+=m.pt;
+        playSound('badge');
+        confetti();
+        flash('🏆 ウィークリー達成！ +'+m.pt+'pt');
+      } else {
+        playSound('tap');
+        flash('👍 進捗 '+next+'/'+m.goal);
+      }
+      afterAction();
+    };
+  });
+
+  document.querySelectorAll('[data-bump]').forEach(el=>{
+    el.onclick=()=>{
+      const k=el.getAttribute('data-bump');
+      const s=statOf(k); if(!s) return;
+      bump(k); S.skillCount++; S.points+=1;
+      playSound('mission');
+      flash(s.icon+' '+s.label+' Lvアップ！ +1pt');
+      afterAction();
+    };
+  });
+
+  document.querySelectorAll('[data-emo]').forEach(el=>{
+    el.onclick=()=>{
+      const lv=parseInt(el.getAttribute('data-emo'));
+      S.emotion=lv;
+      playSound('tap');
+      if(lv>=4){ bump('heart'); S.points+=1; flash('❤️ こころ力 +1！よく言えたね'); }
+      else { flash(EMOTIONS[lv-1].emoji+' '+EMOTIONS[lv-1].label+'を選んだよ'); }
+      afterAction();
+    };
+  });
+
+  document.querySelectorAll('[data-reward]').forEach(el=>{
+    el.onclick=()=>{
+      const id=el.getAttribute('data-reward');
+      const r=getRewards().find(x=>x.id===id);
+      if(!r) return;
+      if(avail()<r.cost){ flash('まだポイントが足りないよ（あと'+(r.cost-avail())+'pt）'); return; }
+      S.spent+=r.cost;
+      S.claimed.push({icon:r.icon, text:r.text, date:new Date().toLocaleDateString('ja-JP')});
+      playSound('reward');
+      confetti();
+      flash('🎁 「'+r.text+'」をゲット！');
+      afterAction();
+    };
+  });
+}
+
+document.getElementById('nameInput').addEventListener('input',e=>{
+  S.name=e.target.value; save();
+});
+
+/* ======================================================
+   データ保存・読込・リセット
+====================================================== */
+function exportData(){
+  const blob=new Blob([JSON.stringify(ROOT,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=url; a.download='夢門塾冒険の書バックアップ_'+stamp+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  flash('📤 ぜんいんの記録を書き出しました！');
+}
+
+function importData(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const d=JSON.parse(reader.result);
+      // 基本的な型チェック
+      if(typeof d!=='object'||d===null||Array.isArray(d)) throw new Error();
+      if(d.profiles && typeof d.profiles==='object' && !Array.isArray(d.profiles)){
+        // 施設まるごとバックアップ
+        ROOT=Object.assign(defaultRoot(), d);
+        for(const id in ROOT.profiles){
+          ROOT.profiles[id]=Object.assign(defaultProfile(), ROOT.profiles[id]);
+        }
+        if(!ROOT.profiles[ROOT.current]) ROOT.current=Object.keys(ROOT.profiles)[0];
+        S=ROOT.profiles[ROOT.current];
+        flash('📥 ぜんいんの記録を読み込みました！');
+      } else {
+        // 旧：単一児童ファイル → 今の冒険者に取り込み
+        ROOT.profiles[ROOT.current]=Object.assign(defaultProfile(), d);
+        S=ROOT.profiles[ROOT.current];
+        flash('📥 記録を読み込みました！');
+      }
+      save(); render();
+    }catch(e){ flash('⚠️ ファイルを読めませんでした'); }
+  };
+  reader.readAsText(file);
+  ev.target.value='';
+}
+
+function resetData(){
+  if(confirm('「'+(S.name||'この冒険者')+'」をさいしょからやり直しますか？\nこの冒険者の記録だけが消えます。\n（他の冒険者の記録は残ります）')){
+    ROOT.profiles[ROOT.current]=defaultProfile();
+    S=ROOT.profiles[ROOT.current];
+    save(); tab=0; render();
+    flash('🔄 さいしょに戻しました');
+  }
+}
+
+/* ======================================================
+   雲の生成
+====================================================== */
+(function(){
+  const c=document.getElementById('clouds');
+  const defs=[
+    [12,60, 110,45],
+    [60,140,90, 60],
+    [30,420,120,50],
+    [70,280,75, 50],
+    [20,560,100,40],
+  ];
+  defs.forEach(([lPct,top,w,dur])=>{
+    const d=document.createElement('div');
+    d.className='cloud';
+    d.style.left='-150px';
+    d.style.top=top+'px';
+    d.style.width=w+'px';
+    d.style.height=(w*0.5)+'px';
+    d.style.boxShadow=(w*0.3)+'px 0 0 rgba(255,255,255,.45), '+(-w*0.25)+'px '+(w*0.05)+'px 0 rgba(255,255,255,.4)';
+    d.style.animationDuration=dur+'s';
+    d.style.animationDelay=(Math.random()*-dur)+'s';
+    c.appendChild(d);
+  });
+})();
+
+/* ======================================================
+   日付ウィジェット・自動リセット
+====================================================== */
+function getWeekNum(d){
+  const date=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const jan1=new Date(d.getFullYear(),0,1);
+  return Math.ceil(((date-jan1)/86400000+jan1.getDay()+1)/7);
+}
+
+// 1人分の日付リセット（現在の児童ならメッセージを返す）
+function resetProfileForDate(p, today, thisWeek){
+  let msg=null;
+  if(p.lastDate===''){
+    p.lastDate=today; p.lastWeek=thisWeek; return null;
+  }
+  if(p.lastDate!==today){
+    const prevDone=p.dailyDone.length;
+    p.history.unshift({
+      date:p.lastDate, dailyDone:[...p.dailyDone],
+      emotion:p.emotion, pts:p.points
+    });
+    if(p.history.length>30) p.history=p.history.slice(0,30);
+    p.dailyDone=[]; p.emotion=null; p.lastDate=today;
+    msg='🌅 新しい日が始まった！今日も冒険しよう！（昨日は'+prevDone+'個のミッションをクリア）';
+    if(thisWeek!==p.lastWeek){
+      p.weekly={}; p.lastWeek=thisWeek;
+      msg+=' 📅 新しい週が始まった！';
+    }
+  }
+  return msg;
+}
+
+// 全児童に日付リセットを適用。現在の児童のメッセージを返す
+function checkDateReset(){
+  const today=new Date().toLocaleDateString('ja-JP');
+  const thisWeek=getWeekNum(new Date());
+  let msg=null;
+  for(const id in ROOT.profiles){
+    const m=resetProfileForDate(ROOT.profiles[id], today, thisWeek);
+    if(id===ROOT.current) msg=m;
+  }
+  save();
+  return msg;
+}
+
+/* ======================================================
+   初期化
+====================================================== */
+// タイマー初期化
+timerTotal=TIMER_PRESETS[timerPresetIdx].focus;
+timerSec=timerTotal;
+
+const resetMsg=checkDateReset();
+checkBadges();
+save();
+render();
+if(resetMsg){ setTimeout(()=>flash(resetMsg),400); }
+</script>
+</body>
 </html>

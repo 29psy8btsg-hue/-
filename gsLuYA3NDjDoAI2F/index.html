@@ -1032,6 +1032,8 @@ function renderTimer(){
 ====================================================== */
 function renderStatus(){
   let h='<div class="sect">'+sectHTML('📊','冒険者ステータス','ミッションをこなして成長しよう','#4EC5E0')+'</div>';
+  h+=renderRankHero();
+  h+=renderRankRoadmap();
   h+='<div class="chartbox"><canvas id="radar" width="600" height="520" style="width:100%;height:auto"></canvas></div>';
   h+='<div class="statgrid">';
   STATS.forEach(s=>{
@@ -1050,6 +1052,59 @@ function renderStatus(){
     h+='<button class="staffbtn" data-bump="'+esc(s.key)+'" style="border-color:'+s.color+';color:'+s.color+';background:'+s.color+'18">'+esc(s.icon)+esc(s.label)+' +1</button>';
   });
   h+='</div></div>';
+  return h;
+}
+
+/* 現在のランク（職業）ヒーローカード */
+function renderRankHero(){
+  const rank=getRank(S.points);
+  const next=getNextRank(S.points);
+  let pct=0, label='';
+  if(next){
+    const pct0=(S.points-rank.min)/(next.min-rank.min)*100;
+    pct=Math.max(0,Math.min(100,pct0));
+    label='次は「'+next.name+'」まで あと'+(next.min-S.points)+'pt';
+  } else {
+    pct=100; label='🏆 最高ランク「'+rank.name+'」到達！';
+  }
+  const avail=S.points-(S.spent||0);
+  return '<div style="border-radius:18px;padding:16px 16px 14px;margin-bottom:14px;color:#fff;'+
+      'background:linear-gradient(135deg,'+rank.color+',#1A3A6B);box-shadow:0 6px 18px '+rank.color+'55">'+
+    '<div style="display:flex;align-items:center;gap:13px">'+
+      '<div style="width:56px;height:56px;border-radius:16px;flex-shrink:0;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:32px">'+esc(S.avatar||rank.icon)+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">げんざいの しょくぎょう</div>'+
+        '<div style="font-size:19px;font-weight:900;line-height:1.2">'+esc(rank.icon)+' '+esc(rank.name)+'</div>'+
+        '<div style="font-size:11px;opacity:.9;margin-top:2px">累計 '+S.points+'pt ・ つかえる '+avail+'pt</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-top:12px">'+
+      '<div style="font-size:11px;font-weight:700;margin-bottom:5px">'+esc(label)+'</div>'+
+      '<div style="height:9px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden">'+
+        '<div style="height:100%;width:'+pct.toFixed(1)+'%;border-radius:6px;background:#fff"></div></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* 称号ロードマップ */
+function renderRankRoadmap(){
+  const cur=getRank(S.points);
+  const idx=RANKS.indexOf(cur);
+  let h='<div style="font-size:12px;font-weight:900;color:#1A3A6B;margin:2px 0 8px">🗺️ 称号ロードマップ</div>';
+  h+='<div style="border:2px solid #E5E7EB;border-radius:16px;padding:8px 12px;margin-bottom:14px;background:#fff">';
+  RANKS.forEach((r,i)=>{
+    const done=i<idx, here=i===idx;
+    const active=done||here;
+    const col=here?r.color:(done?'#374151':'#9CA3AF');
+    const status=here?'★ いま':(done?'達成':'あと'+(r.min-S.points)+'pt');
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:10px;'+(here?'background:'+r.color+'14':'')+'">'+
+      '<div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;'+
+        'background:'+(active?r.color+'22':'#F3F4F6')+';border:2px solid '+(active?r.color:'#E5E7EB')+';color:'+(active?r.color:'#9CA3AF')+'">'+(done?'✓':esc(r.icon))+'</div>'+
+      '<div style="flex:1;min-width:0;font-size:13px;font-weight:'+(here?'900':'700')+';color:'+col+'">'+esc(r.name)+'<span style="font-size:10px;font-weight:700;color:#9CA3AF;margin-left:6px">'+r.min+'pt〜</span></div>'+
+      '<div style="font-size:10px;font-weight:800;color:'+col+';white-space:nowrap">'+status+'</div>'+
+    '</div>';
+  });
+  h+='</div>';
   return h;
 }
 

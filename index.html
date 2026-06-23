@@ -315,12 +315,33 @@ const STATS = [
   { key:"intelligence",label:"知性",     icon:"🧠", color:"#8B5CF6", desc:"宿題・勉強で上がる" },
 ];
 
+// 累積ポイントで決まる基本ランク（勇者への道）
+// 初動は約3日(8pt)、以降は増分を約1.5倍ずつ、伝説だけ2倍で重め
 const RANKS = [
-  { name:"見習い冒険者", min:0,  icon:"🌱", color:"#94A3B8" },
-  { name:"銅の冒険者",   min:10, icon:"🥉", color:"#CD7F32" },
-  { name:"銀の冒険者",   min:25, icon:"🥈", color:"#94A3B8" },
-  { name:"金の冒険者",   min:50, icon:"🥇", color:"#FFC93C" },
-  { name:"伝説の冒険者", min:90, icon:"👑", color:"#FF6B35" },
+  { name:"見習い冒険者", min:0,   icon:"🌱", color:"#94A3B8" },
+  { name:"駆け出し戦士", min:8,   icon:"🗡️", color:"#8B5E3C" },
+  { name:"銅の冒険者",   min:20,  icon:"🥉", color:"#CD7F32" },
+  { name:"銀の騎士",     min:38,  icon:"🥈", color:"#94A3B8" },
+  { name:"金の英雄",     min:65,  icon:"🥇", color:"#FFC93C" },
+  { name:"紅蓮の勇者",   min:105, icon:"🔥", color:"#FF6B35" },
+  { name:"伝説の勇者",   min:185, icon:"👑", color:"#FF3B6B" },
+];
+
+// 転生システム：伝説の勇者(185pt)で解放。以降 +100ptごとに転生できる
+const REBIRTH_MIN  = 185;   // 最初の転生に必要な累積pt
+const REBIRTH_STEP = 100;   // 2回目以降、次の転生までの間隔
+
+// 転生で就ける最上位職（DQ/FFの上位職を6ステータスに対応づけ）
+const REBIRTH_JOBS = [
+  { id:"sage",     name:"賢者",       icon:"🧙", color:"#8B5CF6", stat:"intelligence", desc:"知性をきわめし者。あらゆる知をあやつる。" },
+  { id:"archmage", name:"大魔道士",   icon:"🔮", color:"#4EC5E0", stat:"focus",        desc:"集中の極み。最強の魔法を放つ。" },
+  { id:"paladin",  name:"パラディン", icon:"🛡️", color:"#EF4444", stat:"patience",     desc:"鉄壁のがまん力で仲間を守る聖騎士。" },
+  { id:"dragoon",  name:"竜騎士",     icon:"🐉", color:"#FF8C42", stat:"physical",     desc:"天高くジャンプする運動の達人。" },
+  { id:"saint",    name:"白の聖者",   icon:"😇", color:"#E8197D", stat:"heart",        desc:"やさしいこころで皆を癒やす白の賢者。" },
+  { id:"guild",    name:"ギルドマスター", icon:"🤝", color:"#22C55E", stat:"social",   desc:"仲間を束ねる冒険者ギルドの長。" },
+  // 隠し職
+  { id:"battle",   name:"バトルマスター", icon:"⚔️", color:"#1A3A6B", hidden:"stat",   desc:"全ステータスLv8以上で覚醒する武の頂点。" },
+  { id:"mime",     name:"ものまね士",     icon:"🎭", color:"#FFC93C", hidden:"collect", desc:"全ての職をきわめた者だけがなれる究極職。" },
 ];
 
 const DAILY = [
@@ -372,7 +393,9 @@ const BADGES = [
   { id:"b9",  name:"100ptレジェンド",emoji:"👑",cond:"合計100pt以上",          check:s=>s.points>=100 },
   { id:"b10", name:"タイマー勇者",   emoji:"⏱️", cond:"集中タイマー完走5回",   check:s=>(s.timerComplete||0)>=5 },
   { id:"b11", name:"全能力覚醒！",   emoji:"🌟", cond:"全ステータスLv3以上",   check:s=>STATS.every(st=>s.stats[st.key]>=3) },
-  { id:"b12", name:"伝説の冒険者",  emoji:"🐲", cond:"最高ランク到達",         check:s=>s.points>=90 },
+  { id:"b12", name:"伝説の勇者",    emoji:"🐲", cond:"伝説の勇者に到達(185pt)", check:s=>s.points>=185 },
+  { id:"b13", name:"転生者",        emoji:"🌟", cond:"はじめて転生する",        check:s=>(s.rebirthStar||0)>=1 },
+  { id:"b14", name:"全職マスター",   emoji:"🎭", cond:"6つの職をすべて集める",   check:s=>(s.rebirthJobs||[]).filter(id=>id!=='mime').length>=6 },
 ];
 
 const TABS = [
@@ -402,7 +425,11 @@ function defaultProfile(name, avatar){
     points:0, spent:0,
     stats:{ focus:1, patience:1, heart:1, social:1, physical:1, intelligence:1 },
     dailyDone:[], weekly:{}, skillCount:0, claimed:[], emotion:null,
-    lastDate:"", lastWeek:-1, history:[], badges:[], timerComplete:0
+    lastDate:"", lastWeek:-1, history:[], badges:[], timerComplete:0,
+    rankSeen:0,                 // 昇格演出を見せ終えたランク番号
+    rebirthStar:0,              // 転生した回数（☆の数）
+    rebirthJob:null,            // 現在の転生職ID
+    rebirthJobs:[]              // これまで就いた職のコレクション
   };
 }
 // 旧コードとの互換（リセット時などに新規プロフィールを返す）
@@ -430,7 +457,11 @@ function loadRoot(){
       }
       // 欠損キーを補完
       for(const id in root.profiles){
-        root.profiles[id]=Object.assign(defaultProfile(), root.profiles[id]);
+        const raw=root.profiles[id];
+        const p=Object.assign(defaultProfile(), raw);
+        // 既存ユーザー（rankSeen未保持）は現ランクを既読扱いにし、過去ぶんの昇格演出が一気に出ないようにする
+        if(raw && typeof raw==='object' && !('rankSeen' in raw)) p.rankSeen=rankIndex(p.points);
+        root.profiles[id]=p;
       }
       if(!root.profiles[root.current]) root.current=Object.keys(root.profiles)[0];
       return root;
@@ -523,6 +554,31 @@ function renameProfile(id){
 ====================================================== */
 function getRank(pt){ let r=RANKS[0]; for(const x of RANKS) if(pt>=x.min) r=x; return r; }
 function getNextRank(pt){ for(const x of RANKS) if(pt<x.min) return x; return null; }
+function rankIndex(pt){ let idx=0; for(let i=0;i<RANKS.length;i++) if(pt>=RANKS[i].min) idx=i; return idx; }
+
+/* ---- 転生（プレステージ）ヘルパー ---- */
+function jobOf(id){ return REBIRTH_JOBS.find(j=>j.id===id); }
+// 累積ptから「これまでに得られた転生回数」
+function rebirthSlots(pt){ return pt<REBIRTH_MIN ? 0 : Math.floor((pt-REBIRTH_MIN)/REBIRTH_STEP)+1; }
+// いま転生できるか（得た回数 > 使った回数）
+function rebirthAvailable(){ return rebirthSlots(S.points) > (S.rebirthStar||0); }
+// 次の転生に必要な累積pt
+function nextRebirthAt(){ return REBIRTH_MIN + REBIRTH_STEP*(S.rebirthStar||0); }
+// 隠し職の解放条件
+function jobUnlocked(job){
+  if(job.hidden==='stat')    return STATS.every(s=>S.stats[s.key]>=8);          // 全ステLv8以上
+  if(job.hidden==='collect') return (S.rebirthJobs||[]).filter(id=>id!=='mime').length>=6; // 6職コンプ
+  return true;
+}
+// ヘッダー等に出す現在の称号（転生後は職＋☆）。引数省略時は現在の児童
+function displayRank(p){
+  p=p||S;
+  if((p.rebirthStar||0)>0 && p.rebirthJob){
+    const j=jobOf(p.rebirthJob);
+    if(j) return { name:j.name+' ☆'+p.rebirthStar, icon:j.icon, color:j.color, rebirth:true };
+  }
+  return getRank(p.points);
+}
 function statOf(k){ return STATS.find(s=>s.key===k); }
 function avail(){ return S.points - S.spent; }
 function bump(k, n=1){ S.stats[k]=Math.min(10, S.stats[k]+n); }
@@ -553,10 +609,27 @@ function checkBadges(){
   return newBadges;
 }
 
+// 累積ptが上がってランクが進んだか判定（複数段抜けにも対応）
+function checkRankUp(){
+  const idx=rankIndex(S.points);
+  if(idx>(S.rankSeen||0)){
+    const reached=RANKS[idx];           // 到達した最上位ランク
+    S.rankSeen=idx;
+    return reached;
+  }
+  return null;
+}
+
 function afterAction(){
+  const ru=checkRankUp();               // 先にランク判定（rankSeenを更新）
   const nb=checkBadges();
   save();
   render();
+  let delay=300;
+  if(ru){
+    setTimeout(()=>showRankUp(ru), delay);
+    delay += 2600;                       // ランクカードを見せ終えてからバッジへ
+  }
   if(nb.length){
     setTimeout(()=>{
       nb.forEach((b,i)=>{
@@ -566,8 +639,33 @@ function afterAction(){
           flash('🏅 バッジ獲得！「'+b.name+'」');
         }, i*1000);
       });
-    }, 300);
+    }, delay);
   }
+}
+
+/* ======================================================
+   昇格演出：全画面の称号カード
+====================================================== */
+function showRankUp(rank){
+  const legend = rank.min>=REBIRTH_MIN;             // 伝説の勇者に到達したか
+  playSound('reward'); confetti(); confetti();
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.72);z-index:600;display:flex;align-items:center;justify-content:center;animation:pop .4s ease;';
+  const box=document.createElement('div');
+  box.style.cssText='background:linear-gradient(160deg,#fff,#F3F6FF);border-radius:26px;padding:30px 26px;max-width:330px;width:88%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);border:3px solid '+rank.color+';';
+  box.innerHTML=
+    '<div style="font-size:13px;font-weight:900;letter-spacing:2px;color:'+rank.color+'">⭐ ランクアップ！ ⭐</div>'+
+    '<div style="font-size:72px;margin:10px 0;line-height:1">'+esc(rank.icon)+'</div>'+
+    '<div style="font-size:24px;font-weight:900;color:'+rank.color+'">'+esc(rank.name)+'</div>'+
+    '<div style="font-size:12px;color:#6B7280;margin-top:8px">累計 '+S.points+'pt 達成！</div>'+
+    (legend
+      ? '<div style="margin-top:14px;padding:11px;border-radius:14px;background:#FFF4E5;color:#B45309;font-size:12px;font-weight:800;line-height:1.6">🌟 ついに頂点へ！<br>「転生」して最上位職をめざせる！<br>ステータス画面でチェック！</div>'
+      : '<div style="font-size:12px;color:#9CA3AF;margin-top:12px">この調子で冒険をつづけよう！</div>')+
+    '<button onclick="this.closest(\'[data-rankup]\').remove()" style="margin-top:18px;width:100%;padding:12px;border:none;border-radius:13px;background:'+rank.color+';color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit">やったー！</button>';
+  modal.setAttribute('data-rankup','1');
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
 }
 
 /* ======================================================
@@ -757,7 +855,7 @@ function openProfileModal(){
   let h='<div style="font-size:16px;font-weight:900;color:#1A3A6B;margin-bottom:4px;text-align:center">🐾 冒険者をえらぶ</div>'+
     '<div style="font-size:11px;color:#6B7280;text-align:center;margin-bottom:14px">タップで切りかえ・もう一度タップで見た目変更</div>';
   profileList().forEach(p=>{
-    const rank=getRank(p.points);
+    const rank=displayRank(p);
     const cur=p.id===ROOT.current;
     h+='<div onclick="onProfileRowTap(\''+p.id+'\')" style="display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:8px;border-radius:14px;cursor:pointer;'+
        'border:2.5px solid '+(cur?'#E8197D':'#E5E7EB')+';background:'+(cur?'rgba(232,25,125,.06)':'#fff')+'">'+
@@ -804,6 +902,104 @@ function openAvatarPicker(){
   document.body.appendChild(modal);
 }
 
+/* ======================================================
+   転生（プレステージ）モーダル
+====================================================== */
+function jobCellHTML(job, selectable){
+  const got=(S.rebirthJobs||[]).includes(job.id);
+  const unlocked=jobUnlocked(job);
+  const st=job.stat?statOf(job.stat):null;
+  if(job.hidden && !unlocked){
+    const cond = job.hidden==='stat' ? '全ステータスLv8で解放' : '6つの職をきわめると解放';
+    return '<div style="border:2px dashed #D1D5DB;border-radius:14px;padding:12px 8px;text-align:center;background:#F9FAFB;opacity:.85">'+
+      '<div style="font-size:30px;filter:grayscale(1);opacity:.5">'+esc(job.icon)+'</div>'+
+      '<div style="font-size:12px;font-weight:800;color:#9CA3AF;margin-top:3px">🔒 ？？？</div>'+
+      '<div style="font-size:9px;color:#9CA3AF;margin-top:3px;line-height:1.4">'+esc(cond)+'</div></div>';
+  }
+  const tag = (selectable?'button':'div');
+  const click = (selectable && unlocked) ? ' onclick="doRebirth(\''+job.id+'\')"' : '';
+  const cursor = (selectable && unlocked) ? 'cursor:pointer;' : 'cursor:default;';
+  return '<'+tag+(selectable?' type="button"':'')+click+' style="border:2px solid '+job.color+(got?'':'66')+';border-radius:14px;padding:12px 8px;text-align:center;background:'+job.color+(got?'22':'0D')+';font-family:inherit;'+cursor+'width:100%">'+
+    '<div style="font-size:30px">'+esc(job.icon)+'</div>'+
+    '<div style="font-size:13px;font-weight:900;color:'+job.color+';margin-top:2px">'+esc(job.name)+(got?' ✓':'')+'</div>'+
+    (st?'<div style="font-size:9px;color:#6B7280;margin-top:2px">'+esc(st.icon)+esc(st.label)+'タイプ</div>':
+        '<div style="font-size:9px;color:#6B7280;margin-top:2px">隠し職</div>')+
+    '</'+tag+'>';
+}
+
+function openRebirthModal(){
+  const existing=document.getElementById('rebirthModal');
+  if(existing){ existing.remove(); return; }
+  const avail=rebirthAvailable();
+  const modal=document.createElement('div');
+  modal.id='rebirthModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.65);z-index:520;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:22px;padding:22px 18px;max-width:360px;width:100%;max-height:90vh;overflow:auto;';
+
+  let h='<div style="font-size:18px;font-weight:900;color:#1A3A6B;text-align:center">🌟 転生のとびら</div>';
+  if((S.rebirthStar||0)>0 && S.rebirthJob){
+    const cj=jobOf(S.rebirthJob);
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin-top:4px">いまの称号：<b style="color:'+cj.color+'">'+esc(cj.icon)+' '+esc(cj.name)+' ☆'+S.rebirthStar+'</b></div>';
+  }
+
+  if(avail){
+    h+='<div style="text-align:center;font-size:12px;color:#B45309;font-weight:800;margin:10px 0;line-height:1.6">好きな最上位職をえらんで転生しよう！<br>☆がひとつ増えて、職がコレクションに加わるよ。</div>';
+  } else if(S.points<REBIRTH_MIN){
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin:10px 0;line-height:1.6">「伝説の勇者」になると転生できる！<br>あと <b style="color:#E8197D">'+(REBIRTH_MIN-S.points)+'pt</b> 集めよう。</div>';
+  } else {
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin:10px 0;line-height:1.6">次の転生まで あと <b style="color:#E8197D">'+(nextRebirthAt()-S.points)+'pt</b>！<br>これまで集めた職のコレクション👇</div>';
+  }
+
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px">';
+  REBIRTH_JOBS.forEach(j=>{ h+=jobCellHTML(j, avail); });
+  h+='</div>';
+
+  const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
+  h+='<div style="font-size:11px;color:#9CA3AF;text-align:center;margin-top:12px">職コレクション '+coll+' / 6（全部集めると隠し職が解放！）</div>';
+  h+='<button onclick="document.getElementById(\'rebirthModal\').remove()" style="margin-top:14px;width:100%;padding:12px;border:none;border-radius:13px;background:#1A3A6B;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">とじる</button>';
+
+  box.innerHTML=h;
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+function doRebirth(id){
+  if(!rebirthAvailable()) return;
+  const job=jobOf(id);
+  if(!job || !jobUnlocked(job)) return;
+  S.rebirthStar=(S.rebirthStar||0)+1;
+  S.rebirthJob=id;
+  if(!S.rebirthJobs) S.rebirthJobs=[];
+  const isNew=!S.rebirthJobs.includes(id);
+  if(isNew) S.rebirthJobs.push(id);
+  save();
+  const m=document.getElementById('rebirthModal'); if(m) m.remove();
+  showRebirthCelebrate(job, isNew);
+  render();
+}
+
+function showRebirthCelebrate(job, isNew){
+  playSound('reward'); confetti(); confetti(); setTimeout(confetti,200);
+  const modal=document.createElement('div');
+  modal.setAttribute('data-rankup','1');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.78);z-index:620;display:flex;align-items:center;justify-content:center;animation:pop .4s ease;';
+  const box=document.createElement('div');
+  box.style.cssText='background:linear-gradient(160deg,#fff,#F3F6FF);border-radius:26px;padding:30px 26px;max-width:330px;width:88%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45);border:3px solid '+job.color+';';
+  const first=!!isNew;
+  box.innerHTML=
+    '<div style="font-size:13px;font-weight:900;letter-spacing:2px;color:'+job.color+'">✨ 転生せいこう！ ✨</div>'+
+    '<div style="font-size:72px;margin:10px 0;line-height:1">'+esc(job.icon)+'</div>'+
+    '<div style="font-size:24px;font-weight:900;color:'+job.color+'">'+esc(job.name)+' ☆'+S.rebirthStar+'</div>'+
+    '<div style="font-size:12px;color:#6B7280;margin-top:8px;line-height:1.6">'+esc(job.desc)+'</div>'+
+    (first?'<div style="margin-top:12px;padding:9px;border-radius:12px;background:#EFFAF1;color:#15803D;font-size:11px;font-weight:800">🎴 新しい職をコレクションに加えた！</div>':'')+
+    '<button onclick="this.closest(\'[data-rankup]\').remove()" style="margin-top:18px;width:100%;padding:12px;border:none;border-radius:13px;background:'+job.color+';color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit">最高だ！</button>';
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
 function pickAvatar(a){
   S.avatar=a; save();
   document.getElementById('avatar').textContent=a;
@@ -817,21 +1013,44 @@ function pickAvatar(a){
    描画：ヘッダー
 ====================================================== */
 function renderHeader(){
-  const rank=getRank(S.points), next=getNextRank(S.points);
+  const rank=displayRank(), next=getNextRank(S.points);
   document.getElementById('avatar').textContent=S.avatar||rank.icon;
   document.getElementById('rankLabel').innerHTML=
     '<span style="color:'+rank.color+'">'+esc(rank.icon)+' '+esc(rank.name)+'</span>';
   document.getElementById('availPt').textContent=avail();
   const ni=document.getElementById('nameInput');
   if(ni.value!==S.name) ni.value=S.name;
-  if(next){
-    document.getElementById('rankProgWrap').style.display='block';
-    document.getElementById('nextRankText').textContent='次のランク「'+next.name+'」まで';
-    document.getElementById('nextRankPt').textContent='あと'+(next.min-S.points)+'pt';
-    const pct=((S.points-rank.min)/(next.min-rank.min))*100;
-    document.getElementById('rankProg').style.width=pct+'%';
+
+  const wrap=document.getElementById('rankProgWrap');
+  const fill=document.getElementById('rankProg');
+  const tEl=document.getElementById('nextRankText');
+  const pEl=document.getElementById('nextRankPt');
+  wrap.onclick=null; wrap.style.cursor='';
+
+  if(rebirthAvailable()){
+    // 転生できる：タップで転生モーダルへ
+    wrap.style.display='block';
+    tEl.textContent='🌟 転生できる！';
+    pEl.textContent='タップ ▶';
+    fill.style.width='100%'; fill.style.background='linear-gradient(90deg,#FFC93C,#FF6B35,#E8197D)';
+    wrap.style.cursor='pointer';
+    wrap.onclick=openRebirthModal;
+  } else if(next){
+    // 通常の次ランクまで（伝説の勇者の手前まで）
+    const cur=getRank(S.points);
+    wrap.style.display='block';
+    tEl.textContent='次のランク「'+next.name+'」まで';
+    pEl.textContent='あと'+(next.min-S.points)+'pt';
+    fill.style.width=((S.points-cur.min)/(next.min-cur.min)*100)+'%';
+    fill.style.background='';
   } else {
-    document.getElementById('rankProgWrap').style.display='none';
+    // 伝説の勇者に到達済み：次の転生までの進捗を表示
+    const base=nextRebirthAt()-REBIRTH_STEP, target=nextRebirthAt();
+    wrap.style.display='block';
+    tEl.textContent='次の転生まで';
+    pEl.textContent='あと'+(target-S.points)+'pt';
+    fill.style.width=Math.max(0,Math.min(100,(S.points-base)/(target-base)*100))+'%';
+    fill.style.background='linear-gradient(90deg,#8B5CF6,#E8197D)';
   }
 }
 
@@ -982,6 +1201,7 @@ function renderTimer(){
 ====================================================== */
 function renderStatus(){
   let h='<div class="sect">'+sectHTML('📊','冒険者ステータス','ミッションをこなして成長しよう','#4EC5E0')+'</div>';
+  h+=renderRebirthPanel();
   h+='<div class="chartbox"><canvas id="radar" width="600" height="520" style="width:100%;height:auto"></canvas></div>';
   h+='<div class="statgrid">';
   STATS.forEach(s=>{
@@ -1001,6 +1221,33 @@ function renderStatus(){
   });
   h+='</div></div>';
   return h;
+}
+
+/* 転生パネル（ステータスタブ） */
+function renderRebirthPanel(){
+  const star=S.rebirthStar||0;
+  const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
+  // まだ伝説の勇者になっていない & 転生未経験 → 控えめなティザー
+  if(star===0 && S.points<REBIRTH_MIN){
+    return '<div style="border:2px dashed #C7B3F0;border-radius:14px;padding:12px 14px;margin-bottom:12px;background:#FAF8FF;text-align:center">'+
+      '<div style="font-size:13px;font-weight:900;color:#8B5CF6">🌟 転生システム</div>'+
+      '<div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.6">「伝説の勇者」になると<b>転生</b>が解放！<br>賢者・竜騎士などの最上位職をめざそう。<br>あと <b style="color:#E8197D">'+(REBIRTH_MIN-S.points)+'pt</b></div></div>';
+  }
+  const avail=rebirthAvailable();
+  let inner='';
+  if(star>0 && S.rebirthJob){
+    const cj=jobOf(S.rebirthJob);
+    inner+='<div style="font-size:13px;font-weight:900;color:'+cj.color+'">'+esc(cj.icon)+' '+esc(cj.name)+' ☆'+star+'</div>';
+  } else {
+    inner+='<div style="font-size:13px;font-weight:900;color:#8B5CF6">🌟 転生のとびらが開かれた！</div>';
+  }
+  inner+='<div style="font-size:10px;color:#6B7280;margin-top:3px">職コレクション '+coll+' / 6'+(coll>=6?'（隠し職 解放！）':'')+'</div>';
+  const btnStyle = avail
+    ? 'background:linear-gradient(90deg,#FFC93C,#FF6B35,#E8197D);color:#fff;animation:pop .6s ease infinite alternate;'
+    : 'background:#fff;color:#8B5CF6;border:2px solid #C7B3F0;';
+  inner+='<button onclick="openRebirthModal()" style="margin-top:10px;width:100%;padding:11px;border:none;border-radius:12px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;'+btnStyle+'">'+
+    (avail?'🌟 転生する！':'転生のとびらをひらく')+'</button>';
+  return '<div style="border:2px solid #C7B3F0;border-radius:14px;padding:13px 14px;margin-bottom:12px;background:linear-gradient(160deg,#FAF8FF,#FFF)">'+inner+'</div>';
 }
 
 /* ======================================================

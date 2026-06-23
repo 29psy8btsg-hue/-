@@ -31,13 +31,11 @@ body{ font-family:-apple-system,'Hiragino Kaku Gothic ProN','Hiragino Sans',sans
 .card-title{ font-size:15px; font-weight:900; color:var(--navy); display:flex; align-items:center; gap:7px; margin-bottom:4px; position:relative; }
 .card-sub{ font-size:11px; color:#6B5B7E; margin-bottom:12px; line-height:1.55; position:relative; }
 
-/* アニメ強度トグル */
 .anim-toggle{ display:flex; gap:6px; background:#EEE2C8; border-radius:12px; padding:5px; position:relative; }
 .anim-toggle button{ flex:1; border:none; border-radius:9px; padding:8px 4px; font-size:12px; font-weight:800; font-family:inherit;
   background:transparent; color:#8A795C; cursor:pointer; transition:.15s; }
 .anim-toggle button.on{ background:#fff; color:var(--navy); box-shadow:0 2px 6px rgba(0,0,0,.18); }
 
-/* キャラギャラリー */
 .mon-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; position:relative; }
 .mon-cell{ background:#fff; border:2px solid #EAD9AE; border-radius:16px; padding:10px 6px 8px; text-align:center;
   box-shadow:inset 0 -3px 8px rgba(0,0,0,.04); }
@@ -53,7 +51,7 @@ body.anim-off  .mon-idle{ animation:none; }
 
 /* ============ バトルステージ ============ */
 .stage{ position:relative; border-radius:16px; overflow:hidden; border:3px solid #2A1E4D;
-  box-shadow:inset 0 0 30px rgba(0,0,0,.45); height:228px;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.45); height:236px;
   background:
     radial-gradient(circle at 30% 18%, rgba(255,255,255,.18), transparent 30%),
     radial-gradient(ellipse at 50% 120%, #6B4BA8 0%, transparent 60%),
@@ -67,19 +65,15 @@ body.anim-soft .stage .star{ animation:twk 4.4s ease-in-out infinite; }
   background:linear-gradient(180deg,#3E7C4A,#2E5C39); border-top:3px solid #56A765; }
 .stage .castle{ position:absolute; bottom:58px; left:50%; transform:translateX(-50%); opacity:.5; }
 
-/* 敵（上） */
-.enemy-slot{ position:absolute; top:8px; left:50%; transform:translateX(-50%); text-align:center; }
-.enemy-slot svg{ width:118px; height:118px; }
-/* 味方（下・正面向き） */
+.enemy-slot{ position:absolute; top:14px; left:50%; transform:translateX(-50%); text-align:center; }
+.enemy-slot svg{ width:112px; height:112px; }
 .hero-slot{ position:absolute; bottom:6px; left:14px; }
-.hero-slot svg{ width:96px; height:96px; }
+.hero-slot svg{ width:92px; height:92px; }
 
-/* 名前＋HP（敵） */
 .enemy-name{ position:absolute; top:6px; right:10px; left:10px; text-align:center;
   font-size:12px; font-weight:900; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); }
-.ehp-wrap{ position:absolute; top:24px; left:50%; transform:translateX(-50%); width:62%; }
+.ehp-wrap{ position:absolute; top:24px; left:50%; transform:translateX(-50%); width:64%; }
 
-/* HPバー共通 */
 .hp-row{ display:flex; align-items:center; gap:6px; }
 .hp-tag{ font-size:10px; font-weight:900; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.55); flex-shrink:0; }
 .hp-bar{ flex:1; height:11px; border-radius:7px; background:rgba(0,0,0,.4); overflow:hidden; border:1.5px solid rgba(255,255,255,.5); }
@@ -89,75 +83,74 @@ body.anim-soft .stage .star{ animation:twk 4.4s ease-in-out infinite; }
 .hp-fill.low{ background:linear-gradient(90deg,#FB7185,#EF4444); }
 .hp-num{ font-size:10px; font-weight:900; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.55); flex-shrink:0; min-width:46px; text-align:right; }
 
-/* 味方ステータスパネル（ステージ下） */
-.hero-panel{ background:#13294B; border:3px solid var(--gold); border-radius:14px; margin-top:10px;
-  padding:9px 12px; display:flex; align-items:center; gap:10px; box-shadow:0 4px 14px rgba(0,0,0,.3); }
-.hero-panel .hn{ font-size:13px; font-weight:900; color:#fff; flex-shrink:0; }
-.hero-panel .hp-bar{ border-color:rgba(255,255,255,.4); }
+/* ステータスバッジ（バフ・構え） */
+.badges{ display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-top:4px; min-height:16px; }
+.badges.left{ justify-content:flex-start; }
+.bdg{ font-size:9px; font-weight:900; padding:2px 6px; border-radius:8px; color:#fff; line-height:1.2; white-space:nowrap; }
+.bdg.atk{ background:#FF8C42; } .bdg.def{ background:#3B82F6; } .bdg.guard{ background:#EF4444; }
+.bdg.echarge{ background:#7C2D12; } .bdg.ebuff{ background:#9333EA; }
+.enemy-badges{ position:absolute; top:40px; left:50%; transform:translateX(-50%); }
 
-/* 揺れ・点滅 */
 @keyframes shake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(5px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(3px);} }
 .hit{ animation:shake .42s; }
 @keyframes flashRed{ 0%,100%{filter:none;} 40%{filter:brightness(1.6) drop-shadow(0 0 6px #fff);} }
 .flash{ animation:flashRed .4s; }
 body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
 
-/* ダメージ数字 */
-.dmg{ position:absolute; font-size:22px; font-weight:900; pointer-events:none; z-index:30;
-  text-shadow:0 2px 4px rgba(0,0,0,.5); }
-.dmg.enemy{ color:#FFE08A; }
-.dmg.hero{ color:#FF6B6B; }
-.dmg.heal{ color:#86EFAC; }
+.dmg{ position:absolute; font-size:22px; font-weight:900; pointer-events:none; z-index:30; text-shadow:0 2px 4px rgba(0,0,0,.5); }
+.dmg.enemy{ color:#FFE08A; } .dmg.hero{ color:#FF6B6B; } .dmg.heal{ color:#86EFAC; } .dmg.buff{ color:#FFB877; }
 @keyframes dmgFloat{ 0%{ transform:translateY(0) scale(.6); opacity:0; } 25%{ transform:translateY(-10px) scale(1.15); opacity:1; } 100%{ transform:translateY(-42px) scale(1); opacity:0; } }
 .dmg{ animation:dmgFloat 1s ease-out forwards; }
 
-/* ログ */
 .battle-log{ background:#13294B; border:2px solid var(--gold); border-radius:12px; padding:11px 13px; margin-top:10px;
-  font-size:12.5px; font-weight:700; color:#FFF6E4; min-height:46px; line-height:1.6; text-align:left;
-  box-shadow:inset 0 0 12px rgba(0,0,0,.3); }
+  font-size:12.5px; font-weight:700; color:#FFF6E4; min-height:46px; line-height:1.6; text-align:left; box-shadow:inset 0 0 12px rgba(0,0,0,.3); }
 .battle-log b{ color:var(--yellow); }
 
-/* ターン表示 */
-.turn-pill{ display:inline-block; font-size:11px; font-weight:900; padding:3px 12px; border-radius:20px; margin:10px auto 0;
-  color:#fff; }
-.turn-pill.you{ background:var(--green); }
-.turn-pill.foe{ background:var(--purple); }
-.turn-pill.over{ background:var(--gold); color:var(--navy); }
+/* 味方パネル（HP＋AP） */
+.hero-panel{ background:#13294B; border:3px solid var(--gold); border-radius:14px; margin-top:10px; padding:9px 12px;
+  box-shadow:0 4px 14px rgba(0,0,0,.3); }
+.hero-panel .row{ display:flex; align-items:center; gap:9px; }
+.hero-panel .row + .row{ margin-top:7px; }
+.hero-panel .hn{ font-size:13px; font-weight:900; color:#fff; flex-shrink:0; }
+.hero-panel .hp-bar{ border-color:rgba(255,255,255,.4); }
+.ap-tag{ font-size:10px; font-weight:900; color:#FFD23F; flex-shrink:0; }
+.ap-pips{ display:flex; gap:4px; flex:1; }
+.ap-pip{ flex:1; height:11px; border-radius:5px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); transition:.2s; }
+.ap-pip.on{ background:linear-gradient(180deg,#FFE680,#FFB300); border-color:#FFD23F; box-shadow:0 0 6px rgba(255,210,63,.7); }
+.ap-num{ font-size:10px; font-weight:900; color:#FFD23F; min-width:30px; text-align:right; }
+
+.turn-pill{ display:inline-block; font-size:11px; font-weight:900; padding:3px 12px; border-radius:20px; margin:10px auto 0; color:#fff; }
+.turn-pill.you{ background:var(--green); } .turn-pill.foe{ background:var(--purple); } .turn-pill.over{ background:var(--gold); color:var(--navy); }
 .turn-center{ text-align:center; }
 
-/* コマンド */
 .cmd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:11px; }
-.cmd{ display:flex; align-items:center; gap:9px; border:2px solid; border-radius:13px; padding:10px 9px; background:#fff;
-  font-family:inherit; cursor:pointer; transition:.12s; text-align:left; box-shadow:0 2px 0 rgba(0,0,0,.08); }
+.cmd{ display:flex; align-items:center; gap:8px; border:2px solid; border-radius:13px; padding:9px 9px; background:#fff;
+  font-family:inherit; cursor:pointer; transition:.12s; text-align:left; box-shadow:0 2px 0 rgba(0,0,0,.08); position:relative; }
 .cmd:active{ transform:translateY(2px); box-shadow:none; }
-.cmd:disabled{ opacity:.38; cursor:default; transform:none; }
-.cmd .ci{ font-size:22px; flex-shrink:0; width:26px; text-align:center; }
+.cmd:disabled{ opacity:.34; cursor:default; transform:none; }
+.cmd .ci{ font-size:21px; flex-shrink:0; width:24px; text-align:center; }
 .cmd .ct{ flex:1; min-width:0; }
-.cmd .cname{ font-size:13px; font-weight:900; line-height:1.15; }
-.cmd .cinfo{ font-size:10px; font-weight:700; color:#9C8FB0; }
-.battle-btn{ width:100%; margin-top:11px; border:none; border-radius:13px; padding:13px; font-size:14px; font-weight:900;
-  font-family:inherit; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,.15); }
+.cmd .cname{ font-size:12.5px; font-weight:900; line-height:1.15; }
+.cmd .cinfo{ font-size:9.5px; font-weight:700; color:#9C8FB0; }
+.cmd .cost{ position:absolute; top:5px; right:7px; font-size:9px; font-weight:900; color:#F0B400; }
+.cmd .cost b{ color:#F0B400; }
+
+.battle-btn{ width:100%; margin-top:11px; border:none; border-radius:13px; padding:13px; font-size:14px; font-weight:900; font-family:inherit; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,.15); }
 .battle-btn:active{ transform:translateY(2px); box-shadow:none; }
 .note{ font-size:10px; color:#9C8FB0; margin-top:11px; line-height:1.65; }
 
-/* 結果オーバーレイ */
 .result{ position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center;
   border-radius:13px; z-index:40; text-align:center; padding:16px; }
 .result.win{ background:radial-gradient(circle, rgba(255,210,63,.96), rgba(240,160,0,.96)); }
 .result.rest{ background:radial-gradient(circle, rgba(126,91,176,.97), rgba(74,52,120,.97)); }
 .result .rtitle{ font-size:26px; font-weight:900; margin-bottom:6px; }
-.result.win .rtitle{ color:#7A4A00; }
-.result.rest .rtitle{ color:#fff; }
+.result.win .rtitle{ color:#7A4A00; } .result.rest .rtitle{ color:#fff; }
 .result .rsub{ font-size:13px; font-weight:800; line-height:1.6; }
-.result.win .rsub{ color:#5A3A00; }
-.result.rest .rsub{ color:#F3E8FF; }
-.result .rbtn{ margin-top:14px; border:none; border-radius:30px; padding:12px 28px; font-size:15px; font-weight:900;
-  font-family:inherit; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.2); }
-.result.win .rbtn{ background:#13294B; color:#FFD23F; }
-.result.rest .rbtn{ background:#FFD23F; color:#13294B; }
+.result.win .rsub{ color:#5A3A00; } .result.rest .rsub{ color:#F3E8FF; }
+.result .rbtn{ margin-top:14px; border:none; border-radius:30px; padding:12px 28px; font-size:15px; font-weight:900; font-family:inherit; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.2); }
+.result.win .rbtn{ background:#13294B; color:#FFD23F; } .result.rest .rbtn{ background:#FFD23F; color:#13294B; }
 .result .rbtn:active{ transform:translateY(2px); box-shadow:none; }
 
-/* 紙吹雪 */
 .confetti{ position:fixed; width:9px; height:14px; top:-20px; z-index:60; pointer-events:none; border-radius:2px; }
 @keyframes fall{ to{ transform:translateY(105vh) rotate(540deg); opacity:.2; } }
 </style>
@@ -169,7 +162,6 @@ body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
     <small>確認用のサンプルです。本番アプリ（冒険の書）には まだ反映していません。</small>
   </div>
 
-  <!-- アニメ強度 -->
   <div class="card">
     <div class="card-title">🎚️ アニメーションの強さ</div>
     <div class="card-sub">感覚過敏の子にも合わせられるよう、動きの強さを切りかえできます（揺れ・点滅もここで弱められます）。</div>
@@ -180,12 +172,10 @@ body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
     </div>
   </div>
 
-  <!-- HP制ターン制バトル -->
   <div class="card epic">
     <div class="card-title">⚔️ ターン制バトル（HP制・試作）</div>
-    <div class="card-sub">ステータスで覚えた<b>わざ</b>で たたかう本格バトル。あいてのHPをゼロにすると<b>こころが はれて なかよし</b>に。相手も攻撃してくるけど、<b>負けても すぐ もう一度</b>できる安心設計です。</div>
+    <div class="card-sub">ステータスで覚えた<b>わざ</b>で たたかう本格バトル。わざは<b>⚡きあい(AP)</b>を消費するので、強い技の連打はできません。<b>バフ・回復・ガード</b>を組み合わせ、回復や必殺技を使う相手を攻略しよう。<b>負けても すぐ もう一度</b>できる安心設計です。</div>
 
-    <!-- ステージ -->
     <div class="stage" id="stage">
       <div class="stars" id="stars"></div>
       <svg class="castle" width="120" height="50" viewBox="0 0 120 50"><g fill="#241848"><rect x="20" y="20" width="14" height="30"/><rect x="86" y="20" width="14" height="30"/><rect x="40" y="10" width="40" height="40"/><polygon points="27,20 20,8 34,8"/><polygon points="93,20 86,8 100,8"/><polygon points="60,10 48,-4 72,-4"/></g></svg>
@@ -196,9 +186,10 @@ body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
         <div class="hp-row">
           <span class="hp-tag">HP</span>
           <div class="hp-bar"><div class="hp-fill hi" id="enemyHpFill" style="width:100%"></div></div>
-          <span class="hp-num" id="enemyHpNum">100/100</span>
+          <span class="hp-num" id="enemyHpNum">150/150</span>
         </div>
       </div>
+      <div class="badges enemy-badges" id="enemyBadges"></div>
 
       <div class="enemy-slot" id="enemySlot"></div>
       <div class="hero-slot" id="heroSlot"></div>
@@ -215,29 +206,32 @@ body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
       </div>
     </div>
 
-    <!-- 味方パネル -->
     <div class="hero-panel">
-      <span class="hn">🦸 ゆうしゃ</span>
-      <span class="hp-tag" style="color:#FFD23F">HP</span>
-      <div class="hp-bar"><div class="hp-fill hi" id="heroHpFill" style="width:100%"></div></div>
-      <span class="hp-num" id="heroHpNum">60/60</span>
+      <div class="row">
+        <span class="hn">🦸 ゆうしゃ</span>
+        <span class="hp-tag" style="color:#FFD23F">HP</span>
+        <div class="hp-bar"><div class="hp-fill hi" id="heroHpFill" style="width:100%"></div></div>
+        <span class="hp-num" id="heroHpNum">60/60</span>
+      </div>
+      <div class="row">
+        <span class="ap-tag">⚡きあい</span>
+        <div class="ap-pips" id="apPips"></div>
+        <span class="ap-num" id="apNum">6/6</span>
+      </div>
     </div>
+    <div class="badges left" id="heroBadges" style="padding:0 4px"></div>
 
-    <!-- ターン表示 -->
     <div class="turn-center"><span class="turn-pill you" id="turnPill">▶ きみの ターン</span></div>
 
-    <!-- ログ -->
     <div class="battle-log" id="battleLog"><b>モヤモヤ大王</b>が あらわれた！　わざを えらんでね。</div>
 
-    <!-- コマンド -->
     <div class="cmd-grid" id="cmdGrid"></div>
 
-    <div class="note">※ わざの強さは「対応ステータスのレベル」で上がる設計です（このプレビューはレベル3固定の見本）。<br>
-    本番では、普段のミッションで育てた能力が そのまま わざの威力に なります。<br>
-    ※ HPが0になっても「ゲームオーバー」表示は出さず、やさしく「もう一度」へ。</div>
+    <div class="note">※ わざの強さ・きあいの最大値は「ステータスのレベル」で伸びる設計です（このプレビューは固定の見本）。<br>
+    ※ ⚡きあいは毎ターン回復。安いわざ（たいあたり・ガード）はいつでも使えます。<br>
+    ※ HPが0でも「ゲームオーバー」表示は出さず、やさしく「もう一度」へ。</div>
   </div>
 
-  <!-- キャラ見本 -->
   <div class="card">
     <div class="card-title">🎨 なかま＆モンスター（自作SVG・見本）</div>
     <div class="card-sub">絵文字ではなく自作SVG。拡大しても劣化せず、ライセンスも完全クリーン。やさしく呼吸するように動きます。</div>
@@ -256,14 +250,12 @@ document.getElementById('animToggle').addEventListener('click',e=>{
   document.body.className='anim-'+b.dataset.anim;
   [...e.currentTarget.children].forEach(x=>x.classList.toggle('on', x===b));
 });
-/* 星空 */
 (function(){ const s=document.getElementById('stars'); let h='';
   for(let i=0;i<26;i++){ h+=`<div class="star" style="left:${Math.random()*100}%;top:${Math.random()*60}%;animation-delay:${(Math.random()*3).toFixed(2)}s"></div>`; }
   s.innerHTML=h; })();
 
 /* ===================== 自作SVGキャラ ===================== */
 function svgHero(){
-  // 正面向きのちびっこ勇者（剣＋マント）
   return `<svg viewBox="0 0 100 100" class="mon-idle">
     <ellipse cx="50" cy="93" rx="24" ry="5" fill="#000" opacity=".18"/>
     <path d="M30 58 Q22 78 30 90 L40 88 Q34 72 40 60Z" fill="#C0392B"/>
@@ -280,7 +272,6 @@ function svgHero(){
   </svg>`;
 }
 function svgBoss(state){
-  // state: 'full' / 'weak' / 'friend'
   const body = state==='friend' ? '#9AD0F5' : state==='weak' ? '#8E7FB8' : '#5B4B8A';
   const crown = `<path d="M36 22 L40 10 L50 18 L60 10 L64 22Z" fill="#FFD23F" stroke="#E0A500" stroke-width="1.5"/><circle cx="40" cy="11" r="2" fill="#EF4444"/><circle cx="50" cy="17" r="2" fill="#22C55E"/><circle cx="60" cy="11" r="2" fill="#3B82F6"/>`;
   let eyes, mouth, extra='';
@@ -301,12 +292,9 @@ function svgBoss(state){
     ${crown}${eyes}${extra}${mouth}
   </svg>`;
 }
-/* ギャラリー用 */
 function svgSlime(c){ return `<svg viewBox="0 0 100 100" class="mon-idle"><ellipse cx="50" cy="90" rx="26" ry="5" fill="#000" opacity=".12"/><path d="M22 68 Q22 40 50 39 Q78 40 78 68 Q78 87 50 87 Q22 87 22 68Z" fill="${c}"/><circle cx="40" cy="62" r="5" fill="#13294B"/><circle cx="60" cy="62" r="5" fill="#13294B"/><circle cx="42" cy="60" r="1.6" fill="#fff"/><circle cx="62" cy="60" r="1.6" fill="#fff"/><path d="M44 72 Q50 77 56 72" fill="none" stroke="#13294B" stroke-width="2.6" stroke-linecap="round"/></svg>`; }
 function svgStar(){ return `<svg viewBox="0 0 100 100" class="mon-idle"><ellipse cx="50" cy="92" rx="22" ry="4.5" fill="#000" opacity=".12"/><path d="M50 22 L60 44 L84 47 L66 63 L71 87 L50 75 L29 87 L34 63 L16 47 L40 44 Z" fill="#FFD23F" stroke="#F0B400" stroke-width="2"/><circle cx="43" cy="56" r="4" fill="#13294B"/><circle cx="57" cy="56" r="4" fill="#13294B"/><path d="M45 64 Q50 68 55 64" fill="none" stroke="#13294B" stroke-width="2.4" stroke-linecap="round"/></svg>`; }
 function svgDragon(){ return `<svg viewBox="0 0 100 100" class="mon-idle"><ellipse cx="50" cy="91" rx="24" ry="5" fill="#000" opacity=".12"/><path d="M24 60 Q14 50 20 44 Q26 50 30 54Z" fill="#16A34A"/><path d="M76 60 Q86 50 80 44 Q74 50 70 54Z" fill="#16A34A"/><ellipse cx="50" cy="62" rx="26" ry="24" fill="#22C55E"/><ellipse cx="50" cy="70" rx="16" ry="13" fill="#BBF7D0"/><path d="M40 40 L36 30 L46 38Z" fill="#15803D"/><path d="M60 40 L64 30 L54 38Z" fill="#15803D"/><circle cx="41" cy="58" r="5" fill="#13294B"/><circle cx="59" cy="58" r="5" fill="#13294B"/><path d="M44 68 Q50 73 56 68" fill="none" stroke="#15803D" stroke-width="2.6" stroke-linecap="round"/></svg>`; }
-function svgBird(){ return `<svg viewBox="0 0 100 100" class="mon-idle"><ellipse cx="50" cy="90" rx="20" ry="4.5" fill="#000" opacity=".12"/><ellipse cx="50" cy="60" rx="24" ry="25" fill="#F687C0"/><ellipse cx="50" cy="68" rx="14" ry="14" fill="#FFE3F1"/><path d="M50 50 L44 55 L56 55Z" fill="#FF8C42"/><circle cx="42" cy="58" r="4.5" fill="#13294B"/><circle cx="58" cy="58" r="4.5" fill="#13294B"/><path d="M40 30 Q50 22 60 30" fill="none" stroke="#EC4899" stroke-width="3" stroke-linecap="round"/></svg>`; }
-function svgGhost(){ return `<svg viewBox="0 0 100 100" class="mon-idle"><ellipse cx="50" cy="92" rx="20" ry="4" fill="#000" opacity=".1"/><path d="M26 60 Q26 32 50 32 Q74 32 74 60 L74 82 Q70 76 66 82 Q62 76 58 82 Q54 76 50 82 Q46 76 42 82 Q38 76 34 82 Q30 76 26 82Z" fill="#A78BFA"/><circle cx="41" cy="56" r="5" fill="#13294B"/><circle cx="59" cy="56" r="5" fill="#13294B"/><ellipse cx="50" cy="66" rx="4" ry="5" fill="#13294B"/></svg>`; }
 function svgCat(){ return `<svg viewBox="0 0 100 100" class="mon-idle"><ellipse cx="50" cy="91" rx="22" ry="4.5" fill="#000" opacity=".12"/><path d="M30 42 L26 26 L42 38Z" fill="#FB923C"/><path d="M70 42 L74 26 L58 38Z" fill="#FB923C"/><ellipse cx="50" cy="62" rx="25" ry="23" fill="#FB923C"/><ellipse cx="50" cy="70" rx="14" ry="11" fill="#FFEDD5"/><circle cx="41" cy="58" r="5" fill="#13294B"/><circle cx="59" cy="58" r="5" fill="#13294B"/><path d="M50 64 l-3 3 3 2 3-2Z" fill="#EC4899"/><path d="M36 64 H28 M36 68 H29" stroke="#13294B" stroke-width="1.6" stroke-linecap="round"/><path d="M64 64 H72 M64 68 H71" stroke="#13294B" stroke-width="1.6" stroke-linecap="round"/></svg>`; }
 
 const MASCOTS=[
@@ -320,29 +308,38 @@ const MASCOTS=[
 document.getElementById('monGrid').innerHTML=MASCOTS.map(m=>`<div class="mon-cell">${m.svg}<div class="mon-name">${m.name}</div></div>`).join('');
 
 /* ===================== バトル本体 ===================== */
-const HERO_MAX=60, ENEMY_MAX=100;
-let heroHP, enemyHP, guard, turn, busy;
+const HERO_MAX=60, ENEMY_MAX=150, AP_MAX=6, AP_REGEN=3;
+const ATK_BUFF_MULT=1.6, DEF_BUFF_MULT=0.55, BUFF_TURNS=3;
+let heroHP, enemyHP, ap;
+let guard, heroAtk, heroDef;          // heroAtk/heroDef = 残りターン数
+let enemyAtk, enemyCharge;            // enemyAtk = 残りターン, enemyCharge = 次ターン必殺
+let turn, busy;
 
-// プレイヤーのわざ（Lv3固定見本）。type: atk / heal / guard
+/* プレイヤーのわざ（cost=⚡きあい消費） */
 const SKILLS=[
-  {key:'focus',       name:'ひかりの剣', icon:'⚔️', color:'#4EC5E0', type:'atk',  min:18,max:24, msg:'集中の一撃！ ひかりの剣が さく裂！'},
-  {key:'physical',    name:'たいあたり', icon:'💥', color:'#FF8C42', type:'atk',  min:11,max:16, msg:'おもいきり たいあたり！'},
-  {key:'intelligence',name:'みやぶる',   icon:'🔮', color:'#8B5CF6', type:'atk',  min:14,max:20, msg:'弱点を みやぶった！ するどい一撃！'},
-  {key:'social',      name:'なかまの声', icon:'📣', color:'#22C55E', type:'atk',  min:10,max:15, msg:'なかまの声が ひびく！ みんなの力！'},
-  {key:'heart',       name:'いやしの光', icon:'✨', color:'#E8197D', type:'heal', amt:20,         msg:'やさしい光に つつまれた。げんきが かいふく！'},
-  {key:'patience',    name:'ガード',     icon:'🛡️', color:'#EF4444', type:'guard',                msg:'ぐっと こらえる かまえ！ つぎの ダメージを へらす。'},
+  {key:'physical',    name:'たいあたり', icon:'💥', color:'#FF8C42', type:'atk',  cost:1, min:7, max:11, msg:'おもいきり たいあたり！'},
+  {key:'focus',       name:'ひかりの剣', icon:'⚔️', color:'#4EC5E0', type:'atk',  cost:3, min:19,max:25, msg:'集中の一撃！ ひかりの剣が さく裂！'},
+  {key:'intelligence',name:'みやぶる',   icon:'🔮', color:'#8B5CF6', type:'atk',  cost:2, min:13,max:18, msg:'弱点を みやぶった！ するどい一撃！'},
+  {key:'social',      name:'なかまの声', icon:'📣', color:'#22C55E', type:'atk',  cost:2, min:11,max:15, msg:'なかまの声が ひびく！ みんなの力！'},
+  {key:'heart',       name:'いやしの光', icon:'✨', color:'#E8197D', type:'heal', cost:3, amt:22,          msg:'やさしい光に つつまれた。げんきが かいふく！'},
+  {key:'patience',    name:'ガード',     icon:'🛡️', color:'#EF4444', type:'guard',cost:1,                  msg:'ぐっと こらえる かまえ！ つぎの ダメージ半分。'},
+  {key:'atkup',       name:'こうげき力アップ', icon:'🔥', color:'#F97316', type:'atkup', cost:2,            msg:'力が みなぎる！ しばらく 攻撃アップ！'},
+  {key:'defup',       name:'ぼうぎょ力アップ', icon:'🛡', color:'#2563EB', type:'defup', cost:2,            msg:'体が かたくなる！ しばらく 防御アップ！'},
 ];
 
-// 敵の攻撃パターン
+/* 敵の行動（typeで分岐） */
 const ENEMY_MOVES=[
-  {name:'モヤモヤパンチ', min:9, max:13, big:false},
-  {name:'おおきな ためいき', min:6, max:9, big:false},
-  {name:'くらやみの渦', min:14, max:18, big:true},
+  {w:32, type:'atk',    name:'モヤモヤパンチ', min:11, max:16},
+  {w:16, type:'atk',    name:'おおきな ためいき', min:8, max:12},
+  {w:16, type:'charge', name:'くらやみを ためる'},                 // 次ターン必殺
+  {w:20, type:'heal',   name:'モヤモヤを すいこむ', amt:[16,24]},  // 自己回復
+  {w:12, type:'buff',   name:'やみの ちからため'},                 // 自分に攻撃バフ
 ];
+const ULT = {name:'くらやみの渦', min:22, max:30};
 
 const el=id=>document.getElementById(id);
+const rnd=(a,b)=>Math.floor(a+Math.random()*(b-a+1));
 
-function rnd(a,b){ return Math.floor(a+Math.random()*(b-a+1)); }
 function setHP(){
   const eP=Math.max(0,enemyHP)/ENEMY_MAX*100, hP=Math.max(0,heroHP)/HERO_MAX*100;
   const ef=el('enemyHpFill'), hf=el('heroHpFill');
@@ -352,18 +349,31 @@ function setHP(){
   el('enemyHpNum').textContent=Math.max(0,enemyHP)+'/'+ENEMY_MAX;
   el('heroHpNum').textContent=Math.max(0,heroHP)+'/'+HERO_MAX;
 }
-function bossState(){ return enemyHP<=0 ? 'friend' : enemyHP<=ENEMY_MAX*0.35 ? 'weak' : 'full'; }
+function setAP(){
+  let h='';
+  for(let i=0;i<AP_MAX;i++) h+=`<div class="ap-pip ${i<ap?'on':''}"></div>`;
+  el('apPips').innerHTML=h; el('apNum').textContent=ap+'/'+AP_MAX;
+}
+function renderBadges(){
+  let hb='';
+  if(guard)      hb+='<span class="bdg guard">🛡 ガード中</span>';
+  if(heroAtk>0)  hb+='<span class="bdg atk">🔥 攻撃UP('+heroAtk+')</span>';
+  if(heroDef>0)  hb+='<span class="bdg def">🛡 防御UP('+heroDef+')</span>';
+  el('heroBadges').innerHTML=hb;
+  let eb='';
+  if(enemyCharge) eb+='<span class="bdg echarge">⚠ ためている…</span>';
+  if(enemyAtk>0)  eb+='<span class="bdg ebuff">🔥 攻撃UP</span>';
+  el('enemyBadges').innerHTML=eb;
+}
+function bossState(){ return enemyHP<=0 ? 'friend' : enemyHP<=ENEMY_MAX*0.32 ? 'weak' : 'full'; }
 function drawChars(){ el('enemySlot').innerHTML=svgBoss(bossState()); el('heroSlot').innerHTML=svgHero(); }
 function log(html){ el('battleLog').innerHTML=html; }
 function setTurn(t){
-  turn=t;
-  const p=el('turnPill');
+  turn=t; const p=el('turnPill');
   if(t==='player'){ p.className='turn-pill you'; p.textContent='▶ きみの ターン'; }
   else if(t==='enemy'){ p.className='turn-pill foe'; p.textContent='… あいての ターン'; }
   else { p.className='turn-pill over'; p.textContent='■ しょうぶ あり'; }
 }
-function setCmdEnabled(on){ document.querySelectorAll('.cmd').forEach(b=>b.disabled=!on); }
-
 function popDmg(target, text, cls){
   const stage=el('stage'), node=el(target);
   const d=document.createElement('div'); d.className='dmg '+cls; d.textContent=text;
@@ -377,10 +387,21 @@ function hitFx(target){
   const n=el(target); n.classList.add('hit','flash'); setTimeout(()=>n.classList.remove('hit','flash'),440);
 }
 
-/* コマンド描画 */
+/* コマンドの有効/無効（AP不足は無効） */
+function refreshCmd(){
+  document.querySelectorAll('.cmd').forEach(b=>{
+    const s=SKILLS[+b.dataset.i];
+    b.disabled = (turn!=='player') || busy || (s.cost>ap);
+  });
+}
 el('cmdGrid').innerHTML=SKILLS.map((s,i)=>{
-  const info = s.type==='heal' ? `HP かいふく +${s.amt}` : s.type==='guard' ? 'ダメージを へらす' : `ダメージ ${s.min}〜${s.max}`;
+  const info = s.type==='heal' ? `HP かいふく +${s.amt}`
+    : s.type==='guard' ? 'つぎの被ダメ半分'
+    : s.type==='atkup' ? `攻撃力アップ(${BUFF_TURNS}回)`
+    : s.type==='defup' ? `防御力アップ(${BUFF_TURNS}回)`
+    : `ダメージ ${s.min}〜${s.max}`;
   return `<button class="cmd" data-i="${i}" style="border-color:${s.color}">
+    <span class="cost">⚡${s.cost}</span>
     <span class="ci">${s.icon}</span>
     <span class="ct"><span class="cname" style="color:${s.color}">${s.name}</span><br>
     <span class="cinfo">${info}</span></span></button>`;
@@ -388,47 +409,97 @@ el('cmdGrid').innerHTML=SKILLS.map((s,i)=>{
 
 el('cmdGrid').addEventListener('click',e=>{
   const b=e.target.closest('.cmd'); if(!b||turn!=='player'||busy) return;
-  playerTurn(SKILLS[+b.dataset.i]);
+  const s=SKILLS[+b.dataset.i]; if(s.cost>ap) return;
+  playerTurn(s);
 });
 
 function playerTurn(s){
-  busy=true; setCmdEnabled(false);
+  busy=true; ap-=s.cost; setAP(); refreshCmd();
   if(s.type==='atk'){
-    const dmg=rnd(s.min,s.max);
+    let dmg=rnd(s.min,s.max);
+    if(heroAtk>0) dmg=Math.round(dmg*ATK_BUFF_MULT);
     enemyHP=Math.max(0,enemyHP-dmg);
-    hitFx('enemySlot'); popDmg('enemySlot', '-'+dmg, 'enemy');
-    log('👉 '+s.msg+'<br><b>モヤモヤ大王</b>に <b>'+dmg+'</b> のダメージ！');
+    hitFx('enemySlot'); popDmg('enemySlot','-'+dmg,'enemy');
+    log('👉 '+s.msg+'<br><b>モヤモヤ大王</b>に <b>'+dmg+'</b> のダメージ！'+(heroAtk>0?' <span style="color:#FFB877">(攻撃UP!)</span>':''));
   } else if(s.type==='heal'){
-    const before=heroHP; heroHP=Math.min(HERO_MAX, heroHP+s.amt); const real=heroHP-before;
-    popDmg('heroSlot', '+'+real, 'heal');
-    log('👉 '+s.msg+'<br>げんきが <b>'+real+'</b> かいふく！');
-  } else { // guard
-    guard=true;
-    log('👉 '+s.msg);
+    const before=heroHP; heroHP=Math.min(HERO_MAX,heroHP+s.amt); const real=heroHP-before;
+    popDmg('heroSlot','+'+real,'heal'); log('👉 '+s.msg+'<br>げんきが <b>'+real+'</b> かいふく！');
+  } else if(s.type==='guard'){
+    guard=true; log('👉 '+s.msg);
+  } else if(s.type==='atkup'){
+    heroAtk=BUFF_TURNS+1; popDmg('heroSlot','ATK↑','buff'); log('👉 '+s.msg);
+  } else if(s.type==='defup'){
+    heroDef=BUFF_TURNS+1; popDmg('heroSlot','DEF↑','buff'); log('👉 '+s.msg);
   }
-  setHP(); drawChars();
+  setHP(); drawChars(); renderBadges();
+  if(enemyHP<=0){ setTimeout(winBattle,650); return; }
+  setTimeout(()=>{ setTurn('enemy'); refreshCmd(); setTimeout(enemyTurn,650); }, 800);
+}
 
-  if(enemyHP<=0){ setTimeout(winBattle, 650); return; }
-  setTimeout(()=>{ setTurn('enemy'); setTimeout(enemyTurn, 700); }, 850);
+function pickEnemyMove(){
+  // 高HPでは回復しない／弱ると必殺をためにくい等で自然な駆け引き
+  let pool=ENEMY_MOVES.filter(m=>{
+    if(m.type==='heal'  && enemyHP>ENEMY_MAX*0.8) return false;
+    if(m.type==='charge'&& enemyHP<ENEMY_MAX*0.25) return false;
+    if(m.type==='buff'  && enemyAtk>0)            return false;
+    return true;
+  });
+  const total=pool.reduce((s,m)=>s+m.w,0); let r=Math.random()*total;
+  for(const m of pool){ if((r-=m.w)<0) return m; }
+  return pool[0];
+}
+function dealToHero(base){
+  let dmg=base;
+  if(enemyAtk>0) dmg=Math.round(dmg*1.4);
+  if(guard){ dmg=Math.ceil(dmg/2); }
+  if(heroDef>0) dmg=Math.ceil(dmg*DEF_BUFF_MULT);
+  dmg=Math.max(1,dmg);
+  heroHP=Math.max(0,heroHP-dmg);
+  hitFx('heroSlot'); popDmg('heroSlot','-'+dmg,'hero');
+  let extra=[]; if(guard){ extra.push('🛡 ガードで半分！'); } if(heroDef>0){ extra.push('🛡 防御UPで軽減！'); }
+  guard=false;
+  return {dmg, extra};
+}
+function endEnemyTurn(){
+  // バフ等のターン経過
+  if(heroAtk>0) heroAtk--; if(heroDef>0) heroDef--; if(enemyAtk>0) enemyAtk--;
+  setHP(); renderBadges();
+  if(heroHP<=0){ setTimeout(restBattle,700); return; }
+  ap=Math.min(AP_MAX, ap+AP_REGEN); setAP();
+  setTurn('player'); busy=false; refreshCmd();
+  log('きみの ターン！（⚡きあい +'+AP_REGEN+'）');
 }
 
 function enemyTurn(){
-  // 弱っていると攻撃が弱まる／ときどき ためらう
-  let pool = enemyHP<=ENEMY_MAX*0.35 ? ENEMY_MOVES.filter(m=>!m.big) : ENEMY_MOVES;
-  const mv = pool[rnd(0,pool.length-1)];
-  log('<b>モヤモヤ大王</b>の こうげき！「'+mv.name+'」');
-  setTimeout(()=>{
-    let dmg=rnd(mv.min,mv.max);
-    if(guard){ dmg=Math.ceil(dmg/2); }
-    heroHP=Math.max(0,heroHP-dmg);
-    hitFx('heroSlot'); popDmg('heroSlot', '-'+dmg, 'hero');
-    let line='💥 ゆうしゃに <b>'+dmg+'</b> のダメージ！';
-    if(guard){ line+='<br><span style="color:#FFD23F">🛡️ ガードで ダメージを へらした！</span>'; guard=false; }
-    log(line);
-    setHP();
-    if(heroHP<=0){ setTimeout(restBattle, 750); return; }
-    setTimeout(()=>{ setTurn('player'); setCmdEnabled(true); busy=false; log('きみの ターン！ つぎの わざは？'); }, 950);
-  }, 700);
+  // 必殺の発動（前ターンにためていた場合）
+  if(enemyCharge){
+    enemyCharge=false; renderBadges();
+    log('<b style="color:#FF6B6B">⚡ モヤモヤ大王の 必殺技！「'+ULT.name+'」！</b>');
+    setTimeout(()=>{ const r=dealToHero(rnd(ULT.min,ULT.max));
+      log('💥 ゆうしゃに <b>'+r.dmg+'</b> の大ダメージ！'+(r.extra.length?'<br><span style="color:#FFD23F">'+r.extra.join(' ')+'</span>':''));
+      setTimeout(endEnemyTurn,950); }, 720);
+    return;
+  }
+  const mv=pickEnemyMove();
+  if(mv.type==='atk'){
+    log('<b>モヤモヤ大王</b>の こうげき！「'+mv.name+'」');
+    setTimeout(()=>{ const r=dealToHero(rnd(mv.min,mv.max));
+      log('💥 ゆうしゃに <b>'+r.dmg+'</b> のダメージ！'+(r.extra.length?'<br><span style="color:#FFD23F">'+r.extra.join(' ')+'</span>':''));
+      setTimeout(endEnemyTurn,900); }, 650);
+  } else if(mv.type==='charge'){
+    enemyCharge=true; renderBadges();
+    log('<b>モヤモヤ大王</b>は くらやみを ためている…！<br><span style="color:#FF6B6B">つぎのターン 必殺技がくる！ ガードや防御で そなえよう。</span>');
+    setTimeout(endEnemyTurn,1000);
+  } else if(mv.type==='heal'){
+    const amt=rnd(mv.amt[0],mv.amt[1]); enemyHP=Math.min(ENEMY_MAX,enemyHP+amt);
+    popDmg('enemySlot','+'+amt,'heal');
+    log('<b>モヤモヤ大王</b>は「'+mv.name+'」！<br>あいてのHPが <b>'+amt+'</b> かいふくした…！');
+    setTimeout(endEnemyTurn,950);
+  } else if(mv.type==='buff'){
+    enemyAtk=3; renderBadges();
+    log('<b>モヤモヤ大王</b>は「'+mv.name+'」！<br><span style="color:#C084FC">あいての攻撃力が あがった！</span>');
+    setTimeout(endEnemyTurn,950);
+  }
 }
 
 function winBattle(){
@@ -436,16 +507,15 @@ function winBattle(){
   el('winSub').innerHTML='モヤモヤ大王の こころが はれて<br>なかよしに なれた！';
   el('resultWin').style.display='flex'; burstConfetti();
 }
-function restBattle(){
-  setTurn('over');
-  el('resultRest').style.display='flex';
-}
+function restBattle(){ setTurn('over'); el('resultRest').style.display='flex'; }
 
 function resetBattle(){
-  heroHP=HERO_MAX; enemyHP=ENEMY_MAX; guard=false; busy=false;
+  heroHP=HERO_MAX; enemyHP=ENEMY_MAX; ap=AP_MAX; busy=false;
+  guard=false; heroAtk=0; heroDef=0; enemyAtk=0; enemyCharge=false;
   el('resultWin').style.display='none'; el('resultRest').style.display='none';
   el('enemyName').textContent='モヤモヤ大王';
-  setHP(); drawChars(); setTurn('player'); setCmdEnabled(true);
+  setHP(); setAP(); drawChars(); renderBadges();
+  setTurn('player'); refreshCmd();
   log('<b>モヤモヤ大王</b>が あらわれた！　わざを えらんでね。');
 }
 el('winBtn').addEventListener('click',resetBattle);

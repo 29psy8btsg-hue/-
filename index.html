@@ -429,7 +429,8 @@ function defaultProfile(name, avatar){
     rankSeen:0,                 // 昇格演出を見せ終えたランク番号
     rebirthStar:0,              // 転生した回数（☆の数）
     rebirthJob:null,            // 現在の転生職ID
-    rebirthJobs:[]              // これまで就いた職のコレクション
+    rebirthJobs:[],             // これまで就いた職のコレクション
+    customStats:null            // この児童だけのステータス表示上書き（null=既定）
   };
 }
 // 旧コードとの互換（リセット時などに新規プロフィールを返す）
@@ -579,7 +580,20 @@ function displayRank(p){
   }
   return getRank(p.points);
 }
-function statOf(k){ return STATS.find(s=>s.key===k); }
+// 現在の児童のステータス定義（customStatsで表示名/アイコン/説明を上書き可能。keyとcolorは固定）
+function statsDef(){
+  const c = S && S.customStats;
+  if(c && typeof c==='object'){
+    return STATS.map(s=>({
+      key:s.key, color:s.color,
+      label:(c[s.key] && c[s.key].label) || s.label,
+      icon :(c[s.key] && c[s.key].icon ) || s.icon,
+      desc :(c[s.key] && c[s.key].desc ) || s.desc
+    }));
+  }
+  return STATS;
+}
+function statOf(k){ return statsDef().find(s=>s.key===k) || STATS.find(s=>s.key===k); }
 function avail(){ return S.points - S.spent; }
 function bump(k, n=1){ S.stats[k]=Math.min(10, S.stats[k]+n); }
 function getDaily(){   return ROOT.customDaily   || DAILY;   }
@@ -1201,10 +1215,12 @@ function renderTimer(){
 ====================================================== */
 function renderStatus(){
   let h='<div class="sect">'+sectHTML('📊','冒険者ステータス','ミッションをこなして成長しよう','#4EC5E0')+'</div>';
-  h+=renderRebirthPanel();
+  h+=renderRankHero();
+  h+=renderRankRoadmap();
+  h+=renderRebirthFlow();
   h+='<div class="chartbox"><canvas id="radar" width="600" height="520" style="width:100%;height:auto"></canvas></div>';
   h+='<div class="statgrid">';
-  STATS.forEach(s=>{
+  statsDef().forEach(s=>{
     const lv=S.stats[s.key];
     h+='<div class="statcard" style="border:2px solid '+s.color+'40">'+
       '<div class="statcard-top"><span class="statcard-icon">'+esc(s.icon)+'</span>'+
@@ -1216,38 +1232,144 @@ function renderStatus(){
   h+='</div>';
   h+='<div class="staffbox"><div style="font-size:11px;font-weight:800;margin-bottom:8px">🎖️ スタッフ用：できたことを記録（+1 Lv / +1pt）</div>'+
     '<div class="staffbtns">';
-  STATS.forEach(s=>{
+  statsDef().forEach(s=>{
     h+='<button class="staffbtn" data-bump="'+esc(s.key)+'" style="border-color:'+s.color+';color:'+s.color+';background:'+s.color+'18">'+esc(s.icon)+esc(s.label)+' +1</button>';
   });
   h+='</div></div>';
   return h;
 }
 
-/* 転生パネル（ステータスタブ） */
-function renderRebirthPanel(){
-  const star=S.rebirthStar||0;
-  const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
-  // まだ伝説の勇者になっていない & 転生未経験 → 控えめなティザー
-  if(star===0 && S.points<REBIRTH_MIN){
-    return '<div style="border:2px dashed #C7B3F0;border-radius:14px;padding:12px 14px;margin-bottom:12px;background:#FAF8FF;text-align:center">'+
-      '<div style="font-size:13px;font-weight:900;color:#8B5CF6">🌟 転生システム</div>'+
-      '<div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.6">「伝説の勇者」になると<b>転生</b>が解放！<br>賢者・竜騎士などの最上位職をめざそう。<br>あと <b style="color:#E8197D">'+(REBIRTH_MIN-S.points)+'pt</b></div></div>';
+/* ① 現在の職業（ランク）ヒーローカード */
+function renderRankHero(){
+  const dr=displayRank();
+  let pct=0, label='';
+  if(rebirthAvailable()){
+    pct=100; label='🌟 転生できる！ 下の「転生フロー」へ';
+  } else {
+    const next=getNextRank(S.points);
+    if(next){
+      const cur=getRank(S.points);
+      pct=(S.points-cur.min)/(next.min-cur.min)*100;
+      label='次は「'+next.name+'」まで あと'+(next.min-S.points)+'pt';
+    } else {
+      const base=nextRebirthAt()-REBIRTH_STEP, target=nextRebirthAt();
+      pct=(S.points-base)/(target-base)*100;
+      label='次の転生まで あと'+(target-S.points)+'pt';
+    }
   }
+  pct=Math.max(0,Math.min(100,pct));
+  return '<div style="border-radius:18px;padding:16px 16px 14px;margin-bottom:14px;color:#fff;'+
+      'background:linear-gradient(135deg,'+dr.color+',#1A3A6B);box-shadow:0 6px 18px '+dr.color+'55">'+
+    '<div style="display:flex;align-items:center;gap:13px">'+
+      '<div style="width:56px;height:56px;border-radius:16px;flex-shrink:0;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:32px">'+esc(S.avatar||dr.icon)+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">げんざいの しょくぎょう</div>'+
+        '<div style="font-size:19px;font-weight:900;line-height:1.2">'+esc(dr.icon)+' '+esc(dr.name)+'</div>'+
+        '<div style="font-size:11px;opacity:.9;margin-top:2px">累計 '+S.points+'pt ・ つかえる '+avail()+'pt</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-top:12px">'+
+      '<div style="font-size:11px;font-weight:700;margin-bottom:5px">'+esc(label)+'</div>'+
+      '<div style="height:9px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden">'+
+        '<div style="height:100%;width:'+pct.toFixed(1)+'%;border-radius:6px;background:#fff"></div></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ② 称号ロードマップ（昇格〜転生のフローを可視化） */
+function renderRankRoadmap(){
+  const idx=rankIndex(S.points);
+  const star=S.rebirthStar||0;
+  const legend=S.points>=REBIRTH_MIN;
+  let h='<div style="font-size:12px;font-weight:900;color:#1A3A6B;margin:2px 0 8px">🗺️ 称号ロードマップ</div>';
+  h+='<div style="border:2px solid #E5E7EB;border-radius:16px;padding:8px 12px;margin-bottom:14px;background:#fff">';
+  RANKS.forEach((r,i)=>{
+    const done=i<idx, here=i===idx;
+    const active=done||here;
+    const txt = here?r.color : (done?'#374151':'#9CA3AF');
+    const status = here? '★ いま' : (done? '達成' : 'あと'+(r.min-S.points)+'pt');
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:10px;'+(here?'background:'+r.color+'14':'')+'">'+
+      '<div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;'+
+        'background:'+(active?r.color+'22':'#F3F4F6')+';border:2px solid '+(active?r.color:'#E5E7EB')+';color:'+(active?r.color:'#9CA3AF')+'">'+(done?'✓':esc(r.icon))+'</div>'+
+      '<div style="flex:1;min-width:0;font-size:13px;font-weight:'+(here?'900':'700')+';color:'+txt+'">'+esc(r.name)+'<span style="font-size:10px;font-weight:700;color:#9CA3AF;margin-left:6px">'+r.min+'pt〜</span></div>'+
+      '<div style="font-size:10px;font-weight:800;color:'+txt+';white-space:nowrap">'+status+'</div>'+
+    '</div>';
+  });
+  // 転生ゲート
+  const gateStatus = legend ? (star>0? '☆'+star+' 転生中' : '🔓 解放！') : '👑 伝説で解放';
+  const gateColor  = legend ? '#8B5CF6' : '#9CA3AF';
+  h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 6px 4px;margin-top:4px;border-top:1px dashed #E5E7EB">'+
+    '<div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;background:'+(legend?'#F3E8FF':'#F3F4F6')+';border:2px solid '+(legend?'#8B5CF6':'#E5E7EB')+'">🌟</div>'+
+    '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:900;color:'+gateColor+'">転生システム</div>'+
+      '<div style="font-size:10px;color:#9CA3AF">最上位職へ・無限の挑戦</div></div>'+
+    '<div style="font-size:10px;font-weight:800;color:'+gateColor+';white-space:nowrap">'+gateStatus+'</div>'+
+  '</div>';
+  h+='</div>';
+  return h;
+}
+
+/* 転生職のミニ図鑑セル */
+function jobMiniCell(j){
+  const got=(S.rebirthJobs||[]).includes(j.id);
+  const unlocked=jobUnlocked(j);
+  const cur=S.rebirthJob===j.id;
+  if(j.hidden && !unlocked){
+    return '<div title="？？？" style="aspect-ratio:1;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#F9FAFB;border:2px dashed #E5E7EB;color:#C7CCD4;font-size:20px">🔒</div>';
+  }
+  return '<div title="'+esc(j.name)+'" style="aspect-ratio:1;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;'+
+    'background:'+j.color+(got?'22':'0D')+';border:2px solid '+(cur?j.color:(got?j.color+'88':'#E5E7EB'))+';'+(cur?'box-shadow:0 0 0 2px '+j.color+'40':'')+'">'+
+    '<div style="font-size:21px;'+(got?'':'filter:grayscale(.5);opacity:.55')+'">'+esc(j.icon)+'</div>'+
+    '<div style="font-size:8px;font-weight:800;color:'+(got?j.color:'#9CA3AF')+';margin-top:1px">'+(got?'✓':'')+'</div>'+
+  '</div>';
+}
+
+/* ③ 転生フロー詳細（伝説到達後に表示） */
+function renderRebirthFlow(){
+  const star=S.rebirthStar||0;
+  const legend=S.points>=REBIRTH_MIN;
+  if(star===0 && !legend) return '';     // 伝説前はロードマップの「転生ゲート」で十分
   const avail=rebirthAvailable();
-  let inner='';
+  const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
+
+  let h='<div style="border:2px solid #C7B3F0;border-radius:16px;padding:14px;margin-bottom:14px;background:linear-gradient(160deg,#FAF8FF,#FFF)">';
+  h+='<div style="font-size:13px;font-weight:900;color:#8B5CF6;margin-bottom:10px">🌟 転生フロー</div>';
+
+  // フローの4ステップ
+  const steps=[
+    {ic:'👑', t:'伝説の勇者', on:legend},
+    {ic:'🌟', t:'転生する',   on:star>0||avail},
+    {ic:'🎴', t:'職をえらぶ', on:star>0},
+    {ic:'⭐', t:'☆を重ねる', on:star>0},
+  ];
+  h+='<div style="display:flex;align-items:stretch;gap:2px;margin-bottom:12px">';
+  steps.forEach((s,i)=>{
+    if(i>0) h+='<div style="display:flex;align-items:center;color:#C7B3F0;font-weight:900;font-size:12px">›</div>';
+    h+='<div style="flex:1;text-align:center;border-radius:10px;padding:7px 2px;background:'+(s.on?'#8B5CF6':'#F3F4F6')+';color:'+(s.on?'#fff':'#9CA3AF')+'">'+
+      '<div style="font-size:18px;line-height:1">'+s.ic+'</div>'+
+      '<div style="font-size:9px;font-weight:800;margin-top:2px">'+s.t+'</div></div>';
+  });
+  h+='</div>';
+
+  // 現在の称号
   if(star>0 && S.rebirthJob){
     const cj=jobOf(S.rebirthJob);
-    inner+='<div style="font-size:13px;font-weight:900;color:'+cj.color+'">'+esc(cj.icon)+' '+esc(cj.name)+' ☆'+star+'</div>';
-  } else {
-    inner+='<div style="font-size:13px;font-weight:900;color:#8B5CF6">🌟 転生のとびらが開かれた！</div>';
+    h+='<div style="text-align:center;font-size:13px;font-weight:900;color:'+cj.color+';margin-bottom:8px">いまの称号：'+esc(cj.icon)+' '+esc(cj.name)+' ☆'+star+'</div>';
   }
-  inner+='<div style="font-size:10px;color:#6B7280;margin-top:3px">職コレクション '+coll+' / 6'+(coll>=6?'（隠し職 解放！）':'')+'</div>';
+
+  // 職コレクション・ミニ図鑑
+  h+='<div style="font-size:10px;font-weight:800;color:#6B7280;margin-bottom:5px">最上位職コレクション　'+coll+' / 6'+(coll>=6?'　🎉隠し職 解放！':'')+'</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">';
+  REBIRTH_JOBS.forEach(j=>{ h+=jobMiniCell(j); });
+  h+='</div>';
+
+  // 転生ボタン
   const btnStyle = avail
     ? 'background:linear-gradient(90deg,#FFC93C,#FF6B35,#E8197D);color:#fff;animation:pop .6s ease infinite alternate;'
     : 'background:#fff;color:#8B5CF6;border:2px solid #C7B3F0;';
-  inner+='<button onclick="openRebirthModal()" style="margin-top:10px;width:100%;padding:11px;border:none;border-radius:12px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;'+btnStyle+'">'+
-    (avail?'🌟 転生する！':'転生のとびらをひらく')+'</button>';
-  return '<div style="border:2px solid #C7B3F0;border-radius:14px;padding:13px 14px;margin-bottom:12px;background:linear-gradient(160deg,#FAF8FF,#FFF)">'+inner+'</div>';
+  h+='<button onclick="openRebirthModal()" style="margin-top:12px;width:100%;padding:11px;border:none;border-radius:12px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;'+btnStyle+'">'+
+    (avail?'🌟 いま転生する！':'転生のとびらをひらく')+'</button>';
+  h+='</div>';
+  return h;
 }
 
 /* ======================================================
@@ -1257,7 +1379,8 @@ function drawRadar(){
   const cv=document.getElementById('radar'); if(!cv) return;
   const ctx=cv.getContext('2d');
   const W=cv.width, H=cv.height, cx=W/2, cy=H/2+10, R=Math.min(W,H)*0.34;
-  const n=STATS.length;
+  const SD=statsDef();
+  const n=SD.length;
   ctx.clearRect(0,0,W,H);
   for(let ring=1; ring<=5; ring++){
     const rr=R*ring/5;
@@ -1279,7 +1402,7 @@ function drawRadar(){
   for(let i=0;i<=n;i++){
     const idx=i%n;
     const a=-Math.PI/2+idx*2*Math.PI/n;
-    const v=S.stats[STATS[idx].key]/10;
+    const v=S.stats[SD[idx].key]/10;
     const x=cx+R*v*Math.cos(a), y=cy+R*v*Math.sin(a);
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
@@ -1288,7 +1411,7 @@ function drawRadar(){
   ctx.strokeStyle='#E8197D'; ctx.lineWidth=3; ctx.stroke();
   for(let i=0;i<n;i++){
     const a=-Math.PI/2+i*2*Math.PI/n;
-    const v=S.stats[STATS[i].key]/10;
+    const v=S.stats[SD[i].key]/10;
     const x=cx+R*v*Math.cos(a), y=cy+R*v*Math.sin(a);
     ctx.beginPath(); ctx.arc(x,y,5,0,2*Math.PI);
     ctx.fillStyle='#E8197D'; ctx.fill();
@@ -1301,7 +1424,7 @@ function drawRadar(){
     const lr=R+38;
     const x=cx+lr*Math.cos(a), y=cy+lr*Math.sin(a);
     ctx.fillStyle='#1A3A6B';
-    ctx.fillText(STATS[i].icon+STATS[i].label, x, y);
+    ctx.fillText(SD[i].icon+SD[i].label, x, y);
   }
 }
 
@@ -1483,7 +1606,26 @@ function renderSettingsMain(){
       '</div>';
   });
   h+='<button onclick="addProfile()" style="width:100%;padding:10px;border:2px dashed #E8197D;border-radius:10px;background:transparent;color:#E8197D;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">＋ 新しい冒険者を追加</button>'+
-    '<div style="font-size:10px;color:#9CA3AF;margin-top:8px;line-height:1.5">※ ミッション・ごほうび・PINは全員で共通の設定です。ポイントやバッジは冒険者ごとに別々に記録されます。</div>'+
+    '<div style="font-size:10px;color:#9CA3AF;margin-top:8px;line-height:1.5">※ ミッション・ごほうび・PINは全員で共通の設定です。ポイント・バッジ・ステータス表示は冒険者ごとに別々です。</div>'+
+    '</div>';
+
+  // ステータス表示のカスタマイズ（この冒険者だけ）
+  const sdef=statsDef();
+  const customized=!!(S.customStats);
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #4EC5E0">'+
+    '<div style="font-size:13px;font-weight:800;color:#1A3A6B;margin-bottom:4px">📊 ステータス表示（この冒険者だけ）</div>'+
+    '<div style="font-size:10px;color:#6B7280;margin-bottom:10px;line-height:1.5">いま選択中の冒険者「<b style="color:#E8197D">'+esc(S.name||'なまえ未設定')+'</b>」の能力の<b>表示名・アイコン・せつめい</b>を変えられます。'+(customized?'<span style="color:#4EC5E0;font-weight:800">（カスタム中）</span>':'')+'</div>';
+  sdef.forEach(function(s){
+    h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;background:'+s.color+'14;border-radius:10px;padding:8px 10px">'+
+      '<span style="font-size:18px">'+esc(s.icon)+'</span>'+
+      '<span style="flex:1;font-size:12px;font-weight:700;color:'+s.color+';min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(s.label)+'</span>'+
+      '<button onclick="editStatDef(\''+s.key+'\')" style="background:#E0F7FD;border:none;border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">✏️ 編集</button>'+
+      '</div>';
+  });
+  if(customized){
+    h+='<button onclick="resetStatDefs()" style="width:100%;padding:9px;border:2px dashed #94A3B8;border-radius:10px;background:transparent;color:#64748B;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">🔄 この冒険者のステータス表示を初期化</button>';
+  }
+  h+='<div style="font-size:10px;color:#9CA3AF;margin-top:8px;line-height:1.5">※ 能力の中身（集中力・がまん力…）の種類や色は共通です。表示名だけを一人ひとりに合わせられます。別の冒険者を編集するときはアイコンから切りかえてください。</div>'+
     '</div>';
 
   // デイリーミッション
@@ -1621,6 +1763,31 @@ function resetCustom(){
   if(!confirm("ミッション・ごほうびを初期設定に戻しますか？")) return;
   ROOT.customDaily=null; ROOT.customWeekly=null; ROOT.customRewards=null;
   save(); render(); flash("🔄 初期設定に戻しました");
+}
+
+/* この冒険者だけのステータス表示を編集（表示名・アイコン・せつめい） */
+function editStatDef(key){
+  const base=STATS.find(s=>s.key===key); if(!base) return;
+  const cur=statsDef().find(s=>s.key===key)||base;
+  const label=prompt("「"+cur.label+"」の表示名（この冒険者だけ）", cur.label);
+  if(label===null) return;
+  const icon=prompt("アイコン（絵文字1つ）", cur.icon);
+  if(icon===null) return;
+  const desc=prompt("せつめい", cur.desc);
+  if(desc===null) return;
+  if(!S.customStats) S.customStats={};
+  S.customStats[key]={
+    label:(label||"").trim().slice(0,10) || base.label,
+    icon :(icon ||"").trim().slice(0,4)  || base.icon,
+    desc :(desc ||"").trim().slice(0,40) || base.desc
+  };
+  save(); render(); flash("✅ ステータス表示を更新しました");
+}
+
+function resetStatDefs(){
+  if(!confirm("「"+(S.name||'この冒険者')+"」のステータス表示を初期設定に戻しますか？")) return;
+  S.customStats=null;
+  save(); render(); flash("🔄 ステータス表示を初期化しました");
 }
 
 /* ======================================================

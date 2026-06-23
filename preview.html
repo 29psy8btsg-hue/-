@@ -186,7 +186,7 @@ body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
         <div class="hp-row">
           <span class="hp-tag">HP</span>
           <div class="hp-bar"><div class="hp-fill hi" id="enemyHpFill" style="width:100%"></div></div>
-          <span class="hp-num" id="enemyHpNum">150/150</span>
+          <span class="hp-num" id="enemyHpNum">80/80</span>
         </div>
       </div>
       <div class="badges enemy-badges" id="enemyBadges"></div>
@@ -228,7 +228,7 @@ body.anim-off .hit, body.anim-off .flash{ animation:none !important; }
     <div class="cmd-grid" id="cmdGrid"></div>
 
     <div class="note">※ わざの強さ・きあいの最大値は「ステータスのレベル」で伸びる設計です（このプレビューは固定の見本）。<br>
-    ※ ⚡きあいは毎ターン回復。安いわざ（たいあたり・ガード）はいつでも使えます。<br>
+    ※ ⚡きあいは毎ターン+1回復。コストが大きいわざを使ったら、次のターンに安い技でためてから大技！<br>
     ※ HPが0でも「ゲームオーバー」表示は出さず、やさしく「もう一度」へ。</div>
   </div>
 
@@ -308,7 +308,7 @@ const MASCOTS=[
 document.getElementById('monGrid').innerHTML=MASCOTS.map(m=>`<div class="mon-cell">${m.svg}<div class="mon-name">${m.name}</div></div>`).join('');
 
 /* ===================== バトル本体 ===================== */
-const HERO_MAX=60, ENEMY_MAX=150, AP_MAX=6, AP_REGEN=3;
+const HERO_MAX=60, ENEMY_MAX=80, AP_MAX=6, AP_REGEN=1;
 const ATK_BUFF_MULT=1.6, DEF_BUFF_MULT=0.55, BUFF_TURNS=3;
 let heroHP, enemyHP, ap;
 let guard, heroAtk, heroDef;          // heroAtk/heroDef = 残りターン数
@@ -331,9 +331,9 @@ const SKILLS=[
 const ENEMY_MOVES=[
   {w:32, type:'atk',    name:'モヤモヤパンチ', min:11, max:16},
   {w:16, type:'atk',    name:'おおきな ためいき', min:8, max:12},
-  {w:16, type:'charge', name:'くらやみを ためる'},                 // 次ターン必殺
-  {w:20, type:'heal',   name:'モヤモヤを すいこむ', amt:[16,24]},  // 自己回復
-  {w:12, type:'buff',   name:'やみの ちからため'},                 // 自分に攻撃バフ
+  {w:16, type:'charge', name:'くらやみを ためる'},
+  {w:20, type:'heal',   name:'モヤモヤを すいこむ', amt:[8,12]},
+  {w:12, type:'buff',   name:'やみの ちからため'},
 ];
 const ULT = {name:'くらやみの渦', min:22, max:30};
 
@@ -439,7 +439,7 @@ function playerTurn(s){
 function pickEnemyMove(){
   // 高HPでは回復しない／弱ると必殺をためにくい等で自然な駆け引き
   let pool=ENEMY_MOVES.filter(m=>{
-    if(m.type==='heal'  && enemyHP>ENEMY_MAX*0.8) return false;
+    if(m.type==='heal'  && enemyHP>ENEMY_MAX*0.75) return false;
     if(m.type==='charge'&& enemyHP<ENEMY_MAX*0.25) return false;
     if(m.type==='buff'  && enemyAtk>0)            return false;
     return true;
@@ -467,7 +467,7 @@ function endEnemyTurn(){
   if(heroHP<=0){ setTimeout(restBattle,700); return; }
   ap=Math.min(AP_MAX, ap+AP_REGEN); setAP();
   setTurn('player'); busy=false; refreshCmd();
-  log('きみの ターン！（⚡きあい +'+AP_REGEN+'）');
+  log('きみの ターン！（⚡きあい +'+(AP_REGEN<ap?AP_REGEN:ap)+' かいふく）');
 }
 
 function enemyTurn(){

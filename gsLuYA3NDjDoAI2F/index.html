@@ -427,6 +427,22 @@ const BADGES = [
   { id:"b12", name:"でんせつの ぼうけんしゃ",emoji:"🐲",cond:"さいこうランク とうたつ",       check:s=>s.points>=90 },
 ];
 
+/* 転職システム */
+const REBIRTH_MIN  = 90;   // でんせつのぼうけんしゃ到達で転職可能
+const REBIRTH_STEP = 50;   // 2回目以降、次の転職までの間隔
+
+const REBIRTH_JOBS = [
+  { id:"sage",     name:"けんじゃ",       icon:"🧙", color:"#8B5CF6", stat:"intelligence", desc:"かしこさをきわめた まほうのつかいて。" },
+  { id:"archmage", name:"だいまどうし",   icon:"🔮", color:"#4EC5E0", stat:"focus",        desc:"しゅうちゅうのきわみ。さいきょうのまほうをはなつ。" },
+  { id:"paladin",  name:"パラディン",     icon:"🛡️", color:"#EF4444", stat:"patience",     desc:"てっぺきのがまん力で なかまをまもる せいきし。" },
+  { id:"dragoon",  name:"りゅうきし",     icon:"🐉", color:"#FF8C42", stat:"physical",     desc:"たかくジャンプする うんどうのたつじん。" },
+  { id:"saint",    name:"しろのせいじゃ", icon:"😇", color:"#E8197D", stat:"heart",        desc:"やさしいこころで みんなをいやす しろのけんじゃ。" },
+  { id:"guild",    name:"ギルドマスター", icon:"🤝", color:"#22C55E", stat:"social",       desc:"なかまをまとめる ぼうけんしゃギルドのちょう。" },
+  // 隠し職
+  { id:"battle",   name:"バトルマスター", icon:"⚔️", color:"#1A3A6B", hidden:"stat",       desc:"ぜんぶのちから Lv5いじょうで めざめる ぶのちょうてん。" },
+  { id:"mime",     name:"ものまねし",     icon:"🎭", color:"#FFC93C", hidden:"collect",    desc:"ぜんぶの しょくをきわめた ものだけが なれる きゅうきょくしょく。" },
+];
+
 const TABS = [
   { id:0, label:"ミッション", icon:"📋" },
   { id:1, label:"タイマー",   icon:"⏱️" },
@@ -456,7 +472,8 @@ function defaultProfile(name, avatar){
     stats:{ focus:1, patience:1, heart:1, social:1, physical:1, intelligence:1 },
     dailyDone:[], weekly:{}, skillCount:0, claimed:[], emotion:null,
     lastDate:"", lastWeek:-1, history:[], badges:[], timerComplete:0,
-    lastBattleDate:""
+    lastBattleDate:"",
+    rebirthStar:0, rebirthJob:null, rebirthJobs:[]
   };
 }
 // 旧コードとの互換（リセット時などに新規プロフィールを返す）
@@ -577,6 +594,25 @@ function renameProfile(id){
 ====================================================== */
 function getRank(pt){ let r=RANKS[0]; for(const x of RANKS) if(pt>=x.min) r=x; return r; }
 function getNextRank(pt){ for(const x of RANKS) if(pt<x.min) return x; return null; }
+
+/* ---- 転職ヘルパー ---- */
+function jobOf(id){ return REBIRTH_JOBS.find(j=>j.id===id); }
+function rebirthSlots(pt){ return pt<REBIRTH_MIN ? 0 : Math.floor((pt-REBIRTH_MIN)/REBIRTH_STEP)+1; }
+function rebirthAvailable(){ return rebirthSlots(S.points) > (S.rebirthStar||0); }
+function nextRebirthAt(){ return REBIRTH_MIN + REBIRTH_STEP*(S.rebirthStar||0); }
+function jobUnlocked(job){
+  if(job.hidden==='stat')    return STATS.every(s=>S.stats[s.key]>=5);
+  if(job.hidden==='collect') return (S.rebirthJobs||[]).filter(id=>id!=='mime').length>=6;
+  return true;
+}
+// ヘッダー等に出す現在の称号（転職後は職＋☆）
+function displayRank(){
+  if((S.rebirthStar||0)>0 && S.rebirthJob){
+    const j=jobOf(S.rebirthJob);
+    if(j) return { name:j.name+' ☆'+S.rebirthStar, icon:j.icon, color:j.color, rebirth:true };
+  }
+  return getRank(S.points);
+}
 function statOf(k){ return STATS.find(s=>s.key===k); }
 function avail(){ return S.points - S.spent; }
 function bump(k, n=1){ S.stats[k]=Math.min(10, S.stats[k]+n); }
@@ -858,6 +894,97 @@ function openAvatarPicker(){
   document.body.appendChild(modal);
 }
 
+/* ---- 転職モーダル ---- */
+function openRebirthModal(){
+  const existing=document.getElementById('rebirthModal');
+  if(existing){ existing.remove(); return; }
+  const avail=rebirthAvailable();
+  const modal=document.createElement('div');
+  modal.id='rebirthModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.65);z-index:520;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:22px;padding:22px 18px;max-width:360px;width:100%;max-height:90vh;overflow:auto;';
+
+  let h='<div style="font-size:18px;font-weight:900;color:#1A3A6B;text-align:center">🌟 てんしょくのとびら</div>';
+  if((S.rebirthStar||0)>0 && S.rebirthJob){
+    const cj=jobOf(S.rebirthJob);
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin-top:4px">いまのしょくぎょう：<b style="color:'+cj.color+'">'+esc(cj.icon)+' '+esc(cj.name)+' ☆'+S.rebirthStar+'</b></div>';
+  }
+  if(avail){
+    h+='<div style="text-align:center;font-size:12px;color:#B45309;font-weight:800;margin:10px 0;line-height:1.6">すきな しょくぎょうをえらんで てんしょくしよう！<br>☆がひとつふえて、しょくがコレクションにくわわるよ。</div>';
+  } else if(S.points<REBIRTH_MIN){
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin:10px 0;line-height:1.6">「でんせつの ぼうけんしゃ」になると てんしょくできる！<br>あと <b style="color:#E8197D">'+(REBIRTH_MIN-S.points)+'pt</b> あつめよう。</div>';
+  } else {
+    h+='<div style="text-align:center;font-size:12px;color:#6B7280;margin:10px 0;line-height:1.6">つぎの てんしょくまで あと <b style="color:#E8197D">'+(nextRebirthAt()-S.points)+'pt</b>！<br>これまであつめた しょくのコレクション👇</div>';
+  }
+
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px">';
+  REBIRTH_JOBS.forEach(j=>{
+    const got=(S.rebirthJobs||[]).includes(j.id);
+    const ok=jobUnlocked(j);
+    const isHidden=j.hidden && !ok;
+    if(isHidden){
+      h+='<div style="aspect-ratio:1;border-radius:14px;background:#F9FAFB;border:2px dashed #E5E7EB;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;font-size:10px;font-weight:700;gap:4px"><div style="font-size:24px">🔒</div><div>かくし職</div></div>';
+      return;
+    }
+    const cur=S.rebirthJob===j.id;
+    const canPick=avail && ok;
+    h+='<div style="border-radius:14px;padding:12px 8px;text-align:center;cursor:'+(canPick?'pointer':'default')+';'+
+      'background:'+(got?j.color+'18':'#F9FAFB')+';border:2px solid '+(cur?j.color:(got?j.color+'88':'#E5E7EB'))+';'+
+      (cur?'box-shadow:0 0 0 3px '+j.color+'40;':'')+'"'+
+      (canPick?' onclick="doRebirth(\''+j.id+'\')"':'')+'>'+
+      '<div style="font-size:30px;'+(got?'':'opacity:.45')+'">'+(ok?esc(j.icon):'🔒')+'</div>'+
+      '<div style="font-size:12px;font-weight:900;color:'+(got?j.color:'#9CA3AF')+';margin-top:4px">'+esc(j.name)+'</div>'+
+      '<div style="font-size:9px;color:#6B7280;margin-top:2px;line-height:1.3">'+esc(j.desc)+'</div>'+
+      (canPick?'<div style="margin-top:6px;font-size:10px;font-weight:800;color:'+j.color+';background:'+j.color+'18;border-radius:8px;padding:3px 0">えらぶ！</div>':'')+
+      (got&&!canPick?'<div style="margin-top:6px;font-size:10px;font-weight:700;color:'+j.color+'">✓ コレクション</div>':'')+
+    '</div>';
+  });
+  h+='</div>';
+  const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
+  h+='<div style="font-size:11px;color:#9CA3AF;text-align:center;margin-top:12px">しょくコレクション '+coll+' / 6（ぜんぶあつめると かくし職 かいほう！）</div>';
+  h+='<button onclick="document.getElementById(\'rebirthModal\').remove()" style="margin-top:14px;width:100%;padding:12px;border:none;border-radius:13px;background:#1A3A6B;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">とじる</button>';
+
+  box.innerHTML=h;
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+function doRebirth(id){
+  if(!rebirthAvailable()) return;
+  const job=jobOf(id);
+  if(!job || !jobUnlocked(job)) return;
+  S.rebirthStar=(S.rebirthStar||0)+1;
+  S.rebirthJob=id;
+  if(!S.rebirthJobs) S.rebirthJobs=[];
+  const isNew=!S.rebirthJobs.includes(id);
+  if(isNew) S.rebirthJobs.push(id);
+  save();
+  const m=document.getElementById('rebirthModal'); if(m) m.remove();
+  showRebirthCelebrate(job, isNew);
+  render();
+}
+
+function showRebirthCelebrate(job, isNew){
+  playSound('reward'); confetti(); confetti(); setTimeout(confetti,200);
+  const modal=document.createElement('div');
+  modal.setAttribute('data-rankup','1');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,18,40,.78);z-index:620;display:flex;align-items:center;justify-content:center;animation:pop .4s ease;';
+  const box=document.createElement('div');
+  box.style.cssText='background:linear-gradient(160deg,#fff,#F3F6FF);border-radius:26px;padding:30px 26px;max-width:330px;width:88%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45);border:3px solid '+job.color+';';
+  box.innerHTML=
+    '<div style="font-size:13px;font-weight:900;letter-spacing:2px;color:'+job.color+'">✨ てんしょく せいこう！ ✨</div>'+
+    '<div style="font-size:72px;margin:10px 0;line-height:1">'+esc(job.icon)+'</div>'+
+    '<div style="font-size:24px;font-weight:900;color:'+job.color+'">'+esc(job.name)+' ☆'+S.rebirthStar+'</div>'+
+    '<div style="font-size:12px;color:#6B7280;margin-top:8px;line-height:1.6">'+esc(job.desc)+'</div>'+
+    (isNew?'<div style="margin-top:12px;padding:9px;border-radius:12px;background:#EFFAF1;color:#15803D;font-size:11px;font-weight:800">🎴 あたらしい しょくを コレクションに くわえた！</div>':'')+
+    '<button onclick="this.closest(\'[data-rankup]\').remove()" style="margin-top:18px;width:100%;padding:12px;border:none;border-radius:13px;background:'+job.color+';color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit">さいこう！</button>';
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
 function pickAvatar(a){
   S.avatar=a; save();
   document.getElementById('avatar').textContent=a;
@@ -871,7 +998,7 @@ function pickAvatar(a){
    描画：ヘッダー
 ====================================================== */
 function renderHeader(){
-  const rank=getRank(S.points), next=getNextRank(S.points);
+  const rank=displayRank(), baseRank=getRank(S.points), next=getNextRank(S.points);
   document.getElementById('avatar').textContent=S.avatar||rank.icon;
   document.getElementById('rankLabel').innerHTML=
     '<span style="color:'+rank.color+'">'+esc(rank.icon)+' '+esc(rank.name)+'</span>';
@@ -882,7 +1009,19 @@ function renderHeader(){
     document.getElementById('rankProgWrap').style.display='block';
     document.getElementById('nextRankText').textContent='次のランク「'+next.name+'」まで';
     document.getElementById('nextRankPt').textContent='あと'+(next.min-S.points)+'pt';
-    const pct=((S.points-rank.min)/(next.min-rank.min))*100;
+    const pct=((S.points-baseRank.min)/(next.min-baseRank.min))*100;
+    document.getElementById('rankProg').style.width=pct+'%';
+  } else if(rebirthAvailable()){
+    document.getElementById('rankProgWrap').style.display='block';
+    document.getElementById('nextRankText').textContent='🌟 てんしょくできる！';
+    document.getElementById('nextRankPt').textContent='ステータスをひらこう';
+    document.getElementById('rankProg').style.width='100%';
+  } else if((S.rebirthStar||0)>0){
+    const nextAt=nextRebirthAt();
+    document.getElementById('rankProgWrap').style.display='block';
+    document.getElementById('nextRankText').textContent='☆'+(S.rebirthStar+1)+' てんしょくまで';
+    document.getElementById('nextRankPt').textContent='あと'+(nextAt-S.points)+'pt';
+    const pct=Math.min(100,(S.points-(nextAt-REBIRTH_STEP))/REBIRTH_STEP*100);
     document.getElementById('rankProg').style.width=pct+'%';
   } else {
     document.getElementById('rankProgWrap').style.display='none';
@@ -1039,6 +1178,7 @@ function renderStatus(){
   let h='<div class="sect">'+sectHTML('📊','ぼうけんしゃステータス','ミッションをこなして せいちょうしよう','#4EC5E0')+'</div>';
   h+=renderRankHero();
   h+=renderRankRoadmap();
+  h+=renderJobGallery();
   h+='<div class="chartbox"><canvas id="radar" width="600" height="520" style="width:100%;height:auto"></canvas></div>';
   h+='<div class="statgrid">';
   STATS.forEach(s=>{
@@ -1062,25 +1202,32 @@ function renderStatus(){
 
 /* 現在のランク（職業）ヒーローカード */
 function renderRankHero(){
-  const rank=getRank(S.points);
+  const rank=displayRank();
+  const baseRank=getRank(S.points);
   const next=getNextRank(S.points);
+  const avl=S.points-(S.spent||0);
   let pct=0, label='';
   if(next){
-    const pct0=(S.points-rank.min)/(next.min-rank.min)*100;
+    const pct0=(S.points-baseRank.min)/(next.min-baseRank.min)*100;
     pct=Math.max(0,Math.min(100,pct0));
     label='次は「'+next.name+'」まで あと'+(next.min-S.points)+'pt';
+  } else if(rebirthAvailable()){
+    pct=100; label='🌟 てんしょくできる！　したのボタンをおそう！';
+  } else if((S.rebirthStar||0)>0){
+    const nextAt=nextRebirthAt();
+    pct=Math.max(0,Math.min(100,(S.points-(nextAt-REBIRTH_STEP))/REBIRTH_STEP*100));
+    label='☆'+(S.rebirthStar+1)+' てんしょくまで あと'+(nextAt-S.points)+'pt';
   } else {
-    pct=100; label='🏆 最高ランク「'+rank.name+'」到達！';
+    pct=100; label='🏆 最高ランク！ てんしょくに ちょうせんしよう！';
   }
-  const avail=S.points-(S.spent||0);
   return '<div style="border-radius:18px;padding:16px 16px 14px;margin-bottom:14px;color:#fff;'+
       'background:linear-gradient(135deg,'+rank.color+',#1A3A6B);box-shadow:0 6px 18px '+rank.color+'55">'+
     '<div style="display:flex;align-items:center;gap:13px">'+
       '<div style="width:56px;height:56px;border-radius:16px;flex-shrink:0;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:32px">'+esc(S.avatar||rank.icon)+'</div>'+
       '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">げんざいの しょくぎょう</div>'+
+        '<div style="font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">げんざいの '+(rank.rebirth?'しょくぎょう':'ランク')+'</div>'+
         '<div style="font-size:19px;font-weight:900;line-height:1.2">'+esc(rank.icon)+' '+esc(rank.name)+'</div>'+
-        '<div style="font-size:11px;opacity:.9;margin-top:2px">累計 '+S.points+'pt ・ つかえる '+avail+'pt</div>'+
+        '<div style="font-size:11px;opacity:.9;margin-top:2px">るいけい '+S.points+'pt ・ つかえる '+avl+'pt</div>'+
       '</div>'+
     '</div>'+
     '<div style="margin-top:12px">'+
@@ -1101,7 +1248,7 @@ function renderRankRoadmap(){
     const done=i<idx, here=i===idx;
     const active=done||here;
     const col=here?r.color:(done?'#374151':'#9CA3AF');
-    const status=here?'★ いま':(done?'達成':'あと'+(r.min-S.points)+'pt');
+    const status=here?'★ いま':(done?'たっせい':'あと'+(r.min-S.points)+'pt');
     h+='<div style="display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:10px;'+(here?'background:'+r.color+'14':'')+'">'+
       '<div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;'+
         'background:'+(active?r.color+'22':'#F3F4F6')+';border:2px solid '+(active?r.color:'#E5E7EB')+';color:'+(active?r.color:'#9CA3AF')+'">'+(done?'✓':esc(r.icon))+'</div>'+
@@ -1109,6 +1256,67 @@ function renderRankRoadmap(){
       '<div style="font-size:10px;font-weight:800;color:'+col+';white-space:nowrap">'+status+'</div>'+
     '</div>';
   });
+  // 転職ゲート
+  const gateOpen=S.points>=REBIRTH_MIN;
+  const canRebirth=rebirthAvailable();
+  const star=S.rebirthStar||0;
+  const gateStatus=canRebirth?'てんしょくできる！':(gateOpen?(star>0?'☆'+star+' かいてんしょく':'かいほうずみ'):'あと'+(REBIRTH_MIN-S.points)+'pt');
+  h+='<div style="margin-top:2px;padding:5px 6px;border-radius:10px;'+(canRebirth?'background:#FFF7ED':'')+'">'+
+    '<div style="display:flex;align-items:center;gap:10px">'+
+      '<div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;'+
+        'background:'+(gateOpen?'#FFF3C4':'#F3F4F6')+';border:2px solid '+(gateOpen?'#FFC93C':'#E5E7EB')+'">'+
+        (gateOpen?'🌟':'🔒')+'</div>'+
+      '<div style="flex:1;min-width:0;font-size:12px;font-weight:900;color:'+(gateOpen?'#B45309':'#9CA3AF')+'">てんしょくゲート'+
+        '<span style="font-size:10px;font-weight:700;color:#9CA3AF;margin-left:6px">'+REBIRTH_MIN+'pt〜</span></div>'+
+      '<div style="font-size:10px;font-weight:800;color:'+(canRebirth?'#D97706':'#9CA3AF')+';white-space:nowrap">'+gateStatus+'</div>'+
+    '</div>'+
+    (canRebirth?'<div style="margin-top:6px;margin-left:40px">'+
+      '<button onclick="openRebirthModal()" style="background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;border:none;border-radius:10px;padding:7px 16px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(245,158,11,.4)">🌟 てんしょくする！</button>'+
+    '</div>':'')+
+  '</div>';
+  h+='</div>';
+  return h;
+}
+
+/* 転職しょくぎょうギャラリー */
+function renderJobGallery(){
+  const star=S.rebirthStar||0;
+  let h='<div style="font-size:12px;font-weight:900;color:#1A3A6B;margin:2px 0 8px">🎴 しょくぎょう コレクション</div>';
+  h+='<div style="border:2px solid #E5E7EB;border-radius:16px;padding:12px;margin-bottom:14px;background:#fff">';
+  if(S.points<REBIRTH_MIN){
+    h+='<div style="font-size:11px;color:#6B7280;text-align:center;padding:6px 0 8px;line-height:1.7">'+
+      'でんせつの ぼうけんしゃ（'+REBIRTH_MIN+'pt）になると てんしょくできるよ！<br>あと <b style="color:#E8197D">'+(REBIRTH_MIN-S.points)+'pt</b> あつめよう。</div>';
+  } else if(rebirthAvailable()){
+    h+='<div style="text-align:center;margin-bottom:10px">'+
+      '<button onclick="openRebirthModal()" style="background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;border:none;border-radius:12px;padding:10px 22px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(245,158,11,.45)">🌟 てんしょくできる！　えらぼう！</button></div>';
+  } else if(star>0){
+    const nextAt=nextRebirthAt();
+    h+='<div style="font-size:11px;color:#6B7280;text-align:center;margin-bottom:8px">つぎのてんしょくまで あと <b style="color:#E8197D">'+(nextAt-S.points)+'pt</b></div>';
+  }
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+  REBIRTH_JOBS.forEach(j=>{
+    const got=(S.rebirthJobs||[]).includes(j.id);
+    const ok=jobUnlocked(j);
+    const isCur=S.rebirthJob===j.id;
+    if(j.hidden && !ok){
+      h+='<div style="border-radius:10px;background:#F9FAFB;border:2px dashed #E5E7EB;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">'+
+        '<div style="font-size:20px">🔒</div><div style="font-size:8px;color:#9CA3AF;font-weight:700;text-align:center">かくし職</div></div>';
+      return;
+    }
+    h+='<div style="border-radius:10px;padding:7px 4px;text-align:center;'+
+      'background:'+(got?j.color+'18':'#F9FAFB')+';border:2px solid '+(isCur?j.color:(got?j.color+'66':'#E5E7EB'))+'">'+
+      '<div style="font-size:24px;'+(got?'':'opacity:.3')+'">'+(ok?esc(j.icon):'🔒')+'</div>'+
+      '<div style="font-size:8px;font-weight:900;color:'+(got?j.color:'#9CA3AF')+';margin-top:3px;line-height:1.2">'+esc(j.name)+'</div>'+
+      (isCur?'<div style="font-size:7px;font-weight:900;color:'+j.color+'">★ いま</div>':
+       got?'<div style="font-size:7px;color:#6B7280">コレクション</div>':'')+
+    '</div>';
+  });
+  h+='</div>';
+  if(star>0){
+    const coll=(S.rebirthJobs||[]).filter(id=>id!=='mime').length;
+    h+='<div style="font-size:10px;color:#9CA3AF;text-align:center;margin-top:8px">'+
+      'コレクション '+coll+' / 6　・　てんしょく ☆'+star+'</div>';
+  }
   h+='</div>';
   return h;
 }

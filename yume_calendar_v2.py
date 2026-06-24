@@ -10,6 +10,7 @@
     MONTH_DATA を編集して他の月にも流用できます。
 """
 import calendar as cal_mod
+import os
 from docx import Document
 from docx.shared import Pt, RGBColor, Mm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -17,6 +18,25 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+
+# 画像アセット（PDFから抽出したロゴ＋OpenMoji=CC BY-SA 4.0 のイラスト）
+ASSET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+ICON_DIR  = os.path.join(ASSET_DIR, "ico")
+LOGO_PATH = os.path.join(ASSET_DIR, "logo.png")
+
+# 行事名 → イラストファイル名
+ICON_MAP = {
+    "防災訓練":"bousai","公園":"kouen","リズム体操":"rhythm","おはぎ作り":"ohagi",
+    "体育館":"taiiku","工作":"kousaku","ゆうゆうシネマ":"cinema","芋掘り":"imo",
+    "お楽しみ会":"present","外食":"burger","お月見団子作り":"tsukimi","駄菓子屋":"dagashi",
+    "カラオケ":"karaoke","アスレチック公園":"climb","風船バレー":"balloon","ボウリング":"bowling",
+    "クイズ大会":"quiz","敬老の日カード作り":"card","運動会ごっこ":"run","秋の製作":"maple",
+}
+def icon_path(name):
+    f = ICON_MAP.get(name)
+    if not f: return None
+    p = os.path.join(ICON_DIR, f + ".png")
+    return p if os.path.exists(p) else None
 
 # ============================================================
 # 配色（PDF基準）
@@ -201,6 +221,9 @@ def para(cell, align=WD_ALIGN_PARAGRAPH.LEFT, first=False, before=0, after=0, li
         p=cell.add_paragraph()
     p.alignment=align; spc(p,before,after,line); return p
 
+def add_pic(p, path, w_mm):
+    p.add_run().add_picture(path, width=Mm(w_mm))
+
 # ============================================================
 # 生成
 # ============================================================
@@ -228,22 +251,28 @@ def generate(year, month):
 
     lc=ht.rows[0].cells[0]; valign(lc,'center')
     p=para(lc,WD_ALIGN_PARAGRAPH.CENTER,first=True)
-    run(p,"夢門塾日吉",22,bold=True,color=CYAN,font="HGP創英角ﾎﾟｯﾌﾟ体")
-    p=para(lc,WD_ALIGN_PARAGRAPH.CENTER)
-    run(p,"夢通信",52,bold=True,color=MAG,font="HGP創英角ﾎﾟｯﾌﾟ体")
-    p=para(lc,WD_ALIGN_PARAGRAPH.CENTER)
-    run(p,"放課後等デイサービス",11,bold=True,color=RED,font="HGP創英角ﾎﾟｯﾌﾟ体")
+    if os.path.exists(LOGO_PATH):
+        add_pic(p, LOGO_PATH, 104)   # PDFから抽出した実ロゴ
+    else:
+        run(p,"夢通信",48,bold=True,color=MAG,font="HGP創英角ﾎﾟｯﾌﾟ体")
 
     rc=ht.rows[0].cells[1]; valign(rc,'center')
     cell_fill(rc,"EAF5E1"); cell_borders(rc,"9CCB7A",12)
     p=para(rc,WD_ALIGN_PARAGRAPH.CENTER,first=True,before=40)
-    run(p,f"令和{rstr}年　{mstr}月号",20,bold=True,color=BLACK)
+    star=os.path.join(ICON_DIR,"star.png")
+    if os.path.exists(star): add_pic(p, star, 6)
+    run(p,f"  令和{rstr}年　{mstr}月号  ",20,bold=True,color=BLACK)
+    if os.path.exists(star): add_pic(p, star, 6)
     p=para(rc,WD_ALIGN_PARAGRAPH.CENTER,before=60)
     run(p,d["facility"],13,bold=True,color=BLACK)
     p=para(rc,WD_ALIGN_PARAGRAPH.CENTER,before=20)
-    run(p,f"☎ {d['tel']}　📠",12,color=BLACK)
+    run(p,f"☎ {d['tel']}",12,color=BLACK)
     p=para(rc,WD_ALIGN_PARAGRAPH.CENTER)
-    run(p,f"携帯 {d['mobile']}　🌙⭐",12,color=BLACK)
+    run(p,f"携帯 {d['mobile']}",12,color=BLACK)
+    season_ic=icon_path(d.get("season_icon","")) or os.path.join(ICON_DIR,"maple.png")
+    if os.path.exists(season_ic):
+        p=para(rc,WD_ALIGN_PARAGRAPH.CENTER,before=20)
+        for _ in range(3): add_pic(p, season_ic, 7)
 
     # ---------- ② あいさつ ----------
     p=doc.add_paragraph(); spc(p,40,40,200)
@@ -330,26 +359,34 @@ def generate(year, month):
                 # よみ
                 pf=para(cell,WD_ALIGN_PARAGRAPH.CENTER,before=20,line=140)
                 run(pf,(b["yomi"] if pos=='mid' else "　"),6.5,color=BLACK)
-                # バー本体（段落背景）
-                pbar=para(cell,WD_ALIGN_PARAGRAPH.CENTER,line=220)
+                # イラスト（全セル同構成で高さを揃える）
+                ip=icon_path(b["name"])
+                pic=para(cell,WD_ALIGN_PARAGRAPH.CENTER,line=130)
+                if ip: add_pic(pic, ip, 9)
+                # バー本体（段落背景＝アロー帯）
+                pbar=para(cell,WD_ALIGN_PARAGRAPH.CENTER,line=230)
                 para_fill(pbar,fill)
                 if pos=='mid':
-                    run(pbar,f'{b["emoji"]} {b["name"]} {b["emoji"]}',10,bold=True,color=WHITE)
+                    run(pbar,b["name"],10,bold=True,color=WHITE)
                 else:
-                    run(pbar,"➡" if ci>min(b["cols"]) else "　",10,bold=True,color=WHITE)
+                    run(pbar,("▶" if ci>min(b["cols"]) else "◀"),10,bold=True,color=WHITE)
                 continue
 
             # 単日行事
             if ev:
-                pf=para(cell,WD_ALIGN_PARAGRAPH.CENTER,before=30,line=140)
+                pf=para(cell,WD_ALIGN_PARAGRAPH.CENTER,before=20,line=130)
                 run(pf,ev["yomi"],6.5,color=BLACK)
-                pn=para(cell,WD_ALIGN_PARAGRAPH.CENTER,line=170)
-                run(pn,ev["name"],10.5,bold=True,color=GREEN)
+                pn=para(cell,WD_ALIGN_PARAGRAPH.CENTER,line=160)
+                run(pn,ev["name"],10,bold=True,color=GREEN)
                 if ev.get("sub"):
-                    ps=para(cell,WD_ALIGN_PARAGRAPH.CENTER,line=140)
-                    run(ps,ev["sub"],7,color=BLACK)
+                    ps=para(cell,WD_ALIGN_PARAGRAPH.CENTER,line=120)
+                    run(ps,ev["sub"],6.5,color=BLACK)
+                ip=icon_path(ev["name"])
                 pe=para(cell,WD_ALIGN_PARAGRAPH.CENTER,before=10)
-                run(pe,ev["emoji"],18)
+                if ip:
+                    add_pic(pe, ip, 11)
+                elif ev.get("emoji"):
+                    run(pe,ev["emoji"],18)
 
     # ---------- ④ 下段：おしらせ ＋ ねらい ----------
     sp=doc.add_paragraph(); spc(sp,30,30)
@@ -409,6 +446,9 @@ def generate(year, month):
         run(ph,f"【{title}】",10.5,bold=True,color=ORANGE)
         pb=para(ac,WD_ALIGN_PARAGRAPH.LEFT,line=190)
         run(pb,body,9.5,bold=True,color=ORANGE)
+
+    pc=doc.add_paragraph(); pc.alignment=WD_ALIGN_PARAGRAPH.RIGHT; spc(pc,20,0)
+    run(pc,"イラスト: OpenMoji（CC BY-SA 4.0）／ロゴは夢門塾の素材を使用",6.5,color=GRAY)
 
     fn=f"夢通信_{year}年{month:02d}月号.docx"
     doc.save(fn)

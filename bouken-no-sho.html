@@ -119,10 +119,14 @@ html,body{
 .demo .lab{ }
 .demo.good .lab{ color:var(--green);} .demo.few .lab{ color:var(--orange);}
 
-.p-rwd{ flex:0 0 64mm; border-color:var(--yellow); background:#fffdf5; }
+.p-rwd{ flex:0 0 80mm; border-color:var(--yellow); background:#fffdf5; }
 .p-rwd h3{ color:var(--orange); }
-.p-rwd .line{ font-size:11px; font-weight:800; line-height:1.7; }
-.p-rwd .wbox{ display:inline-block; min-width:24mm; border-bottom:2px solid var(--line); }
+.p-rwd .tier{ display:flex; align-items:center; gap:2mm; margin-bottom:1.6mm; }
+.p-rwd .medal{ flex:0 0 auto; font-size:15px; }
+.p-rwd .cond{ flex:0 0 21mm; font-size:10.5px; font-weight:900; color:var(--orange); }
+.p-rwd .arrow{ flex:0 0 auto; color:#cbb36a; font-weight:900; }
+.p-rwd .wbox{ flex:1; border-bottom:2px solid var(--line); height:5.5mm; }
+.p-rwd .tip{ font-size:8.5px; color:#b09a4e; font-weight:700; margin-top:.5mm; }
 
 .p-msg{ flex:1 1 auto; border-color:var(--pink-l); }
 .p-msg h3{ color:var(--pink); }
@@ -274,8 +278,11 @@ html,body{
     </div>
 
     <div class="panel p-rwd">
-      <h3>🎁 たからばこ</h3>
-      <div class="line">🏆が（　）こ そろったら<br>ごほうび → <span class="wbox"></span></div>
+      <h3>🎁 ごほうび ロードマップ</h3>
+      <div class="tier"><span class="medal">🥉</span><span class="cond">シール 10こ</span><span class="arrow">→</span><span class="wbox"></span></div>
+      <div class="tier"><span class="medal">🥈</span><span class="cond">🏆 3こ</span><span class="arrow">→</span><span class="wbox"></span></div>
+      <div class="tier"><span class="medal">🥇</span><span class="cond">ぜんぶ コンプリート</span><span class="arrow">→</span><span class="wbox"></span></div>
+      <div class="tip">＊ごほうびは 子どもと いっしょに きめると やる気アップ！（もの・あそび・できる係 など）</div>
     </div>
 
     <div class="panel p-msg">

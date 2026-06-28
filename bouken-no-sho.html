@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ぼうけんの きろく ｜ 世界にひとつの成長シート（A4）</title>
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+:root{
+  --sky:#4EC5E0; --sky-d:#2BA8C9; --pink:#E8197D; --pink-l:#F687C0;
+  --navy:#1A3A6B; --yellow:#FFC93C; --green:#22C55E; --purple:#8B5CF6;
+  --red:#EF4444; --orange:#FF8C42; --gold:#D4A017; --line:#b9c6d6;
+  --parch:#fffdf4;
+}
+html,body{
+  font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Hiragino Sans',sans-serif;
+  color:var(--navy); background:#dfeff5;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.screenbar{ max-width:1120px; margin:18px auto 8px; padding:0 16px;
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.screenbar h1{ font-size:18px; } .screenbar p{ font-size:13px; color:#4b6; flex:1 1 240px; line-height:1.5; }
+.pbtn{ background:linear-gradient(135deg,var(--pink),var(--pink-l)); color:#fff; border:none;
+  border-radius:12px; padding:11px 22px; font-size:15px; font-weight:800; cursor:pointer;
+  font-family:inherit; box-shadow:0 4px 12px rgba(232,25,125,.35); }
+.pbtn:active{ transform:scale(.96); }
+
+@page{ size:A4 landscape; margin:6mm; }
+.book{
+  width:285mm; min-height:198mm; margin:10px auto 40px; position:relative;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #fffefb 0%, var(--parch) 60%, #fdf6e3 100%);
+  border:3px solid var(--navy); border-radius:14px;
+  box-shadow:0 0 0 6px #fff, 0 0 0 8px var(--gold), 0 12px 34px rgba(26,58,107,.25);
+  padding:5mm 6mm; overflow:hidden;
+}
+.book::before{ content:""; position:absolute; inset:3mm; border:1.5px dashed rgba(212,160,23,.5);
+  border-radius:9px; pointer-events:none; }
+.corner{ position:absolute; font-size:18px; opacity:.55; }
+.corner.tl{ top:5mm; left:6mm;} .corner.tr{ top:5mm; right:6mm;}
+.corner.bl{ bottom:4mm; left:6mm;} .corner.br{ bottom:4mm; right:6mm;}
+
+/* ===== ヘッダー（本の表紙ふう） ===== */
+.head{ display:flex; align-items:center; gap:5mm; margin-bottom:3mm; position:relative; z-index:1; }
+.emblem{ flex:0 0 26mm; height:26mm; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,#eaf6fb);
+  border:3px solid var(--sky); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(78,197,224,.35); }
+.emblem .e1{ font-size:9px; font-weight:800; color:var(--sky-d); }
+.emblem .e2{ font-size:8px; color:#9fb3c8; font-weight:700; margin-top:1mm; line-height:1.2; text-align:center;}
+.titlewrap{ flex:1 1 auto; text-align:center; }
+.ribbon{ display:inline-block; background:linear-gradient(135deg,var(--navy),#2D4F8B);
+  color:#fff; padding:2mm 9mm; border-radius:30px; box-shadow:0 4px 12px rgba(26,58,107,.35);
+  position:relative; }
+.ribbon .t1{ font-size:30px; font-weight:900; letter-spacing:3px; }
+.ribbon .t2{ font-size:11px; font-weight:800; color:var(--yellow); margin-top:1px; }
+.subworld{ font-size:11px; font-weight:800; color:var(--pink); margin-top:2mm; }
+.subworld b{ background:rgba(232,25,125,.12); padding:1px 8px; border-radius:8px; }
+.heroinfo{ flex:0 0 64mm; display:flex; flex-direction:column; gap:2mm;
+  background:#fff; border:2.5px solid var(--yellow); border-radius:14px; padding:3mm 4mm; }
+.heroinfo .r{ display:flex; align-items:center; gap:2mm; font-size:13px; font-weight:800; }
+.heroinfo label{ color:var(--orange); white-space:nowrap; }
+.heroinfo .wl{ flex:1; border-bottom:2px solid var(--line); height:6mm; }
+.heroinfo .lvrow{ display:flex; gap:3mm; }
+.heroinfo .lvbox{ flex:1; text-align:center; background:rgba(255,201,60,.18);
+  border-radius:10px; padding:1mm; font-size:11px; font-weight:800; }
+.heroinfo .lvbox b{ display:block; font-size:18px; color:var(--orange); }
+
+/* ===== 個別支援計画の欄 ===== */
+.plan{ display:flex; gap:4mm; margin-bottom:3mm; position:relative; z-index:1; }
+.plan .pc{ flex:1; background:#fff; border-radius:12px; padding:2.5mm 3.5mm;
+  border:2px solid var(--sky); }
+.plan .pc.ch{ border-color:var(--red); }
+.plan .pc.wi{ border-color:var(--purple); }
+.plan .ph{ font-size:11.5px; font-weight:900; margin-bottom:1mm; display:flex; align-items:center; gap:1.5mm;}
+.plan .pc .ph{ color:var(--sky-d);} .plan .pc.ch .ph{ color:var(--red);} .plan .pc.wi .ph{ color:var(--purple);}
+.plan .psub{ font-size:8.5px; color:#9fb3c8; font-weight:700; }
+.plan .pl{ border-bottom:1.6px dotted #aebfce; height:6mm; margin-top:1mm; }
+
+/* ===== ゲージ ===== */
+.gtitle{ display:flex; align-items:center; gap:3mm; margin:1mm 0 2mm; position:relative; z-index:1; }
+.gtitle .gt1{ font-size:16px; font-weight:900; color:var(--navy); }
+.gtitle .gt2{ font-size:10.5px; font-weight:800; color:var(--sky-d);
+  background:rgba(78,197,224,.15); padding:1mm 3mm; border-radius:8px; }
+.gauges{ display:grid; grid-template-columns:1fr 1fr; gap:4mm 6mm; position:relative; z-index:1; }
+.gauge{ display:flex; align-items:center; gap:2.5mm; background:#fff; border-radius:13px;
+  padding:2.5mm 3mm; border:2px solid #e3ebf2; box-shadow:0 2px 5px rgba(0,0,0,.04); }
+.gauge .gico{ flex:0 0 11mm; height:11mm; border-radius:11px; display:flex; align-items:center;
+  justify-content:center; font-size:21px; }
+.gauge .gname{ flex:0 0 35mm; }
+.gauge .gname .n1{ font-size:13.5px; font-weight:900; line-height:1.15; }
+.gauge .gname .n2{ font-size:8.5px; color:#94a3b8; font-weight:700; }
+.gtrack{ flex:1; display:flex; align-items:center; gap:1.6mm; }
+.slot{ flex:1; aspect-ratio:1; max-width:10mm; border:1.8px dashed #c7d3df; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:9px; color:#cdd9e3; font-weight:800; }
+.slot.m{ border-color:var(--yellow); border-style:solid; background:rgba(255,201,60,.12); color:var(--orange); }
+.slot.goal{ border-color:var(--gold); border-style:solid; background:rgba(212,160,23,.16);
+  font-size:11px; color:var(--gold); }
+.gauge .lvend{ flex:0 0 auto; font-size:9px; font-weight:800; color:#9fb3c8; text-align:center; }
+/* 色テーマ */
+.g-sky .gico{ background:rgba(78,197,224,.18);} .g-sky{ border-color:var(--sky);}
+.g-pink .gico{ background:rgba(232,25,125,.13);} .g-pink{ border-color:var(--pink-l);}
+.g-pur .gico{ background:rgba(139,92,246,.15);} .g-pur{ border-color:var(--purple);}
+.g-grn .gico{ background:rgba(34,197,94,.15);} .g-grn{ border-color:var(--green);}
+.g-yel .gico{ background:rgba(255,201,60,.22);} .g-yel{ border-color:var(--yellow);}
+.g-red .gico{ background:rgba(255,140,66,.18);} .g-red{ border-color:var(--orange);}
+
+/* ===== 下段 ===== */
+.bottom{ display:flex; gap:4mm; margin-top:4mm; position:relative; z-index:1; }
+.panel{ background:#fff; border-radius:12px; padding:3.5mm 4mm; border:2px solid var(--sky); }
+.panel h3{ font-size:12px; font-weight:900; margin-bottom:1.5mm; display:flex; align-items:center; gap:1.5mm; }
+
+.p-leg{ flex:0 0 62mm; border-color:#cdd9e3; background:#f8fbfd; }
+.p-leg h3{ color:#64748b; }
+.demo{ display:flex; align-items:center; gap:2mm; font-size:10px; font-weight:800; margin-bottom:1.5mm; }
+.demo .bar{ display:flex; gap:1mm; }
+.demo .d{ width:5mm; height:5mm; border-radius:50%; border:1.5px dashed #c7d3df; }
+.demo .d.f{ border:none; background:var(--yellow); }
+.demo .lab{ }
+.demo.good .lab{ color:var(--green);} .demo.few .lab{ color:var(--orange);}
+
+.p-rwd{ flex:0 0 64mm; border-color:var(--yellow); background:#fffdf5; }
+.p-rwd h3{ color:var(--orange); }
+.p-rwd .line{ font-size:11px; font-weight:800; line-height:1.7; }
+.p-rwd .wbox{ display:inline-block; min-width:24mm; border-bottom:2px solid var(--line); }
+
+.p-msg{ flex:1 1 auto; border-color:var(--pink-l); }
+.p-msg h3{ color:var(--pink); }
+.p-msg .ln{ border-bottom:1.6px dotted #e3b9cf; height:7.5mm; }
+.p-msg .sign{ text-align:right; font-size:10px; font-weight:800; color:#9fb3c8; margin-top:1mm; }
+
+.footnote{ margin-top:2.5mm; font-size:9px; color:#8090a4; font-weight:700; line-height:1.5;
+  position:relative; z-index:1; }
+.footnote b{ color:var(--sky-d); }
+
+@media print{
+  body{ background:#fff; }
+  .screenbar{ display:none; }
+  .book{ box-shadow:0 0 0 5px #fff,0 0 0 7px var(--gold); margin:0; }
+}
+</style>
+</head>
+<body>
+
+<div class="screenbar">
+  <h1>📖 ぼうけんの きろく（世界にひとつの成長シート）</h1>
+  <p>「印刷」→ <b>A4・横向き</b> → シールを集めて自分だけの冒険の書に。月ごとに新しいページでレベルアップ！完成したらラミネートで保存できます。</p>
+  <button class="pbtn" onclick="window.print()">🖨 印刷する</button>
+</div>
+
+<div class="book">
+  <span class="corner tl">✦</span><span class="corner tr">✦</span>
+  <span class="corner bl">✦</span><span class="corner br">✦</span>
+
+  <!-- ヘッダー -->
+  <div class="head">
+    <div class="emblem">
+      <div class="e1">わたしの 紋章</div>
+      <div class="e2">じぶんだけの<br>マークを かこう</div>
+    </div>
+    <div class="titlewrap">
+      <div class="ribbon">
+        <div class="t1">ぼうけんの きろく</div>
+        <div class="t2">夢門塾 ぼうけんの しょ</div>
+      </div>
+      <div class="subworld"><b>★ 世界に ひとつだけの あなたの しょ ★</b></div>
+    </div>
+    <div class="heroinfo">
+      <div class="r"><label>主人公</label><span class="wl"></span></div>
+      <div class="r"><label>　月　</label><span class="wl"></span></div>
+      <div class="lvrow">
+        <div class="lvbox">レベル<b>　</b></div>
+        <div class="lvbox">ランク<b>　</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 個別支援計画 -->
+  <div class="plan">
+    <div class="pc wi">
+      <div class="ph">🗺️ ぼうけんの ちかい <span class="psub">（長い 目標）</span></div>
+      <div class="pl"></div>
+    </div>
+    <div class="pc ch">
+      <div class="ph">🚀 今月の チャレンジ <span class="psub">（自分で きめる 短い 目標）</span></div>
+      <div class="pl"></div>
+    </div>
+    <div class="pc">
+      <div class="ph">💖 おうえん <span class="psub">（おうちの人・先生の ねがい）</span></div>
+      <div class="pl"></div>
+    </div>
+  </div>
+
+  <!-- ゲージ -->
+  <div class="gtitle">
+    <span class="gt1">⚔️ スキル せいちょう ゲージ</span>
+    <span class="gt2">できた日に シールを 1まい！　ためて レベルアップ 🏆</span>
+  </div>
+  <div class="gauges">
+    <!-- 1 -->
+    <div class="gauge g-sky">
+      <div class="gico">🦁</div>
+      <div class="gname"><div class="n1">おだやかボイス</div><div class="n2">落ち着いた 声で 話す</div></div>
+      <div class="gtrack">
+        <span class="slot">1</span><span class="slot">2</span><span class="slot">3</span><span class="slot">4</span>
+        <span class="slot m">⭐</span><span class="slot">6</span><span class="slot">7</span><span class="slot">8</span>
+        <span class="slot">9</span><span class="slot goal">🏆</span>
+      </div>
+    </div>
+    <!-- 2 -->
+    <div class="gauge g-pink">
+      <div class="gico">🌸</div>
+      <div class="gname"><div class="n1">ふわふわ言葉</div><div class="n2">やさしい 言葉を 使う</div></div>
+      <div class="gtrack">
+        <span class="slot">1</span><span class="slot">2</span><span class="slot">3</span><span class="slot">4</span>
+        <span class="slot m">⭐</span><span class="slot">6</span><span class="slot">7</span><span class="slot">8</span>
+        <span class="slot">9</span><span class="slot goal">🏆</span>
+      </div>
+    </div>
+    <!-- 3 -->
+    <div class="gauge g-pur">
+      <div class="gico">🛡️</div>
+      <div class="gname"><div class="n1">おだやかタッチ</div><div class="n2">手や 足は おだやかに</div></div>
+      <div class="gtrack">
+        <span class="slot">1</span><span class="slot">2</span><span class="slot">3</span><span class="slot">4</span>
+        <span class="slot m">⭐</span><span class="slot">6</span><span class="slot">7</span><span class="slot">8</span>
+        <span class="slot">9</span><span class="slot goal">🏆</span>
+      </div>
+    </div>
+    <!-- 4 -->
+    <div class="gauge g-grn">
+      <div class="gico">🎯</div>
+      <div class="gname"><div class="n1">しゅうちゅう力</div><div class="n2">すわって 取り組む</div></div>
+      <div class="gtrack">
+        <span class="slot">1</span><span class="slot">2</span><span class="slot">3</span><span class="slot">4</span>
+        <span class="slot m">⭐</span><span class="slot">6</span><span class="slot">7</span><span class="slot">8</span>
+        <span class="slot">9</span><span class="slot goal">🏆</span>
+      </div>
+    </div>
+    <!-- 5 成長ポイント -->
+    <div class="gauge g-yel">
+      <div class="gico">⭐</div>
+      <div class="gname"><div class="n1">きらりポイント</div><div class="n2">とくい・成長した こと</div></div>
+      <div class="gtrack">
+        <span class="slot">1</span><span class="slot">2</span><span class="slot">3</span><span class="slot">4</span>
+        <span class="slot m">⭐</span><span class="slot">6</span><span class="slot">7</span><span class="slot">8</span>
+        <span class="slot">9</span><span class="slot goal">🏆</span>
+      </div>
+    </div>
+    <!-- 6 マイチャレンジ -->
+    <div class="gauge g-red">
+      <div class="gico">🚀</div>
+      <div class="gname"><div class="n1">マイチャレンジ</div><div class="n2">今月 ちょうせんする こと</div></div>
+      <div class="gtrack">
+        <span class="slot">1</span><span class="slot">2</span><span class="slot">3</span><span class="slot">4</span>
+        <span class="slot m">⭐</span><span class="slot">6</span><span class="slot">7</span><span class="slot">8</span>
+        <span class="slot">9</span><span class="slot goal">🏆</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下段 -->
+  <div class="bottom">
+    <div class="panel p-leg">
+      <h3>👀 ゲージの 見かた</h3>
+      <div class="demo good">
+        <span class="bar"><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span></span>
+        <span class="lab">シール いっぱい ＝ とくい！</span>
+      </div>
+      <div class="demo few">
+        <span class="bar"><span class="d f"></span><span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span></span>
+        <span class="lab">すくない ＝ いっしょに れんしゅう</span>
+      </div>
+    </div>
+
+    <div class="panel p-rwd">
+      <h3>🎁 たからばこ</h3>
+      <div class="line">🏆が（　）こ そろったら<br>ごほうび → <span class="wbox"></span></div>
+    </div>
+
+    <div class="panel p-msg">
+      <h3>💌 今月 がんばったね メッセージ（先生・おうちの人）</h3>
+      <div class="ln"></div><div class="ln"></div>
+      <div class="sign">サイン ＿＿＿＿＿＿＿＿</div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    <b>使い方</b>　毎日の 終わりに 子どもと いっしょに ふり返り、できた スキルに シールを 1まい 貼る（注意の 代わりに「できた所を 見つけて すぐ ほめる」）。
+    目標①〜④は 個別支援計画の 課題から、⑤⑥は その子の 成長・前向きな チャレンジから 書きかえてOK。
+    ゲージが 満タン → レベルアップして 新しい ページへ。 ＊シールは 市販の まる型 などでOK。完成した ページは ラミネートで 保存できます。
+  </div>
+</div>
+</body>
+</html>

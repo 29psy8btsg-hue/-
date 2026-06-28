@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成長の記録 ｜ A4ラミネート支援シート</title>
+<style>
+/* ===== 画面・印刷共通 ===== */
+*{ margin:0; padding:0; box-sizing:border-box; }
+:root{
+  --sky:#4EC5E0; --sky-d:#2BA8C9; --pink:#E8197D; --pink-l:#F687C0;
+  --navy:#1A3A6B; --yellow:#FFC93C; --green:#22C55E; --purple:#8B5CF6;
+  --red:#EF4444; --orange:#FF8C42; --ink:#243; --line:#9fb3c8;
+}
+html,body{
+  font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Hiragino Sans',sans-serif;
+  color:var(--navy); background:#dfeff5;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* 画面でのまわり */
+.screenbar{
+  max-width:1120px; margin:18px auto 8px; padding:0 16px;
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+}
+.screenbar h1{ font-size:18px; color:var(--navy); }
+.screenbar p{ font-size:13px; color:#4b6; flex:1 1 240px; line-height:1.5; }
+.pbtn{
+  background:linear-gradient(135deg,var(--pink),var(--pink-l)); color:#fff; border:none;
+  border-radius:12px; padding:11px 22px; font-size:15px; font-weight:800; cursor:pointer;
+  font-family:inherit; box-shadow:0 4px 12px rgba(232,25,125,.35);
+}
+.pbtn:active{ transform:scale(.96); }
+
+/* ===== A4横 1枚 ===== */
+@page{ size:A4 landscape; margin:7mm; }
+.sheet{
+  width:283mm; min-height:196mm; margin:10px auto 40px; background:#fff;
+  padding:6mm 7mm; box-shadow:0 8px 30px rgba(26,58,107,.18); border-radius:6px;
+  position:relative;
+}
+
+/* --- ヘッダー --- */
+.head{ display:flex; align-items:stretch; gap:6mm; margin-bottom:4mm; }
+.title-box{ flex:1 1 auto; display:flex; align-items:center; gap:5mm;
+  background:linear-gradient(135deg,#eaf8fc,#fff); border:3px solid var(--sky);
+  border-radius:16px; padding:3mm 6mm; }
+.star{ font-size:30px; line-height:1; }
+.title-box .t1{ font-size:30px; font-weight:900; letter-spacing:2px; color:var(--navy); }
+.title-box .t2{ font-size:13px; font-weight:800; color:var(--sky-d); margin-top:2px; }
+.meta{ flex:0 0 92mm; display:flex; flex-direction:column; gap:2.5mm; justify-content:center;
+  border:2.5px dashed var(--sky); border-radius:16px; padding:3mm 5mm; }
+.meta .row{ display:flex; align-items:center; gap:3mm; font-size:15px; font-weight:800; }
+.meta label{ color:var(--sky-d); white-space:nowrap; }
+.meta .wline{ flex:1; border-bottom:2px solid var(--line); height:7mm; }
+.meta .sub{ font-size:11px; color:#789; font-weight:700; }
+
+/* --- メイン グリッド --- */
+table{ width:100%; border-collapse:collapse; table-layout:fixed; }
+th,td{ border:1.5px solid var(--line); }
+thead th{ background:var(--navy); color:#fff; font-size:15px; font-weight:800; padding:2.4mm 1mm; }
+thead th.goalhead{ width:62mm; background:var(--sky-d); }
+.daydate{ font-size:11px; font-weight:700; color:var(--navy); background:#eaf3f8;
+  padding:1mm; text-align:center; }
+.goalcell{ background:#f4fafc; padding:2mm 2.5mm; vertical-align:middle; }
+.goalcell .gnum{ display:inline-flex; width:7mm; height:7mm; border-radius:50%;
+  background:var(--pink); color:#fff; font-size:13px; font-weight:900;
+  align-items:center; justify-content:center; margin-right:2mm; vertical-align:middle; }
+.goalcell .gtxt{ font-size:15px; font-weight:800; line-height:1.25; vertical-align:middle; }
+.goalcell .gsrc{ font-size:10px; color:#94a3b8; font-weight:700; margin-top:1mm; display:block; padding-left:9mm; }
+.markcell{ height:14mm; }
+.markcell .mm{ display:flex; height:100%; }
+.markcell .ji,.markcell .se{ flex:1; display:flex; align-items:center; justify-content:center;
+  position:relative; }
+.markcell .ji{ border-right:1px dotted #bcd; }
+.markcell .tag{ position:absolute; top:.6mm; left:.8mm; font-size:8px; font-weight:800;
+  color:#9fb3c8; }
+.markcell .ji .tag{ color:var(--sky-d); }
+.markcell .se .tag{ color:var(--pink); }
+.markcell .blank{ width:9mm; height:9mm; border:1.5px dashed #cdd9e3; border-radius:50%; }
+
+/* キラリ 行 */
+.kira td{ background:#fffaf0; height:11mm; }
+.kira .goalcell{ background:#fff3da; }
+.kira .gtxt{ color:var(--orange); }
+.kira .note{ height:100%; }
+
+/* --- 下段：ふり返り・ごほうび・例 --- */
+.bottom{ display:flex; gap:5mm; margin-top:4mm; }
+.panel{ border:2.5px solid var(--sky); border-radius:14px; padding:3mm 4mm; }
+.panel h3{ font-size:13px; font-weight:900; color:var(--sky-d); margin-bottom:2mm;
+  display:flex; align-items:center; gap:2mm; }
+.p-refl{ flex:1 1 auto; }
+.p-refl .ln{ border-bottom:1.8px dotted #aebfce; height:7.5mm; }
+.p-refl .twocol{ display:flex; gap:5mm; }
+.p-refl .twocol > div{ flex:1; }
+.p-refl .who{ font-size:11px; font-weight:800; color:var(--navy); margin-bottom:1mm; }
+.p-refl .who.s{ color:var(--pink); }
+
+.p-rwd{ flex:0 0 70mm; border-color:var(--yellow); background:#fffdf5; }
+.p-rwd h3{ color:var(--orange); }
+.stamps{ display:grid; grid-template-columns:repeat(5,1fr); gap:2mm; margin-bottom:2mm; }
+.stamps .s{ aspect-ratio:1; border:2px dashed var(--yellow); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:11px; color:#caa;
+  font-weight:800; }
+.p-rwd .goal{ font-size:11.5px; font-weight:800; color:var(--navy); line-height:1.4; }
+.p-rwd .goal .wbox{ display:inline-block; min-width:34mm; border-bottom:2px solid var(--line); }
+
+.p-leg{ flex:0 0 58mm; border-color:#cdd9e3; background:#f8fbfd; }
+.p-leg h3{ color:#64748b; }
+.p-leg .lg{ display:flex; align-items:center; gap:2.5mm; font-size:12px; font-weight:800;
+  margin-bottom:1.5mm; }
+.p-leg .face{ font-size:18px; }
+.p-leg .small{ font-size:9.5px; color:#789; font-weight:700; line-height:1.4; margin-top:1mm; }
+.p-leg .jis{ display:flex; gap:3mm; font-size:10px; font-weight:800; margin-top:1mm; }
+.p-leg .jis .a{ color:var(--sky-d); } .p-leg .jis .b{ color:var(--pink); }
+
+/* --- 職員向け 小メモ（最下部・印刷される） --- */
+.footnote{ margin-top:3mm; font-size:9.5px; color:#7a8aa0; font-weight:700;
+  line-height:1.5; border-top:1.5px dashed #cdd9e3; padding-top:2mm; }
+.footnote b{ color:var(--sky-d); }
+
+@media print{
+  body{ background:#fff; }
+  .screenbar{ display:none; }
+  .sheet{ box-shadow:none; margin:0; border-radius:0; width:auto; min-height:auto; padding:0; }
+}
+</style>
+</head>
+<body>
+
+<div class="screenbar">
+  <h1>🌱 成長の記録 シート</h1>
+  <p>このまま「印刷」→ <b>A4・横向き</b>で出力 → ラミネートしてください。ホワイトボードマーカーで毎日記入し、金曜に写真をとって記録 → 消してくり返し使えます。</p>
+  <button class="pbtn" onclick="window.print()">🖨 印刷する</button>
+</div>
+
+<div class="sheet">
+
+  <!-- ヘッダー -->
+  <div class="head">
+    <div class="title-box">
+      <span class="star">🌟</span>
+      <div>
+        <div class="t1">成長の 記録</div>
+        <div class="t2">今日の がんばりを 見つけよう ・ 毎日 はなまる</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="row"><label>名前</label><span class="wline"></span></div>
+      <div class="row"><label>期間</label><span class="wline"></span></div>
+      <div class="sub">（れい）　6月 1日 〜 5日　／　第（　　）週</div>
+    </div>
+  </div>
+
+  <!-- メイングリッド -->
+  <table>
+    <colgroup>
+      <col style="width:62mm">
+      <col span="5">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="goalhead">今日の 目標（めあて）</th>
+        <th>月曜</th>
+        <th>火曜</th>
+        <th>水曜</th>
+        <th>木曜</th>
+        <th>金曜</th>
+      </tr>
+      <tr>
+        <td class="goalcell" style="background:var(--sky-d);color:#fff;font-size:11px;font-weight:800;text-align:center;">↓ 日付を 書こう</td>
+        <td class="daydate">／</td><td class="daydate">／</td><td class="daydate">／</td><td class="daydate">／</td><td class="daydate">／</td>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 目標1 -->
+      <tr>
+        <td class="goalcell">
+          <span class="gnum">1</span><span class="gtxt">落ち着いた 声で 話せた</span>
+          <span class="gsrc">（大きな 声・へんな 声を 出さない）</span>
+        </td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+      </tr>
+      <!-- 目標2 -->
+      <tr>
+        <td class="goalcell">
+          <span class="gnum">2</span><span class="gtxt">やさしい 言葉を 使えた</span>
+          <span class="gsrc">（ちくちく 言葉を 言わない）</span>
+        </td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+      </tr>
+      <!-- 目標3 -->
+      <tr>
+        <td class="goalcell">
+          <span class="gnum">3</span><span class="gtxt">手や 足が 出なかった</span>
+          <span class="gsrc">（たたかない・けらない・物を なげない）</span>
+        </td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+      </tr>
+      <!-- 目標4 -->
+      <tr>
+        <td class="goalcell">
+          <span class="gnum">4</span><span class="gtxt">すわって 取り組めた</span>
+          <span class="gsrc">（自分の 場所で 落ち着いて）</span>
+        </td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+        <td class="markcell"><div class="mm"><div class="ji"><span class="tag">自分</span><span class="blank"></span></div><div class="se"><span class="tag">先生</span><span class="blank"></span></div></div></td>
+      </tr>
+      <!-- 今日のキラリ -->
+      <tr class="kira">
+        <td class="goalcell"><span class="gnum" style="background:var(--orange)">★</span><span class="gtxt">今日の キラリ</span><span class="gsrc">（先生が よかったことを 一つ 書く）</span></td>
+        <td class="note"></td><td class="note"></td><td class="note"></td><td class="note"></td><td class="note"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 下段 -->
+  <div class="bottom">
+    <div class="panel p-refl">
+      <h3>📣 一週間の ふり返り</h3>
+      <div class="twocol">
+        <div>
+          <div class="who">😊 できるように なったこと・うれしかったこと（自分）</div>
+          <div class="ln"></div><div class="ln"></div>
+        </div>
+        <div>
+          <div class="who s">🌟 先生から（がんばったね・次へ）</div>
+          <div class="ln"></div><div class="ln"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel p-rwd">
+      <h3>🏅 にこにこ スタンプ</h3>
+      <div class="stamps">
+        <div class="s">月</div><div class="s">火</div><div class="s">水</div><div class="s">木</div><div class="s">金</div>
+      </div>
+      <div class="goal">スタンプが（　）こ たまったら<br>ごほうび → <span class="wbox"></span></div>
+    </div>
+
+    <div class="panel p-leg">
+      <h3>書き方の 例</h3>
+      <div class="lg"><span class="face">◎</span> よくできた！ にこにこ</div>
+      <div class="lg"><span class="face">○</span> できた</div>
+      <div class="lg"><span class="face">△</span> もう少し・次 がんばる</div>
+      <div class="jis"><span class="a">自分＝自分で つける</span><span class="b">先生＝先生から</span></div>
+      <div class="small">△でも せめない。できた ところを 見つけて はなまる！</div>
+    </div>
+  </div>
+
+  <!-- 職員向けメモ（印刷される） -->
+  <div class="footnote">
+    <b>使い方</b>　毎日の 終わりに 1〜2分、子どもと いっしょに 4つの 目標を ふり返る。
+    まず <b>子どもが「自分」</b>に ○を つけ、つぎに <b>先生が「先生」</b>に しるし＋「今日の キラリ」で よかった点を 必ず 一つ 言葉に する。
+    ＊注意の 代わりに「できた ときに すぐ ほめる／キラリに 残す」を 続けると、行動が 身に つきやすく なります。
+    目標は 子どもの 様子に あわせて 書きかえてOK（ホワイトボードマーカー）。 金曜に 写真で 記録 → 消して くり返し 使う。
+  </div>
+
+</div>
+</body>
+</html>

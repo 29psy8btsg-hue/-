@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>夢通信 ― 行事予定表カレンダー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-head:#99FF66;       /* 曜日ヘッダー（原本の#99FF66） */
+    --green-line:#538135;       /* 罫線 */
+    --sun-red:#E60000;          /* 日曜 */
+    --sat-blue:#1565C0;         /* 土曜 */
+    --magenta:#FF00FF;          /* 「夢」 */
+    --accent:#0099CC;           /* 「夢門塾〇〇」など */
+    --orange:#FF8A1E;           /* おしらせ */
+    --frame1:#5B8DEF;
+    --frame2:#76C7FF;
+    --paper:#ffffff;
+    --pop:"Mochiy Pop One","Zen Maru Gothic","Yusei Magic","HG創英角ﾎﾟｯﾌﾟ体",sans-serif;
+    --body:"Zen Maru Gothic","BIZ UDPGothic","Yu Gothic UI","Hiragino Sans",sans-serif;
+    --num:"Yusei Magic","Zen Maru Gothic","BIZ UDPGothic",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--body);
+    background:#cfe6f5;
+    color:#222;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  /* ===== 操作バー（印刷時は非表示） ===== */
+  .toolbar{
+    position:sticky;top:0;z-index:50;
+    background:#0f3a5f;color:#fff;
+    padding:10px 14px;
+    display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
+  }
+  .toolbar h1{font-size:15px;margin:0 12px 0 0;font-family:var(--pop);letter-spacing:1px;white-space:nowrap;}
+  .toolbar label{font-size:12px;display:flex;align-items:center;gap:4px;}
+  .toolbar select,.toolbar input[type=number]{
+    font:inherit;font-size:13px;padding:3px 6px;border-radius:6px;border:none;
+  }
+  .toolbar input[type=number]{width:70px;}
+  .toolbar .btn{
+    font:inherit;font-size:13px;cursor:pointer;border:none;border-radius:8px;
+    padding:6px 14px;background:#ffce3a;color:#3a2a00;font-weight:700;
+  }
+  .toolbar .btn.sub{background:#5b8def;color:#fff;}
+  .toolbar .btn.danger{background:#ff6b6b;color:#fff;}
+  .toolbar .btn:hover{filter:brightness(1.05);}
+  .toolbar .spacer{flex:1;}
+  .hint{font-size:11px;opacity:.85;width:100%;margin-top:-2px;}
+
+  /* ===== 用紙（A4 横） ===== */
+  .page-wrap{padding:18px;display:flex;justify-content:center;}
+  .sheet{
+    width:297mm;min-height:210mm;
+    background:var(--paper);
+    padding:10mm 9mm 8mm;
+    position:relative;
+    box-shadow:0 6px 24px rgba(0,0,0,.25);
+    border:6px solid var(--frame2);
+    outline:3px solid var(--frame1);
+    outline-offset:3px;
+  }
+
+  /* こいのぼり等の上下デコ帯 */
+  .deco{
+    text-align:center;font-size:26px;line-height:1;letter-spacing:6px;
+    user-select:none;white-space:nowrap;overflow:hidden;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.15));
+  }
+  .deco.top{margin:-2mm 0 1mm;}
+  .deco.bottom{margin:2mm 0 -1mm;}
+
+  /* ===== ヘッダー ===== */
+  .head-row{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+    font-family:var(--pop);
+  }
+  .issue{
+    font-size:17px;color:#333;line-height:1.5;white-space:nowrap;padding-top:4px;
+  }
+  .issue .ed{min-width:1em;}
+  .contact{font-size:14px;color:#333;text-align:right;line-height:1.6;white-space:nowrap;padding-top:4px;}
+
+  .title{
+    text-align:center;flex:1;
+  }
+  .title .fac{
+    font-family:var(--pop);font-size:24px;color:var(--accent);
+    -webkit-text-stroke:1px #fff;text-shadow:2px 2px 0 rgba(120,160,200,.5);
+    margin-bottom:2px;
+  }
+  .title .main{
+    font-family:var(--pop);font-size:54px;line-height:1;letter-spacing:2px;
+    color:var(--magenta);
+    text-shadow:3px 3px 0 #fff,5px 5px 0 rgba(120,160,200,.5);
+    -webkit-text-stroke:1.5px #fff;
+  }
+  .title .main .yume{font-size:70px;vertical-align:-6px;}
+
+  /* ===== カレンダー ===== */
+  table.cal{
+    width:100%;border-collapse:collapse;margin-top:5mm;
+    table-layout:fixed;
+  }
+  table.cal col.sun{width:9.2%;}
+  table.cal th,table.cal td{
+    border:1.5px solid var(--green-line);
+    vertical-align:top;
+  }
+  table.cal thead th{
+    background:var(--green-head);
+    font-family:var(--pop);font-size:16px;font-weight:normal;
+    padding:4px 0;text-align:center;height:30px;
+  }
+  table.cal thead th.sun{color:var(--sun-red);}
+  table.cal thead th.sat{color:var(--sat-blue);}
+  table.cal tbody td{
+    height:21mm;padding:2px 4px;position:relative;
+  }
+  table.cal tbody td.empty{background:#f4f7f4;}
+  table.cal tbody td.sun .dnum{color:var(--sun-red);}
+  table.cal tbody td.sat .dnum{color:var(--sat-blue);}
+  table.cal tbody td.holiday{background:#fff0f0;}
+  table.cal tbody td.holiday .dnum{color:var(--sun-red);}
+  .dnum{
+    font-family:var(--num);font-size:17px;font-weight:bold;
+    text-align:right;display:block;line-height:1.1;
+  }
+  .hname{font-size:9px;color:var(--sun-red);float:left;margin-top:3px;font-weight:bold;}
+  .ev{
+    font-size:11px;line-height:1.35;color:#1a1a1a;
+    outline:none;min-height:14px;margin-top:2px;
+    word-break:break-word;white-space:pre-wrap;
+  }
+  .ev:empty::before{content:"";}
+  td:hover .ev{background:rgba(255,250,200,.45);}
+  @media screen{
+    .ev:focus{background:#fffbe0;box-shadow:0 0 0 2px #ffd54f inset;border-radius:3px;}
+  }
+
+  /* ===== 下段：おしらせ／ねらい ===== */
+  .lower{display:flex;gap:6mm;margin-top:5mm;align-items:stretch;}
+  .box{flex:1;border:2px dashed var(--green-line);border-radius:10px;padding:6px 10px;background:#fcfffb;}
+  .box.aim{flex:0 0 38%;border-style:solid;background:#fff;}
+  .box h3{
+    margin:0 0 4px;text-align:center;font-family:var(--pop);font-size:20px;
+  }
+  .box.news h3{color:var(--orange);text-shadow:1px 1px 0 rgba(0,0,0,.12);}
+  .box.aim h3{color:#444;font-size:14px;}
+  .box .area{
+    outline:none;min-height:60px;font-size:12px;line-height:1.6;white-space:pre-wrap;
+  }
+  .box.aim .area{min-height:60px;}
+  .box .area:focus{background:#fffbe0;border-radius:4px;}
+
+  .footer-note{text-align:center;font-size:10px;color:#888;margin-top:3mm;}
+
+  /* ===== 印刷 ===== */
+  @page{size:A4 landscape;margin:6mm;}
+  @media print{
+    body{background:#fff;}
+    .toolbar{display:none !important;}
+    .page-wrap{padding:0;}
+    .sheet{
+      width:auto;min-height:auto;box-shadow:none;margin:0;
+      border:5px solid var(--frame2);outline:2px solid var(--frame1);
+    }
+    .ev:empty,.area:empty{min-height:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <h1>🎏 夢通信メーカー</h1>
+  <label>年(西暦)
+    <input type="number" id="year" min="2000" max="2099" step="1">
+  </label>
+  <label>月
+    <select id="month"></select>
+  </label>
+  <label>デコ
+    <select id="theme">
+      <option value="auto">月で自動</option>
+      <option value="koi">🎏 こいのぼり</option>
+      <option value="sakura">🌸 さくら</option>
+      <option value="tanabata">🎋 七夕</option>
+      <option value="summer">🌻 なつ</option>
+      <option value="tsukimi">🌕 お月見</option>
+      <option value="halloween">🎃 ハロウィン</option>
+      <option value="autumn">🍁 紅葉</option>
+      <option value="xmas">🎄 クリスマス</option>
+      <option value="newyear">🎍 お正月</option>
+      <option value="setsubun">👹 節分</option>
+      <option value="hina">🎎 ひな祭り</option>
+      <option value="tsuyu">☔ つゆ</option>
+      <option value="none">なし</option>
+    </select>
+  </label>
+  <button class="btn" id="printBtn">🖨 印刷 / PDF保存</button>
+  <span class="spacer"></span>
+  <button class="btn sub" id="exportBtn">⬇ バックアップ保存</button>
+  <button class="btn sub" id="importBtn">⬆ 読み込み</button>
+  <input type="file" id="importFile" accept="application/json" style="display:none">
+  <button class="btn danger" id="clearBtn">この月をクリア</button>
+  <span class="hint">※ 施設名・電話・日付のマス・おしらせ等は直接クリックして書き込めます。内容はこのブラウザに月ごとに自動保存されます。印刷は A4 横向き推奨。</span>
+</div>
+
+<div class="page-wrap">
+  <div class="sheet" id="sheet">
+    <div class="deco top" id="decoTop"></div>
+
+    <div class="head-row">
+      <div class="issue">
+        令和<span class="ed" contenteditable="true" data-k="era">７</span>年<span class="ed" contenteditable="true" data-k="emonth">１</span>月号
+      </div>
+      <div class="title">
+        <div class="fac" contenteditable="true" data-k="fac">夢門塾〇〇</div>
+        <div class="main"><span class="yume">夢</span>通信</div>
+      </div>
+      <div class="contact">
+        <div>☎ <span contenteditable="true" data-k="tel">012-345-6789</span></div>
+        <div>📠 <span contenteditable="true" data-k="fax">012-345-6798</span></div>
+      </div>
+    </div>
+
+    <table class="cal">
+      <colgroup>
+        <col><col><col><col><col><col class="sat"><col class="sun">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>月曜日</th><th>火曜日</th><th>水曜日</th><th>木曜日</th><th>金曜日</th>
+          <th class="sat">土曜日</th><th class="sun">日曜日</th>
+        </tr>
+      </thead>
+      <tbody id="calBody"></tbody>
+    </table>
+
+    <div class="lower">
+      <div class="box news">
+        <h3>おしらせ</h3>
+        <div class="area" contenteditable="true" data-k="news"></div>
+      </div>
+      <div class="box aim">
+        <h3>プログラムのねらい</h3>
+        <div class="area" contenteditable="true" data-k="aim"></div>
+      </div>
+    </div>
+
+    <div class="deco bottom" id="decoBottom"></div>
+    <div class="footer-note">放課後等デイサービス　行事予定表</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- 祝日（令和6〜10 / 2024〜2028） ---------- */
+const HOLIDAYS = {
+  // 2024
+  "2024-01-01":"元日","2024-01-08":"成人の日","2024-02-11":"建国記念の日","2024-02-12":"振替休日",
+  "2024-02-23":"天皇誕生日","2024-03-20":"春分の日","2024-04-29":"昭和の日","2024-05-03":"憲法記念日",
+  "2024-05-04":"みどりの日","2024-05-05":"こどもの日","2024-05-06":"振替休日","2024-07-15":"海の日",
+  "2024-08-11":"山の日","2024-08-12":"振替休日","2024-09-16":"敬老の日","2024-09-22":"秋分の日",
+  "2024-09-23":"振替休日","2024-10-14":"スポーツの日","2024-11-03":"文化の日","2024-11-04":"振替休日",
+  "2024-11-23":"勤労感謝の日",
+  // 2025
+  "2025-01-01":"元日","2025-01-13":"成人の日","2025-02-11":"建国記念の日","2025-02-23":"天皇誕生日",
+  "2025-02-24":"振替休日","2025-03-20":"春分の日","2025-04-29":"昭和の日","2025-05-03":"憲法記念日",
+  "2025-05-04":"みどりの日","2025-05-05":"こどもの日","2025-05-06":"振替休日","2025-07-21":"海の日",
+  "2025-08-11":"山の日","2025-09-15":"敬老の日","2025-09-23":"秋分の日","2025-10-13":"スポーツの日",
+  "2025-11-03":"文化の日","2025-11-23":"勤労感謝の日","2025-11-24":"振替休日",
+  // 2026
+  "2026-01-01":"元日","2026-01-12":"成人の日","2026-02-11":"建国記念の日","2026-02-23":"天皇誕生日",
+  "2026-03-20":"春分の日","2026-04-29":"昭和の日","2026-05-03":"憲法記念日","2026-05-04":"みどりの日",
+  "2026-05-05":"こどもの日","2026-05-06":"振替休日","2026-07-20":"海の日","2026-08-11":"山の日",
+  "2026-09-21":"敬老の日","2026-09-22":"国民の休日","2026-09-23":"秋分の日","2026-10-12":"スポーツの日",
+  "2026-11-03":"文化の日","2026-11-23":"勤労感謝の日",
+  // 2027
+  "2027-01-01":"元日","2027-01-11":"成人の日","2027-02-11":"建国記念の日","2027-02-23":"天皇誕生日",
+  "2027-03-21":"春分の日","2027-03-22":"振替休日","2027-04-29":"昭和の日","2027-05-03":"憲法記念日",
+  "2027-05-04":"みどりの日","2027-05-05":"こどもの日","2027-07-19":"海の日","2027-08-11":"山の日",
+  "2027-09-20":"敬老の日","2027-09-23":"秋分の日","2027-10-11":"スポーツの日","2027-11-03":"文化の日",
+  "2027-11-23":"勤労感謝の日",
+  // 2028
+  "2028-01-01":"元日","2028-01-10":"成人の日","2028-02-11":"建国記念の日","2028-02-23":"天皇誕生日",
+  "2028-03-20":"春分の日","2028-04-29":"昭和の日","2028-05-03":"憲法記念日","2028-05-04":"みどりの日",
+  "2028-05-05":"こどもの日","2028-07-17":"海の日","2028-08-11":"山の日","2028-09-18":"敬老の日",
+  "2028-09-22":"秋分の日","2028-10-09":"スポーツの日","2028-11-03":"文化の日","2028-11-23":"勤労感謝の日"
+};
+
+/* ---------- デコ（季節） ---------- */
+const DECOS = {
+  koi:"🎏", sakura:"🌸", tanabata:"🎋", summer:"🌻", tsukimi:"🌕",
+  halloween:"🎃", autumn:"🍁", xmas:"🎄", newyear:"🎍", setsubun:"👹",
+  hina:"🎎", tsuyu:"☔", none:""
+};
+const MONTH_DECO = {1:"newyear",2:"setsubun",3:"hina",4:"sakura",5:"koi",6:"tsuyu",
+                    7:"tanabata",8:"summer",9:"tsukimi",10:"halloween",11:"autumn",12:"xmas"};
+
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,"0");
+const KANJI = ["〇","一","二","三","四","五","六","七","八","九","十","十一","十二"];
+
+let state = {y:0, m:0};
+
+/* ---------- localStorage ---------- */
+function keyFor(y,m){ return `yume-tsushin:${y}-${pad(m)}`; }
+function loadData(y,m){
+  try{ return JSON.parse(localStorage.getItem(keyFor(y,m))) || {}; }catch(e){ return {}; }
+}
+function saveData(){
+  const data = {fields:{}, days:{}};
+  document.querySelectorAll('[data-k]').forEach(el=>{ data.fields[el.dataset.k] = el.innerHTML; });
+  document.querySelectorAll('.ev[data-day]').forEach(el=>{
+    if(el.innerHTML.trim()) data.days[el.dataset.day] = el.innerHTML;
+  });
+  localStorage.setItem(keyFor(state.y,state.m), JSON.stringify(data));
+}
+
+/* ---------- デコ描画 ---------- */
+function renderDeco(){
+  let t = $("#theme").value;
+  if(t==="auto") t = MONTH_DECO[state.m] || "koi";
+  const ch = DECOS[t] || "";
+  const line = ch ? (ch+" ").repeat(22).trim() : "";
+  $("#decoTop").textContent = line;
+  $("#decoBottom").textContent = line;
+}
+
+/* ---------- カレンダー生成 ---------- */
+function buildCalendar(){
+  const {y,m} = state;
+  const data = loadData(y,m);
+
+  // ヘッダーの号数（令和）を西暦から
+  const reiwa = y - 2018; // 2019=令和1
+  setField("era", reiwa>0 ? toKanji(reiwa) : String(y));
+  setField("emonth", KANJI[m] || String(m));
+
+  // フィールド復元（保存があれば優先）
+  if(data.fields){
+    for(const k in data.fields) setField(k, data.fields[k]);
+  }
+  // 未保存の自由欄は前回値を保持しつつ、号数・年月は再計算を上書き反映
+  if(!data.fields || data.fields.era===undefined) setField("era", reiwa>0?toKanji(reiwa):String(y));
+  if(!data.fields || data.fields.emonth===undefined) setField("emonth", KANJI[m]||String(m));
+
+  // 本体
+  const body = $("#calBody");
+  body.innerHTML = "";
+  const first = new Date(y, m-1, 1);
+  const dim = new Date(y, m, 0).getDate();
+  const startCol = (first.getDay()+6)%7; // 月曜=0
+  let day = 1;
+  const totalCells = startCol + dim;
+  const rows = Math.ceil(totalCells/7);
+
+  for(let r=0;r<rows;r++){
+    const tr = document.createElement("tr");
+    for(let c=0;c<7;c++){
+      const td = document.createElement("td");
+      const idx = r*7+c;
+      if(idx<startCol || day>dim){
+        td.className = "empty";
+      }else{
+        if(c===5) td.classList.add("sat");
+        if(c===6) td.classList.add("sun");
+        const iso = `${y}-${pad(m)}-${pad(day)}`;
+        const hol = HOLIDAYS[iso];
+        if(hol) td.classList.add("holiday");
+
+        const num = document.createElement("span");
+        num.className = "dnum";
+        num.textContent = day;
+        td.appendChild(num);
+
+        if(hol){
+          const hn = document.createElement("span");
+          hn.className = "hname";
+          hn.textContent = hol;
+          td.appendChild(hn);
+        }
+
+        const ev = document.createElement("div");
+        ev.className = "ev";
+        ev.contentEditable = "true";
+        ev.dataset.day = day;
+        if(data.days && data.days[day]) ev.innerHTML = data.days[day];
+        ev.addEventListener("input", saveData);
+        td.appendChild(ev);
+
+        day++;
+      }
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  }
+  renderDeco();
+}
+
+function setField(k,v){
+  const el = document.querySelector(`[data-k="${k}"]`);
+  if(el && v!==undefined && v!==null) el.innerHTML = v;
+}
+function toKanji(n){ return KANJI[n] || String(n); }
+
+/* ---------- 月切替 ---------- */
+function applySelection(){
+  state.y = parseInt($("#year").value,10);
+  state.m = parseInt($("#month").value,10);
+  buildCalendar();
+}
+
+/* ---------- 初期化 ---------- */
+function init(){
+  const msel = $("#month");
+  for(let i=1;i<=12;i++){
+    const o = document.createElement("option");
+    o.value = i; o.textContent = i+"月";
+    msel.appendChild(o);
+  }
+  const now = new Date();
+  $("#year").value = now.getFullYear();
+  msel.value = now.getMonth()+1;
+  state.y = now.getFullYear();
+  state.m = now.getMonth()+1;
+
+  $("#year").addEventListener("change", applySelection);
+  msel.addEventListener("change", applySelection);
+  $("#theme").addEventListener("change", ()=>{ renderDeco(); saveThemePref(); });
+
+  // 自由記入欄の保存
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    el.addEventListener("input", saveData);
+  });
+
+  $("#printBtn").addEventListener("click", ()=>window.print());
+  $("#clearBtn").addEventListener("click", ()=>{
+    if(confirm(`${state.y}年${state.m}月の入力内容を消去します。よろしいですか？`)){
+      localStorage.removeItem(keyFor(state.y,state.m));
+      buildCalendar();
+    }
+  });
+  $("#exportBtn").addEventListener("click", exportAll);
+  $("#importBtn").addEventListener("click", ()=>$("#importFile").click());
+  $("#importFile").addEventListener("change", importAll);
+
+  const tp = localStorage.getItem("yume-tsushin:theme");
+  if(tp) $("#theme").value = tp;
+
+  buildCalendar();
+}
+function saveThemePref(){ localStorage.setItem("yume-tsushin:theme", $("#theme").value); }
+
+/* ---------- バックアップ ---------- */
+function exportAll(){
+  saveData();
+  const dump = {};
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k.startsWith("yume-tsushin:")) dump[k] = localStorage.getItem(k);
+  }
+  const blob = new Blob([JSON.stringify(dump,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `夢通信_backup_${state.y}.json`;
+  a.click();
+}
+function importAll(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const obj = JSON.parse(rd.result);
+      for(const k in obj){ if(k.startsWith("yume-tsushin:")) localStorage.setItem(k,obj[k]); }
+      const tp = localStorage.getItem("yume-tsushin:theme");
+      if(tp) $("#theme").value = tp;
+      buildCalendar();
+      alert("読み込みました。");
+    }catch(err){ alert("ファイルを読み込めませんでした。"); }
+  };
+  rd.readAsText(f);
+  e.target.value = "";
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

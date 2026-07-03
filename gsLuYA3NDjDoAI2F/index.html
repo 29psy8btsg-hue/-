@@ -425,6 +425,8 @@ const BADGES = [
   { id:"b10", name:"タイマー ゆうしゃ",     emoji:"⏱️", cond:"しゅうちゅうタイマー 5かい かんそう", check:s=>(s.timerComplete||0)>=5 },
   { id:"b11", name:"ぜんぶ めざめた！",     emoji:"🌟", cond:"ぜんぶのちから Lv3 いじょう",   check:s=>STATS.every(st=>s.stats[st.key]>=3) },
   { id:"b12", name:"でんせつの ぼうけんしゃ",emoji:"🐲",cond:"さいこうランク とうたつ",       check:s=>s.points>=90 },
+  { id:"b13", name:"ずかんマスター",         emoji:"📖", cond:"モンスターずかん コンプリート", check:s=>[0,1,2,3,4,5].every(i=>s.dex&&s.dex[i]) },
+  { id:"b14", name:"レベル10 とうたつ！",    emoji:"🆙", cond:"ゆうしゃレベル 10 いじょう",    check:s=>heroLvInfo(s.points).lv>=10 },
 ];
 
 /* 転職システム */
@@ -470,9 +472,10 @@ function defaultProfile(name, avatar){
     name:name||"", avatar:avatar||"🌱",
     points:0, spent:0,
     stats:{ focus:1, patience:1, heart:1, social:1, physical:1, intelligence:1 },
+    statXp:{ focus:0, patience:0, heart:0, social:0, physical:0, intelligence:0 },
     dailyDone:[], weekly:{}, skillCount:0, claimed:[], emotion:null,
     lastDate:"", lastWeek:-1, history:[], badges:[], timerComplete:0,
-    lastBattleDate:"",
+    lastBattleDate:"", dex:{}, lastLv:null,
     rebirthStar:0, rebirthJob:null, rebirthJobs:[]
   };
 }
@@ -615,7 +618,68 @@ function displayRank(){
 }
 function statOf(k){ return STATS.find(s=>s.key===k); }
 function avail(){ return S.points - S.spent; }
-function bump(k, n=1){ S.stats[k]=Math.min(10, S.stats[k]+n); }
+
+/* ---- ゆうしゃレベル（るいけいptがそのまま けいけんち）---- */
+function heroLvInfo(pt){
+  let lv=1, p=pt||0, need=4;
+  while(p>=need && lv<99){ p-=need; lv++; need=Math.min(30, 3+Math.ceil(lv*1.2)); }
+  return { lv, cur:p, need };   // cur/need = つぎのレベルまでの進捗
+}
+// バトルに使う能力値（レベル＋6ステータスから計算）
+function dqCalc(){
+  const st=S.stats||{};
+  const lv=heroLvInfo(S.points).lv;
+  const sum=Object.values(st).reduce((a,v)=>a+(v||1),0);
+  const lvAtk=Math.min(1.5, 1+(lv-1)*0.02);
+  return {
+    lv, sum,
+    pw:  sum+(lv-1)*2,
+    hMax:38+lv*3+sum,
+    mpMax:8+lv+(st.intelligence||1)*2,
+    atk:  Math.round(7*(1+((st.physical||1)-1)*0.12)*lvAtk),
+    magic:Math.round(19+(st.intelligence||1)*2+lv*0.5),
+    heal: Math.round(20+(st.heart||1)*2.5+lv*0.5),
+  };
+}
+function checkHeroLv(){
+  const lv=heroLvInfo(S.points).lv;
+  if(S.lastLv==null){ S.lastLv=lv; save(); return; }
+  if(lv>S.lastLv){
+    S.lastLv=lv; save();
+    setTimeout(()=>{ playSound('badge'); confetti(); showLevelUpModal(lv); }, 700);
+  } else if(lv<S.lastLv){ S.lastLv=lv; save(); }
+}
+function showLevelUpModal(lv){
+  const modal=document.createElement('div');
+  modal.setAttribute('data-lvup','1');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(5,7,15,.82);z-index:640;display:flex;align-items:center;justify-content:center;animation:pop .4s ease;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#000;border:3px solid #fff;box-shadow:inset 0 0 0 2px #000, 0 0 0 3px #000;border-radius:14px;padding:28px 26px;max-width:320px;width:86%;text-align:center;color:#fff;';
+  box.innerHTML=
+    '<div style="font-size:14px;font-weight:900;letter-spacing:3px;color:#FCD34D">✨ レベルが あがった！ ✨</div>'+
+    '<div style="font-size:54px;font-weight:900;margin:12px 0;line-height:1">Lv '+lv+'</div>'+
+    '<div style="font-size:12px;line-height:2;color:#CBD5E1">さいだいHP が 3 あがった！<br>さいだいMP が 1 あがった！<br>こうげき力も すこし あがった！</div>'+
+    '<button onclick="this.closest(\'[data-lvup]\').remove()" style="margin-top:16px;width:100%;padding:12px;background:#000;border:2.5px solid #fff;box-shadow:inset 0 0 0 2px #000;border-radius:10px;color:#fff;font-size:14px;font-weight:900;letter-spacing:2px;cursor:pointer;font-family:inherit">やったー！</button>';
+  modal.appendChild(box);
+  modal.onclick=function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+/* ---- ステータス経験値（つみかさねて レベルアップ）---- */
+function statNeed(lv){ return lv+1; }   // Lv1→2は2かい、Lv9→10は10かい
+function bump(k, n=1){
+  const lv=S.stats[k]||1;
+  if(lv>=10) return;
+  if(!S.statXp) S.statXp={};
+  S.statXp[k]=(S.statXp[k]||0)+n;
+  const need=statNeed(lv);
+  if(S.statXp[k]>=need){
+    S.statXp[k]-=need;
+    S.stats[k]=Math.min(10, lv+1);
+    const st=statOf(k);
+    if(st) setTimeout(()=>{ playSound('badge'); confetti(); flash('⬆️ '+st.icon+' '+st.label+'が Lv'+S.stats[k]+'に あがった！'); }, 1200);
+  }
+}
 function getDaily(){   return ROOT.customDaily   || DAILY;   }
 function getWeekly(){  return ROOT.customWeekly  || WEEKLY;  }
 function getRewards(){ return ROOT.customRewards || REWARDS; }
@@ -645,6 +709,7 @@ function checkBadges(){
 
 function afterAction(){
   const nb=checkBadges();
+  checkHeroLv();
   save();
   render();
   if(nb.length){
@@ -1000,7 +1065,9 @@ function pickAvatar(a){
 function renderHeader(){
   const rank=displayRank(), baseRank=getRank(S.points), next=getNextRank(S.points);
   document.getElementById('avatar').textContent=S.avatar||rank.icon;
+  const hlv=heroLvInfo(S.points).lv;
   document.getElementById('rankLabel').innerHTML=
+    '<span style="background:#1A3A6B;color:#FFC93C;border-radius:8px;padding:1px 7px;font-size:11px;font-weight:900">Lv '+hlv+'</span> '+
     '<span style="color:'+rank.color+'">'+esc(rank.icon)+' '+esc(rank.name)+'</span>';
   document.getElementById('availPt').textContent=avail();
   const ni=document.getElementById('nameInput');
@@ -1177,17 +1244,27 @@ function renderTimer(){
 function renderStatus(){
   let h='<div class="sect">'+sectHTML('📊','ぼうけんしゃステータス','ミッションをこなして せいちょうしよう','#4EC5E0')+'</div>';
   h+=renderRankHero();
+  h+=renderBattleStats();
   h+=renderRankRoadmap();
   h+=renderJobGallery();
   h+='<div class="chartbox"><canvas id="radar" width="600" height="520" style="width:100%;height:auto"></canvas></div>';
   h+='<div class="statgrid">';
   STATS.forEach(s=>{
     const lv=S.stats[s.key];
+    const xp=(S.statXp&&S.statXp[s.key])||0;
+    const need=statNeed(lv);
+    const xpTxt=lv>=10?'⭐ MAX！':'つぎのLvまで あと'+(need-xp)+'かい';
+    const xpPct=lv>=10?100:Math.round(xp/need*100);
     h+='<div class="statcard" style="border:2px solid '+s.color+'40">'+
       '<div class="statcard-top"><span class="statcard-icon">'+esc(s.icon)+'</span>'+
       '<span class="statcard-name">'+esc(s.label)+'</span>'+
       '<span class="statcard-lv" style="color:'+s.color+'">Lv.'+lv+'</span></div>'+
       '<div class="statbar"><div class="statbar-fill" style="width:'+(lv*10)+'%;background:'+s.color+'"></div></div>'+
+      '<div style="display:flex;align-items:center;gap:5px;margin-top:4px">'+
+        '<div style="flex:1;height:5px;border-radius:3px;background:#F3F4F6;overflow:hidden">'+
+          '<div style="height:100%;width:'+xpPct+'%;border-radius:3px;background:'+s.color+'88"></div></div>'+
+        '<span style="font-size:8px;font-weight:800;color:#9CA3AF;white-space:nowrap">'+xpTxt+'</span>'+
+      '</div>'+
       '<div class="statdesc">'+esc(s.desc)+'</div></div>';
   });
   h+='</div>';
@@ -1200,12 +1277,31 @@ function renderStatus(){
   return h;
 }
 
+/* バトルのうりょく（レベル＋ステータスから計算） */
+function renderBattleStats(){
+  const c=dqCalc();
+  const cell=(icon,label,val,color)=>
+    '<div style="background:#0f1424;border:2px solid #fff;border-radius:9px;padding:8px 6px;text-align:center">'+
+      '<div style="font-size:15px">'+icon+'</div>'+
+      '<div style="font-size:9px;font-weight:800;color:#94A3B8;margin-top:1px">'+label+'</div>'+
+      '<div style="font-size:15px;font-weight:900;color:'+color+'">'+val+'</div>'+
+    '</div>';
+  return '<div style="font-size:12px;font-weight:900;color:#1A3A6B;margin:2px 0 8px">⚔️ バトルのうりょく <span style="font-size:9px;font-weight:700;color:#9CA3AF">レベルと ちからで つよくなる！</span></div>'+
+    '<div style="background:#05070f;border-radius:16px;padding:10px;margin-bottom:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px">'+
+      cell('❤️','さいだいHP',c.hMax,'#86EFAC')+
+      cell('🔮','さいだいMP',c.mpMax,'#7DD3FC')+
+      cell('⚔️','こうげき',c.atk,'#FCA5A5')+
+      cell('✨','かいふく',c.heal,'#FCD34D')+
+    '</div>';
+}
+
 /* 現在のランク（職業）ヒーローカード */
 function renderRankHero(){
   const rank=displayRank();
   const baseRank=getRank(S.points);
   const next=getNextRank(S.points);
   const avl=S.points-(S.spent||0);
+  const hl=heroLvInfo(S.points);
   let pct=0, label='';
   if(next){
     const pct0=(S.points-baseRank.min)/(next.min-baseRank.min)*100;
@@ -1227,9 +1323,12 @@ function renderRankHero(){
       '<div style="flex:1;min-width:0">'+
         '<div style="font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">げんざいの '+(rank.rebirth?'しょくぎょう':'ランク')+'</div>'+
         '<div style="font-size:19px;font-weight:900;line-height:1.2">'+esc(rank.icon)+' '+esc(rank.name)+'</div>'+
-        '<div style="font-size:11px;opacity:.9;margin-top:2px">るいけい '+S.points+'pt ・ つかえる '+avl+'pt</div>'+
+        '<div style="font-size:11px;opacity:.9;margin-top:2px"><b style="background:rgba(255,255,255,.22);border-radius:7px;padding:1px 7px">Lv '+hl.lv+'</b>　るいけい '+S.points+'pt ・ つかえる '+avl+'pt</div>'+
       '</div>'+
     '</div>'+
+    '<div style="margin-top:10px;font-size:10px;font-weight:700;display:flex;justify-content:space-between"><span>つぎのレベルまで</span><span>あと '+(hl.need-hl.cur)+'pt</span></div>'+
+    '<div style="height:6px;border-radius:4px;background:rgba(255,255,255,.25);overflow:hidden;margin-top:3px">'+
+      '<div style="height:100%;width:'+Math.round(hl.cur/hl.need*100)+'%;border-radius:4px;background:#FFC93C"></div></div>'+
     '<div style="margin-top:12px">'+
       '<div style="font-size:11px;font-weight:700;margin-bottom:5px">'+esc(label)+'</div>'+
       '<div style="height:9px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden">'+
@@ -1740,7 +1839,7 @@ function attachHandlers(){
       const s=statOf(k); if(!s) return;
       bump(k); S.skillCount++; S.points+=1;
       playSound('mission');
-      flash(s.icon+' '+s.label+' Lvアップ！ +1pt');
+      flash(s.icon+' '+s.label+'の けいけんち +1！ +1pt');
       afterAction();
     };
   });
@@ -1904,7 +2003,7 @@ function checkDateReset(){
 /* ======================================================
    バトル（ドラゴンクエスト風・ターンせいバトル）
 ====================================================== */
-// --- てき図鑑（ステータスがそだつほど つよいてきに）---
+// --- てき図鑑（つよさ6段階・たおすと ずかんに とうろく）---
 const DQ_DEX=[
   {name:'ぷるりん',           emoji:'💧', atk:'たいあたり',       ult:'ぷるぷるウェーブ'},
   {name:'おばけキノッコ',     emoji:'🍄', atk:'かさアタック',     ult:'ねむたいこな'},
@@ -1913,7 +2012,6 @@ const DQ_DEX=[
   {name:'ゴツゴーレム',       emoji:'🗿', atk:'がんせきパンチ',   ult:'メガトンプレス'},
   {name:'まおうドラゴーン',   emoji:'🐉', atk:'するどいツメ',     ult:'かえんのブレス'},
 ];
-const DQ_ATK_TIERS=[ [12,17],[14,19],[16,22],[18,24] ];
 
 // --- じゅもん（MPをつかう）---
 const DQ_SPELLS=[
@@ -1927,28 +2025,51 @@ const DQ_SPELLS=[
 const DQ_SKILLS=[
   {id:'kiai',   name:'きあいだめ',   icon:'💫', info:'つぎの たたかうが 2ばい！'},
   {id:'nakama', name:'なかまのこえ', icon:'📣', info:'なかまの おうえんこうげき'},
+  {id:'meiso',  name:'めいそう',     icon:'🧘', info:'MPを 4 かいふく'},
 ];
+// --- 転職すると つかえる ひっさつわざ（1バトル1かい）---
+const DQ_JOB_SKILLS={
+  sage:    {name:'メラメラゾーン',   icon:'🌋', info:'きゅうきょくの ほのお！'},
+  archmage:{name:'まりょくかいほう', icon:'🔮', info:'MPが ぜんかいふく！'},
+  paladin: {name:'せいなるたて',     icon:'✨', info:'3ターン ダメージ4わり＋HPかいふく'},
+  dragoon: {name:'ドラゴンジャンプ', icon:'🐲', info:'大ジャンプで 3ばいこうげき！'},
+  saint:   {name:'てんしのうた',     icon:'😇', info:'HPが ぜんかいふく！'},
+  guild:   {name:'みんなのきずな',   icon:'🤝', info:'なかまぜんいんで こうげき！'},
+  battle:  {name:'ひっさつけん',     icon:'⚔️', info:'かならず かいしんのいちげき！'},
+  mime:    {name:'ものまね',         icon:'🎭', info:'てきの ひっさつわざを まねる！'},
+};
 
 // --- バトル状態 ---
 let bEnemy=null, bPhase='start';
-let dqHP=0, dqHPMax=0, dqMP=0, dqMPMax=0, dqEHP=0, dqEMax=0;
+let dqHP=0, dqHPMax=0, dqMP=0, dqMPMax=0, dqEHP=0, dqEMax=0, dqLv=1;
 let dqGuard=false, dqKiai=false, dqECharge=false;
-let dqAtkT=0, dqDefT=0, dqEBuffT=0;
+let dqAtkT=0, dqDefT=0, dqDefPow=0.6, dqEBuffT=0, dqSpecialUsed=false;
 let dqBusy=false, dqFastFlag=false, dqMenu='main', dqIntroDone=false;
 
 function bToday(){ return new Date().toLocaleDateString('ja-JP'); }
 function dqHeroName(){ return S.name||'ゆうしゃ'; }
 
-// --- てきを生成（1日1体・ステータス合計でつよさが変わる）---
+// --- きょうのてきを生成（つよさはレベル＋ステータス連動・見た目は日がわり）---
+function dqSeedRand(){
+  const s=bToday()+'|'+(S.name||'')+'|'+(ROOT.current||'');
+  let h=2166136261;
+  for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
+  return ((h>>>8)%10000)/10000;
+}
 function genDailyEnemy(){
-  const st=S.stats||{};
-  const sum=Object.values(st).reduce((a,v)=>a+(v||1),0);   // 6〜60
-  const tier = sum<12?0 : sum<24?1 : sum<40?2 : 3;
-  const idx = Math.min(DQ_DEX.length-1, Math.floor((sum-6)/9));
+  const c=dqCalc();
+  const pw=c.pw;
+  const maxIdx=Math.max(0, Math.min(DQ_DEX.length-1, Math.floor((pw-6)/12)));
+  // ふだんは いまのつよさの てき。ときどき むかしの てきも あらわれる（ずかんあつめ用）
+  let idx=maxIdx;
+  if(maxIdx>0){
+    const r=dqSeedRand()*(maxIdx+3);
+    idx = r<maxIdx ? Math.floor(r) : maxIdx;
+  }
   const d=DQ_DEX[idx];
-  const [aMin,aMax]=DQ_ATK_TIERS[tier];
-  return { name:d.name, emoji:d.emoji, atk:d.atk, ult:d.ult, aMin, aMax,
-           eMax:Math.round(50+sum*1.7), hMax:44+Math.round(sum*1.35), sum };
+  return { name:d.name, emoji:d.emoji, atk:d.atk, ult:d.ult, dexIdx:idx,
+           aMin:Math.round(11+pw*0.10), aMax:Math.round(15+pw*0.15),
+           eMax:Math.round(46+pw*1.75), pw };
 }
 
 // --- 画面のかきかえ ---
@@ -1993,7 +2114,7 @@ function dqHurtFx(){
 // --- メッセージ（1文字ずつ表示・タップでスキップ）---
 function dqSay(lines, done){
   const el=document.getElementById('dqMsgTxt');
-  if(!el){ let k=0; const skipAll=()=>{ k++; k<lines.length?skipAll():(done&&done()); }; skipAll(); return; }
+  if(!el){ if(done)done(); return; }
   el.textContent='';
   let k=0;
   const next=()=>{
@@ -2039,14 +2160,26 @@ function dqRenderCmds(){
         '<span>'+sp.icon+' '+sp.name+'</span><span class="mpc">MP'+sp.mp+'　'+sp.info+'</span></button>';
     }).join('')+'<button class="dqbtn back" onclick="dqShowMenu(\'main\')">← もどる</button>';
   } else {
-    el.innerHTML=DQ_SKILLS.map(sk=>
+    let h=DQ_SKILLS.map(sk=>
       '<button class="dqbtn sub" onclick="dqAct(\'skill\',\''+sk.id+'\')">'+
       '<span>'+sk.icon+' '+sk.name+'</span><span class="mpc">'+sk.info+'</span></button>'
-    ).join('')+'<button class="dqbtn back" onclick="dqShowMenu(\'main\')">← もどる</button>';
+    ).join('');
+    const js=S.rebirthJob && DQ_JOB_SKILLS[S.rebirthJob];
+    if(js){
+      h+= dqSpecialUsed
+        ? '<button class="dqbtn sub" disabled><span>'+js.icon+' '+js.name+'</span><span class="mpc">このバトルでは もう つかった</span></button>'
+        : '<button class="dqbtn sub" style="border-color:#FCD34D" onclick="dqAct(\'jobskill\')">'+
+          '<span style="color:#FCD34D">'+js.icon+' '+js.name+'</span><span class="mpc" style="color:#FCD34D">ひっさつ！ '+js.info+'</span></button>';
+    }
+    el.innerHTML=h+'<button class="dqbtn back" onclick="dqShowMenu(\'main\')">← もどる</button>';
   }
 }
 
 // --- プレイヤーのターン ---
+function dqAttackDmg(atkMult){
+  const st=S.stats||{};
+  return (5+Math.random()*4)*(1+((st.physical||1)-1)*0.12)*Math.min(1.5,1+(dqLv-1)*0.02)*atkMult;
+}
 function dqAct(type, id){
   if(dqBusy || bPhase!=='battle') return;
   dqBusy=true; dqMenu='main'; dqRenderCmds();
@@ -2056,7 +2189,7 @@ function dqAct(type, id){
   let msgs=[];
 
   if(type==='attack'){
-    let d=(5+Math.random()*4)*(1+((st.physical||1)-1)*0.12)*atkMult;
+    let d=dqAttackDmg(atkMult);
     const crit=Math.random()<0.1;
     if(dqKiai){ d*=2.2; dqKiai=false; }
     if(crit) d*=2;
@@ -2072,21 +2205,21 @@ function dqAct(type, id){
     if(!sp || dqMP<sp.mp){ dqBusy=false; dqRenderCmds(); return; }
     dqMP-=sp.mp;
     if(id==='mera'){
-      const d=Math.round((16+(st.intelligence||1)*2+Math.random()*6)*atkMult);
+      const d=Math.round((16+(st.intelligence||1)*2+dqLv*0.5+Math.random()*6)*atkMult);
       dqEHP=Math.max(0,dqEHP-d);
       msgs=[heroN+'は メラメラを となえた！','ほのおが '+bEnemy.name+'を つつむ！ '+d+'の ダメージ！'];
       dqShake(); dqPop('-'+d,'#FB923C');
     } else if(id==='gira'){
-      const d=Math.round((30+(st.intelligence||1)*3+Math.random()*8)*atkMult);
+      const d=Math.round((30+(st.intelligence||1)*3+dqLv*0.7+Math.random()*8)*atkMult);
       dqEHP=Math.max(0,dqEHP-d);
       msgs=[heroN+'は ピカゴロンを となえた！','いなずまが '+bEnemy.name+'に おちた！ '+d+'の ダメージ！'];
       dqShake(); dqPop('-'+d,'#FCD34D');
     } else if(id==='hoi'){
-      const h=Math.round(20+(st.heart||1)*2.5);
+      const h=Math.round(20+(st.heart||1)*2.5+dqLv*0.5);
       dqHP=Math.min(dqHPMax,dqHP+h);
       msgs=[heroN+'は ホイポンを となえた！','HPが '+h+' かいふくした！'];
     } else if(id==='mamo'){
-      dqDefT=3;
+      dqDefT=3; dqDefPow=0.6;
       msgs=[heroN+'は マモールを となえた！','ひかりのカベが みをまもる！（3ターン）'];
     } else if(id==='pow'){
       dqAtkT=3;
@@ -2099,12 +2232,60 @@ function dqAct(type, id){
       dqKiai=true;
       msgs=[heroN+'は きあいを ためた！','つぎの こうげきが つよくなるぞ！'];
     } else if(id==='nakama'){
-      const d=Math.round((4+(st.social||1)*1.5+Math.random()*3)*atkMult);
+      const d=Math.round((4+(st.social||1)*1.5+dqLv*0.3+Math.random()*3)*atkMult);
       dqEHP=Math.max(0,dqEHP-d);
       msgs=['なかまの こえが ひびきわたった！',bEnemy.name+'に '+d+'の ダメージ！'];
       dqShake(); dqPop('-'+d,'#86EFAC');
+    } else if(id==='meiso'){
+      dqMP=Math.min(dqMPMax,dqMP+4);
+      msgs=[heroN+'は こころを おちつけて めいそうした。','MPが 4 かいふくした！'];
     }
     playSound('tap');
+  }
+  else if(type==='jobskill'){
+    const js=S.rebirthJob && DQ_JOB_SKILLS[S.rebirthJob];
+    if(!js || dqSpecialUsed){ dqBusy=false; dqRenderCmds(); return; }
+    dqSpecialUsed=true;
+    const jid=S.rebirthJob;
+    if(jid==='sage'){
+      const d=Math.round((16+(st.intelligence||1)*2+dqLv*0.5+Math.random()*6)*2.4*atkMult);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=['けんじゃの ひっさつ！ メラメラゾーン！！','ごうかの うずが '+bEnemy.name+'を のみこむ！ '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#FB923C');
+    } else if(jid==='archmage'){
+      dqMP=dqMPMax;
+      msgs=['だいまどうしの ひっさつ！ まりょくかいほう！！','MPが ぜんかいふくした！'];
+    } else if(jid==='paladin'){
+      dqDefT=3; dqDefPow=0.4;
+      const h=Math.round(dqHPMax*0.2);
+      dqHP=Math.min(dqHPMax,dqHP+h);
+      msgs=['パラディンの ひっさつ！ せいなるたて！！','せいなるひかりが まもってくれる！（3ターン）','HPも '+h+' かいふくした！'];
+    } else if(jid==='dragoon'){
+      const d=Math.round(dqAttackDmg(atkMult)*3);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=['りゅうきしの ひっさつ！ ドラゴンジャンプ！！','そらたかく とびあがり きゅうこうか！ '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#FF8C42');
+    } else if(jid==='saint'){
+      dqHP=dqHPMax;
+      msgs=['しろのせいじゃの ひっさつ！ てんしのうた！！','やさしいうたごえで HPが ぜんかいふくした！'];
+    } else if(jid==='guild'){
+      const c=dqCalc();
+      const d=Math.round((12+c.sum*0.9+Math.random()*6)*atkMult);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=['ギルドマスターの ひっさつ！ みんなのきずな！！','なかまたちが いっせいこうげき！ '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#86EFAC');
+    } else if(jid==='battle'){
+      const d=Math.round(dqAttackDmg(atkMult)*2);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=['バトルマスターの ひっさつ！ ひっさつけん！！','かいしんの いちげき！！ '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#FCD34D');
+    } else if(jid==='mime'){
+      const d=Math.round((bEnemy.aMin+Math.random()*(bEnemy.aMax-bEnemy.aMin))*1.8);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=['ものまねしの ひっさつ！ ものまね！！',bEnemy.name+'の「'+bEnemy.ult+'」を まねした！ '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#FFC93C');
+    }
+    playSound('badge');
   }
   else if(type==='defend'){
     dqGuard=true;
@@ -2123,7 +2304,7 @@ function dqAct(type, id){
 function dqEnemyTurn(){
   const e=bEnemy, heroN=dqHeroName();
   if(dqEBuffT>0) dqEBuffT--;
-  const defMult=(dqGuard?0.5:1)*(dqDefT>0?0.6:1);
+  const defMult=(dqGuard?0.5:1)*(dqDefT>0?dqDefPow:1);
   const buffMult=(dqEBuffT>0?1.3:1);
   let msgs=[], tookHit=false;
 
@@ -2182,14 +2363,18 @@ function dqEnemyTurn(){
 
 // --- しょうり／はいぼく ---
 function dqWin(){
+  // ずかんに とうろく
+  if(!S.dex) S.dex={};
+  S.dex[bEnemy.dexIdx]=(S.dex[bEnemy.dexIdx]||0)+1;
   const first=S.lastBattleDate!==bToday();
   if(first){
     S.lastBattleDate=bToday();
     S.points=(S.points||0)+2;
-    save(); checkBadges(); save();
   }
+  save(); checkBadges(); checkHeroLv(); save();
   dqSay([bEnemy.name+'を やっつけた！',
-         first?'けいけんち 2ポイントを かくとく！':'きょうの ポイントは もう ゲットずみ！ ナイスバトル！'], ()=>{
+         first?'けいけんち 2ポイントを かくとく！':'きょうの ポイントは もう ゲットずみ！ ナイスバトル！',
+         '📖 ずかんに とうろくした！'], ()=>{
     bPhase='win';
     confetti(); playSound('reward');
     render();
@@ -2202,17 +2387,56 @@ function dqLose(){
   });
 }
 
+// --- モンスターずかん ---
+function openDexModal(){
+  const existing=document.getElementById('dexModal');
+  if(existing){ existing.remove(); return; }
+  const dex=S.dex||{};
+  const total=DQ_DEX.filter((_,i)=>dex[i]).length;
+  const modal=document.createElement('div');
+  modal.id='dexModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(5,7,15,.8);z-index:520;display:flex;align-items:center;justify-content:center;padding:16px;';
+  let h='<div style="font-size:16px;font-weight:900;text-align:center;color:#fff;letter-spacing:2px">📖 モンスターずかん</div>';
+  h+='<div style="text-align:center;font-size:11px;color:#94A3B8;margin:4px 0 12px">'+total+' / '+DQ_DEX.length+' しゅるい はっけん'+(total>=DQ_DEX.length?'　🏅コンプリート！':'')+'</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">';
+  DQ_DEX.forEach((d,i)=>{
+    const n=dex[i]||0;
+    if(n){
+      h+='<div style="background:#0f1424;border:2px solid #fff;border-radius:10px;padding:10px 4px;text-align:center">'+
+        '<div style="font-size:30px">'+d.emoji+'</div>'+
+        '<div style="font-size:9px;font-weight:900;color:#fff;margin-top:4px;line-height:1.3">'+d.name+'</div>'+
+        '<div style="font-size:9px;color:#FCD34D;font-weight:800;margin-top:2px">たおした ×'+n+'</div></div>';
+    } else {
+      h+='<div style="background:#0a0d18;border:2px dashed #334155;border-radius:10px;padding:10px 4px;text-align:center">'+
+        '<div style="font-size:30px;filter:grayscale(1) brightness(0.25)">'+d.emoji+'</div>'+
+        '<div style="font-size:9px;font-weight:900;color:#475569;margin-top:4px">？？？</div>'+
+        '<div style="font-size:9px;color:#334155;margin-top:2px">みはっけん</div></div>';
+    }
+  });
+  h+='</div>';
+  h+='<div style="font-size:10px;color:#64748B;text-align:center;margin-top:10px;line-height:1.6">まいにち たたかうと むかしの てきも たまに あらわれるよ。<br>ぜんぶ あつめて ずかんマスターの バッジを ゲット！</div>';
+  h+='<button onclick="document.getElementById(\'dexModal\').remove()" style="margin-top:12px;width:100%;padding:12px;background:#000;border:2.5px solid #fff;border-radius:10px;color:#fff;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:2px">とじる</button>';
+  const box=document.createElement('div');
+  box.style.cssText='background:#05070f;border:3px solid #1e293b;border-radius:20px;padding:18px 16px;max-width:340px;width:100%;max-height:88vh;overflow:auto;';
+  box.innerHTML=h;
+  modal.appendChild(box);
+  modal.onclick=e=>{ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
 // --- バトル画面のHTML ---
 function renderBattle(){
   if(!S.lastBattleDate) S.lastBattleDate='';
 
   if(bPhase==='start'){
+    const c=dqCalc();
     bEnemy=genDailyEnemy();
-    dqHPMax=bEnemy.hMax; dqHP=dqHPMax;
-    dqMPMax=10+(S.stats.intelligence||1)*2; dqMP=dqMPMax;
+    dqLv=c.lv;
+    dqHPMax=c.hMax; dqHP=dqHPMax;
+    dqMPMax=c.mpMax; dqMP=dqMPMax;
     dqEMax=bEnemy.eMax; dqEHP=dqEMax;
     dqGuard=false; dqKiai=false; dqECharge=false;
-    dqAtkT=0; dqDefT=0; dqEBuffT=0;
+    dqAtkT=0; dqDefT=0; dqDefPow=0.6; dqEBuffT=0; dqSpecialUsed=false;
     dqBusy=true; dqMenu='main'; dqIntroDone=false;
     bPhase='intro';
   }
@@ -2227,6 +2451,7 @@ function renderBattle(){
           ?esc(bEnemy?bEnemy.name:'てき')+'を やっつけた！<br>あしたに なると あたらしい てきが あらわれるよ。'
           :'ちからつきて しまった…。<br>でも だいじょうぶ！ なんどでも ちょうせんできる！<br>じゅもんや ぼうぎょを うまく つかってみよう。'}</p>
         <button onclick="${won?"bEnemy=null;bPhase='start';render()":"bPhase='start';render()"}">${won?'もどる':'もういちど たたかう'}</button>
+        <div style="margin-top:12px"><button onclick="openDexModal()" style="letter-spacing:1px;font-size:12px;padding:10px 20px">📖 モンスターずかん</button></div>
       </div>
     </div></div>`;
   }
@@ -2236,7 +2461,7 @@ function renderBattle(){
     <div class="dq">
       <div class="dq-top">
         <div class="dqwin dq-stat">
-          <div>${esc(S.avatar||'🌱')} ${esc(heroN)}</div>
+          <div>${esc(S.avatar||'🌱')} ${esc(heroN)}　<span style="color:#FCD34D">Lv ${dqLv}</span></div>
           <div>HP <span id="dqHP" class="hp${dqHP<=dqHPMax*0.3?' low':''}">${Math.max(0,dqHP)}／${dqHPMax}</span>　MP <span id="dqMP" class="mp">${dqMP}／${dqMPMax}</span></div>
         </div>
       </div>
@@ -2253,7 +2478,10 @@ function renderBattle(){
       <div class="dqwin dq-msg" onclick="dqFastFlag=true"><span id="dqMsgTxt"></span></div>
       <div class="dq-cmds" id="dqCmds"></div>
     </div>
-    <div style="font-size:10px;color:#6B7280;font-weight:700;margin-top:8px;line-height:1.7">💡 てきが「ちからを ためている」ときは <b>ぼうぎょ</b>！　HPが へったら じゅもんの <b>ホイポン</b> で かいふく！　MPが なくなったら <b>たたかう</b> や <b>とくぎ</b> で たたかおう。</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+      <button onclick="openDexModal()" style="flex-shrink:0;background:#1A3A6B;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:11px;font-weight:900;cursor:pointer;font-family:inherit">📖 ずかん</button>
+      <div style="font-size:10px;color:#6B7280;font-weight:700;line-height:1.6">💡 てきが「ちからを ためている」ときは <b>ぼうぎょ</b>！　MPが きれたら とくぎの <b>めいそう</b>！</div>
+    </div>
   </div>`;
 }
 

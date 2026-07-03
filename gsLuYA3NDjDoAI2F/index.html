@@ -244,56 +244,56 @@ body{
 .pin-pad button{ transition:.15s; }
 .pin-pad button:active{ transform:scale(.9); background:#E0F7FD !important; }
 
-/* === バトル === */
-.bstage{ display:flex; flex-direction:column; align-items:center; gap:10px; padding:8px 0; }
-.b-field{ width:100%; display:flex; justify-content:space-between; align-items:flex-end; padding:4px 0 8px; }
-.b-hpanel{ flex:1; display:flex; flex-direction:column; gap:4px; }
-.b-hpanel.right{ align-items:flex-end; }
-.b-hname{ font-size:12px; font-weight:700; color:#555; }
-.bhp-row{ display:flex; align-items:center; gap:4px; font-size:12px; font-weight:700; }
-.bhp-bar{ flex:1; height:12px; background:#ddd; border-radius:6px; overflow:hidden; }
-.bhp-fill{ height:100%; border-radius:6px; transition:width .4s; }
-.bhp-fill.hero{ background:linear-gradient(90deg,#4EC5E0,#22C55E); }
-.bhp-fill.enemy{ background:linear-gradient(90deg,#FF8C42,#EF4444); }
-.b-ap{ display:flex; gap:3px; justify-content:center; flex-wrap:wrap; }
-.b-ap-pip{ width:12px; height:12px; border-radius:50%; border:2px solid #aaa; background:#eee; transition:.2s; }
-.b-ap-pip.on{ background:#FFD23F; border-color:#F59E0B; }
-.b-char{ font-size:52px; line-height:1; text-align:center; }
-.b-char.enemy-c{ animation:bIdleC 2s ease-in-out infinite; }
-.b-char.hero-c{ animation:bIdle 1.8s ease-in-out infinite; }
-.b-tpill{ display:inline-block; font-size:11px; font-weight:700; padding:3px 10px;
-  border-radius:20px; background:#E8F4FD; color:#0284C7; margin-bottom:2px; }
-.b-log{ width:100%; min-height:56px; max-height:80px; overflow-y:auto;
-  background:#F8FAFF; border-radius:10px; padding:8px 10px; font-size:12px;
-  line-height:1.6; border:1px solid #E2EEFF; }
-.b-log p{ margin:0 0 2px; }
-.bcmd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; }
-.bcmd{ padding:8px 6px; border-radius:12px; border:none; font-size:13px; font-weight:700;
-  cursor:pointer; color:#fff; box-shadow:0 3px 0 rgba(0,0,0,.18); transition:.15s;
-  display:flex; flex-direction:column; align-items:center; gap:2px; }
-.bcmd:active:not(:disabled){ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.18); }
-.bcmd:disabled{ opacity:.4; cursor:not-allowed; }
-.bcmd .bicon{ font-size:20px; }
-.bcmd .bname{ font-size:11px; }
-.bcmd .bcost{ font-size:10px; background:rgba(0,0,0,.2); border-radius:6px;
-  padding:1px 5px; min-width:24px; text-align:center; }
-.bcmd .bdesc{ font-size:9px; opacity:.88; margin-top:1px; line-height:1.2; }
-.bcmd.wide{ grid-column:span 2; }
-.b-enemy-hp{ width:100%; margin-top:4px; }
-.b-enemy-hp-label{ display:flex; justify-content:space-between; align-items:center;
-  font-size:11px; font-weight:800; color:#EF4444; margin-bottom:3px; }
-.b-enemy-hp-num{ font-size:13px; font-weight:900; color:#EF4444; }
-.b-res{ width:100%; text-align:center; padding:16px 8px; }
-.b-res .b-res-emoji{ font-size:52px; }
-.b-res h3{ margin:8px 0 4px; font-size:18px; }
-.b-res p{ font-size:13px; color:#666; margin:0 0 12px; }
-.b-res button{ padding:10px 24px; border:none; border-radius:14px; font-size:15px;
-  font-weight:700; cursor:pointer; color:#fff; background:var(--blue); box-shadow:0 3px 0 rgba(0,0,0,.2); }
-.bdmg{ position:absolute; font-size:22px; font-weight:900; pointer-events:none;
-  animation:btwk .8s forwards; z-index:10; }
+/* === バトル（ドラクエ風） === */
+.dq{ width:100%; background:#05070f; border-radius:20px; padding:12px 10px 14px;
+  box-shadow:0 10px 26px rgba(5,7,15,.5); border:3px solid #1e293b; }
+.dqwin{ background:#000; border:2.5px solid #fff; border-radius:9px;
+  box-shadow:inset 0 0 0 2px #000, 0 0 0 2px #000; color:#fff; }
+.dq-top{ display:flex; gap:8px; margin-bottom:8px; }
+.dq-stat{ flex:1; padding:8px 12px; font-size:12px; font-weight:800; line-height:1.6; letter-spacing:.5px; }
+.dq-stat .hp{ color:#86EFAC; } .dq-stat .hp.low{ color:#FCA5A5; }
+.dq-stat .mp{ color:#7DD3FC; }
+.dq-field{ position:relative; height:152px; border-radius:9px; overflow:hidden; margin-bottom:8px;
+  border:2.5px solid #fff; box-shadow:inset 0 0 0 2px #000, 0 0 0 2px #000;
+  background:radial-gradient(ellipse at 50% 118%, #26355c 0%, #131b33 55%, #05070f 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+.dq-enemy{ font-size:62px; line-height:1; animation:bIdleC 2.4s ease-in-out infinite;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.7)); position:relative; }
+.dq-ehp{ width:72%; max-width:250px; position:relative; z-index:2; }
+.dq-ehp .nm{ text-align:center; font-size:11px; font-weight:900; color:#fff;
+  text-shadow:0 1px 3px #000; margin-bottom:3px; letter-spacing:1px; }
+.dq-ehp .bar{ height:10px; border-radius:5px; background:rgba(255,255,255,.15);
+  overflow:hidden; border:1px solid rgba(255,255,255,.4); }
+.dq-ehp .fill{ height:100%; border-radius:5px; background:linear-gradient(90deg,#F87171,#FBBF24); transition:width .5s; }
+.dq-ehp .num{ text-align:right; font-size:10px; font-weight:800; color:#FCD34D; margin-top:2px; }
+.dq-chips{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
+.dq-chip{ font-size:10px; font-weight:900; color:#0F172A; background:#FCD34D; border-radius:8px; padding:3px 8px; }
+.dq-chip.blue{ background:#7DD3FC; } .dq-chip.red{ background:#FCA5A5; }
+.dq-msg{ min-height:80px; padding:10px 13px; font-size:13.5px; font-weight:700;
+  line-height:1.8; letter-spacing:.5px; white-space:pre-wrap; margin-bottom:8px; cursor:pointer; }
+.dq-cmds{ display:grid; grid-template-columns:1fr 1fr; gap:7px; min-height:50px; }
+.dqbtn{ background:#000; border:2.5px solid #fff; box-shadow:inset 0 0 0 2px #000, 0 0 0 2px #000;
+  border-radius:9px; color:#fff; font-family:inherit; font-size:14px; font-weight:900;
+  letter-spacing:1px; padding:12px 6px; cursor:pointer; transition:.12s;
+  display:flex; align-items:center; justify-content:center; gap:6px; }
+.dqbtn:active:not(:disabled){ background:#1e293b; }
+.dqbtn:disabled{ opacity:.35; cursor:default; }
+.dqbtn .cur{ color:#FCD34D; font-size:11px; }
+.dqbtn.sub{ grid-column:span 2; justify-content:space-between; padding:10px 13px; font-size:13px; text-align:left; }
+.dqbtn.sub .mpc{ font-size:10px; color:#7DD3FC; font-weight:800; text-align:right; }
+.dqbtn.back{ grid-column:span 2; color:#94A3B8; font-size:12px; padding:9px; }
+.dq-res{ text-align:center; padding:18px 10px 8px; color:#fff; }
+.dq-res .em{ font-size:56px; line-height:1; }
+.dq-res h3{ font-size:19px; margin:10px 0 8px; letter-spacing:3px; }
+.dq-res p{ font-size:12.5px; line-height:1.9; color:#CBD5E1; margin-bottom:16px; }
+.dq-res button{ background:#000; border:2.5px solid #fff; box-shadow:inset 0 0 0 2px #000, 0 0 0 2px #000;
+  color:#fff; border-radius:10px; padding:12px 30px; font-size:14px; font-weight:900;
+  font-family:inherit; letter-spacing:2px; cursor:pointer; }
+.dq-res button:active{ background:#1e293b; }
+.bdmg{ position:absolute; font-size:24px; font-weight:900; pointer-events:none;
+  animation:btwk .8s forwards; z-index:10; text-shadow:0 2px 4px #000; }
 @keyframes bshake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 @keyframes bIdleC{ 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-6px) rotate(3deg)} }
-@keyframes bIdle{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
 @keyframes btwk{ 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-36px)} }
 </style>
 </head>
@@ -1902,245 +1902,304 @@ function checkDateReset(){
 }
 
 /* ======================================================
-   バトル
+   バトル（ドラゴンクエスト風・ターンせいバトル）
 ====================================================== */
-// --- 定数 ---
-const B_AP_MAX=6, B_AP_REGEN=1;
-const B_ATK_BUFF=1.6, B_DEF_BUFF=0.55, B_BUFF_TURNS=3;
-
-// --- 敵定義 ---
-const B_ENEMY_NAMES=['モヤモヤくん','やみのコウモリ','あんこくのトカゲ','くらやみの兵士','やみの将軍','モヤモヤ大王'];
-const B_ENEMY_EMOJIS=['😤','🦇','🦎','💂','🗡️','👿'];
-const B_ENEMY_ATK=[ [12,17],[14,19],[16,22],[18,24] ];
-
-// --- プレイヤースキル ---
-const B_SKILLS=[
-  {key:'physical',    name:'たいあたり',       icon:'💥', color:'#FF8C42', type:'atk',      cost:1, baseDmg:[7,11],  desc:'7〜11 ダメージ',         msg:'おもいきり たいあたり！'},
-  {key:'focus',       name:'ひかりのつるぎ',   icon:'⚔️', color:'#4EC5E0', type:'atk',      cost:3, baseDmg:[19,25], desc:'19〜25 ダメージ（つよい！）', msg:'しゅうちゅうの いちげき！ひかりのつるぎがさく裂！'},
-  {key:'intelligence',name:'みやぶる',         icon:'🔮', color:'#8B5CF6', type:'atk',      cost:2, baseDmg:[13,18], desc:'13〜18 ダメージ',         msg:'よわてんを みやぶった！するどい いちげき！'},
-  {key:'social',      name:'なかまの こえ',    icon:'📣', color:'#22C55E', type:'atk',      cost:2, baseDmg:[11,15], desc:'11〜15 ダメージ',         msg:'なかまのこえが ひびく！'},
-  {key:'heart',       name:'いやしのひかり',   icon:'✨', color:'#E8197D', type:'heal',     cost:3, healAmt:22,      desc:'HP を 22＋ かいふく',     msg:'やさしいひかりに つつまれた。'},
-  {key:'patience',    name:'ガード',           icon:'🛡️', color:'#EF4444', type:'guard',    cost:1,                 desc:'つぎの こうげき はんぶん', msg:'ぐっと こらえる かまえ！'},
-  {key:'atkup',       name:'こうげきアップ',   icon:'🔥', color:'#F97316', type:'atkup',    cost:2,                 desc:'3ターン ダメージ ×1.6',   msg:'ちからが みなぎる！こうげきアップ！'},
-  {key:'defup',       name:'ぼうぎょアップ',   icon:'🛡', color:'#2563EB', type:'defup',    cost:2,                 desc:'3ターン ダメージ ×0.55',  msg:'からだがかたくなる！ぼうぎょアップ！'},
-  {key:'charge',      name:'きあいをためる',   icon:'💫', color:'#FFD23F', type:'apcharge', cost:0, apGain:3,       desc:'⚡きあいが ＋3 かいふく',  msg:'すーはー…　きあいをため直した！', wide:true},
+// --- てき図鑑（ステータスがそだつほど つよいてきに）---
+const DQ_DEX=[
+  {name:'ぷるりん',           emoji:'💧', atk:'たいあたり',       ult:'ぷるぷるウェーブ'},
+  {name:'おばけキノッコ',     emoji:'🍄', atk:'かさアタック',     ult:'ねむたいこな'},
+  {name:'ばさばさコウモリン', emoji:'🦇', atk:'かみつき',         ult:'ちょうおんぱ'},
+  {name:'うろうろよろい',     emoji:'💂', atk:'つるぎのいちげき', ult:'かいてんぎり'},
+  {name:'ゴツゴーレム',       emoji:'🗿', atk:'がんせきパンチ',   ult:'メガトンプレス'},
+  {name:'まおうドラゴーン',   emoji:'🐉', atk:'するどいツメ',     ult:'かえんのブレス'},
 ];
+const DQ_ATK_TIERS=[ [12,17],[14,19],[16,22],[18,24] ];
 
-// --- 敵行動 ---
-const B_ENEMY_MOVES=[
-  {w:32,type:'atk',  name:'モヤモヤパンチ'},
-  {w:16,type:'atk',  name:'おおきな ためいき', dmgMult:0.7},
-  {w:16,type:'charge',name:'くらやみを ためる'},
-  {w:20,type:'heal', name:'モヤモヤを すいこむ'},
-  {w:12,type:'buff', name:'やみの ちからため'},
+// --- じゅもん（MPをつかう）---
+const DQ_SPELLS=[
+  {id:'mera', name:'メラメラ',   mp:3, icon:'🔥', info:'ほのおで こうげき'},
+  {id:'gira', name:'ピカゴロン', mp:7, icon:'⚡', info:'かみなりの 大まほう', needInt:4},
+  {id:'hoi',  name:'ホイポン',   mp:4, icon:'💚', info:'HPを かいふく'},
+  {id:'mamo', name:'マモール',   mp:2, icon:'🛡️', info:'3ターン まもりアップ'},
+  {id:'pow',  name:'パワフルン', mp:3, icon:'💪', info:'3ターン こうげきアップ'},
 ];
-const B_ULT={name:'くらやみの渦'};
+// --- とくぎ（MPいらず）---
+const DQ_SKILLS=[
+  {id:'kiai',   name:'きあいだめ',   icon:'💫', info:'つぎの たたかうが 2ばい！'},
+  {id:'nakama', name:'なかまのこえ', icon:'📣', info:'なかまの おうえんこうげき'},
+];
 
 // --- バトル状態 ---
 let bEnemy=null, bPhase='start';
-let bHeroHP=0, bEHP=0, bHeroMax=0, bEMax=0;
-let bAP=B_AP_MAX, bGuard=false, bHeroAtk=1, bHeroDef=1;
-let bAtkUpT=0, bDefUpT=0, bEnemyAtkUpT=0;
-let bCharged=false, bTurn='player', bBusy=false;
+let dqHP=0, dqHPMax=0, dqMP=0, dqMPMax=0, dqEHP=0, dqEMax=0;
+let dqGuard=false, dqKiai=false, dqECharge=false;
+let dqAtkT=0, dqDefT=0, dqEBuffT=0;
+let dqBusy=false, dqFastFlag=false, dqMenu='main', dqIntroDone=false;
 
 function bToday(){ return new Date().toLocaleDateString('ja-JP'); }
+function dqHeroName(){ return S.name||'ゆうしゃ'; }
 
-// --- 敵を生成（当日1回・ステータス合計に応じて強さ・見た目が変化）---
+// --- てきを生成（1日1体・ステータス合計でつよさが変わる）---
 function genDailyEnemy(){
   const st=S.stats||{};
   const sum=Object.values(st).reduce((a,v)=>a+(v||1),0);   // 6〜60
-  // 攻撃力ティア（4段階）
   const tier = sum<12?0 : sum<24?1 : sum<40?2 : 3;
-  // 見た目・名前（6段階：ステータスが育つほど強そうな敵に）
-  const nameIdx = Math.min(B_ENEMY_NAMES.length-1, Math.floor((sum-6)/9));
-  const eMax=Math.round(50+sum*1.7);
-  const hMax=44+Math.round(sum*1.35);
-  const [aMin,aMax]=B_ENEMY_ATK[tier];
-  const name=B_ENEMY_NAMES[nameIdx];
-  const emoji=B_ENEMY_EMOJIS[nameIdx];
-  return {eMax, hMax, aMin, aMax, tier, name, emoji, sum};
+  const idx = Math.min(DQ_DEX.length-1, Math.floor((sum-6)/9));
+  const d=DQ_DEX[idx];
+  const [aMin,aMax]=DQ_ATK_TIERS[tier];
+  return { name:d.name, emoji:d.emoji, atk:d.atk, ult:d.ult, aMin, aMax,
+           eMax:Math.round(50+sum*1.7), hMax:44+Math.round(sum*1.35), sum };
 }
 
-// --- スキルダメージ（ステータスLvでスケール）---
-function bSkillDmg(skill){
-  const lv=S.stats[skill.key]||1;
-  const [mn,mx]=skill.baseDmg;
-  const scale=1+(lv-1)*0.08;
-  return Math.round((mn+Math.random()*(mx-mn))*scale*bHeroAtk);
-}
-
-function bSetAP(){
-  document.querySelectorAll('.b-ap-pip').forEach((p,i)=>p.classList.toggle('on',i<bAP));
-}
-function bSetHP(){
-  const hBar=document.getElementById('bHeroBar'), eBar=document.getElementById('bEnemyBar');
-  const hLbl=document.getElementById('bHeroLbl'), eLbl=document.getElementById('bEnemyLbl');
-  const hPct=Math.max(0,bHeroHP/bHeroMax*100);
-  const ePct=Math.max(0,bEHP/bEMax*100);
-  if(hBar) hBar.style.width=hPct+'%';
-  if(eBar){
-    eBar.style.width=ePct+'%';
-    const c=ePct>50?'#EF4444':ePct>25?'#F97316':'#DC2626';
-    eBar.style.background=`linear-gradient(90deg,${c},#FCA5A5)`;
-  }
-  if(hLbl) hLbl.textContent=Math.max(0,bHeroHP)+'/'+bHeroMax;
-  if(eLbl){
-    const c=ePct>50?'#EF4444':ePct>25?'#F97316':'#DC2626';
-    eLbl.textContent=Math.max(0,bEHP)+'/'+bEMax;
-    eLbl.style.color=c;
+// --- 画面のかきかえ ---
+function dqSync(){
+  const hpEl=document.getElementById('dqHP'), mpEl=document.getElementById('dqMP');
+  if(hpEl){ hpEl.textContent=Math.max(0,dqHP)+'／'+dqHPMax; hpEl.className='hp'+(dqHP<=dqHPMax*0.3?' low':''); }
+  if(mpEl) mpEl.textContent=dqMP+'／'+dqMPMax;
+  const bar=document.getElementById('dqEBar'), num=document.getElementById('dqENum');
+  if(bar) bar.style.width=Math.max(0,dqEHP/dqEMax*100)+'%';
+  if(num) num.textContent='HP '+Math.max(0,dqEHP)+'／'+dqEMax;
+  const ch=document.getElementById('dqChips');
+  if(ch){
+    let h='';
+    if(dqKiai)      h+='<span class="dq-chip">💫 きあいだめちゅう</span>';
+    if(dqAtkT>0)    h+='<span class="dq-chip">💪 こうげきアップ（あと'+dqAtkT+'）</span>';
+    if(dqDefT>0)    h+='<span class="dq-chip blue">🛡️ まもりアップ（あと'+dqDefT+'）</span>';
+    if(dqECharge)   h+='<span class="dq-chip red">⚠️ てきが ちからを ためている！</span>';
+    ch.innerHTML=h;
   }
 }
-function bLog(html){
-  const el=document.getElementById('bLog');
-  if(el) el.innerHTML='<p>'+html+'</p>'+el.innerHTML;
-}
-function bRefreshCmd(){
-  document.querySelectorAll('.bcmd').forEach(b=>{
-    const s=B_SKILLS[+b.dataset.si]; if(!s) return;
-    const lock=s.type==='apcharge'?false:s.cost>bAP;
-    b.disabled=(bTurn!=='player')||bBusy||lock;
-  });
-}
-function bPop(slotId, text, color){
-  const slot=document.getElementById(slotId); if(!slot) return;
+function dqPop(text, color){
+  const spr=document.getElementById('dqEnemySpr'); if(!spr) return;
   const el=document.createElement('div');
   el.className='bdmg'; el.textContent=text;
-  el.style.color=color||'#EF4444';
-  el.style.left=Math.random()*40+30+'%'; el.style.top='10px';
-  slot.style.position='relative'; slot.appendChild(el);
+  el.style.color=color||'#FCD34D';
+  el.style.left=(Math.random()*30+20)+'%'; el.style.top='-6px';
+  spr.appendChild(el);
   setTimeout(()=>el.remove(),900);
 }
-function bShake(id){
-  const el=document.getElementById(id); if(!el) return;
-  el.style.animation='none';
-  setTimeout(()=>el.style.animation='bshake .3s ease',10);
+function dqShake(){
+  const f=document.getElementById('dqField'); if(!f) return;
+  f.style.animation='none';
+  setTimeout(()=>{ f.style.animation='bshake .3s ease'; },10);
+}
+function dqHurtFx(){
+  const o=document.getElementById('dqHurt'); if(!o) return;
+  o.style.opacity=.45;
+  setTimeout(()=>{ o.style.opacity=0; },180);
+  dqShake();
 }
 
-// --- 結果画面 ---
-function bShowResult(won){
-  bPhase=won?'win':'rest';
-  const el=document.getElementById('bBattle'); if(!el) return;
-  if(won){
-    if(S.lastBattleDate!==bToday()){
-      S.lastBattleDate=bToday();
-      S.points=(S.points||0)+2;
-      save(); checkBadges(); save();
+// --- メッセージ（1文字ずつ表示・タップでスキップ）---
+function dqSay(lines, done){
+  const el=document.getElementById('dqMsgTxt');
+  if(!el){ let k=0; const skipAll=()=>{ k++; k<lines.length?skipAll():(done&&done()); }; skipAll(); return; }
+  el.textContent='';
+  let k=0;
+  const next=()=>{
+    if(k>=lines.length){ if(done)done(); return; }
+    const prev=lines.slice(0,k).join('\n');
+    const line=lines[k];
+    let i=0; dqFastFlag=false;
+    const iv=setInterval(()=>{
+      if(dqFastFlag){ i=line.length; dqFastFlag=false; }
+      i++;
+      el.textContent=prev+(prev?'\n':'')+line.slice(0,i);
+      if(i>=line.length){ clearInterval(iv); k++; setTimeout(next, 540); }
+    },24);
+  };
+  next();
+}
+function dqPrompt(){
+  const el=document.getElementById('dqMsgTxt');
+  if(el) el.textContent='コマンド？';
+}
+
+// --- コマンドウィンドウ ---
+function dqShowMenu(m){
+  if(dqBusy) return;
+  dqMenu=m; playSound('tap'); dqRenderCmds();
+}
+function dqRenderCmds(){
+  const el=document.getElementById('dqCmds'); if(!el) return;
+  if(dqBusy || bPhase!=='battle'){ el.innerHTML=''; return; }
+  const intLv=S.stats.intelligence||1;
+  if(dqMenu==='main'){
+    el.innerHTML=
+      '<button class="dqbtn" onclick="dqAct(\'attack\')"><span class="cur">▶</span>たたかう</button>'+
+      '<button class="dqbtn" onclick="dqShowMenu(\'spell\')"><span class="cur">▶</span>じゅもん</button>'+
+      '<button class="dqbtn" onclick="dqShowMenu(\'skill\')"><span class="cur">▶</span>とくぎ</button>'+
+      '<button class="dqbtn" onclick="dqAct(\'defend\')"><span class="cur">▶</span>ぼうぎょ</button>';
+  } else if(dqMenu==='spell'){
+    el.innerHTML=DQ_SPELLS.map(sp=>{
+      if(sp.needInt && intLv<sp.needInt)
+        return '<button class="dqbtn sub" disabled><span>🔒 ？？？？</span><span class="mpc">かしこさLv'+sp.needInt+'で かいほう</span></button>';
+      const no=dqMP<sp.mp;
+      return '<button class="dqbtn sub" '+(no?'disabled':'onclick="dqAct(\'spell\',\''+sp.id+'\')"')+'>'+
+        '<span>'+sp.icon+' '+sp.name+'</span><span class="mpc">MP'+sp.mp+'　'+sp.info+'</span></button>';
+    }).join('')+'<button class="dqbtn back" onclick="dqShowMenu(\'main\')">← もどる</button>';
+  } else {
+    el.innerHTML=DQ_SKILLS.map(sk=>
+      '<button class="dqbtn sub" onclick="dqAct(\'skill\',\''+sk.id+'\')">'+
+      '<span>'+sk.icon+' '+sk.name+'</span><span class="mpc">'+sk.info+'</span></button>'
+    ).join('')+'<button class="dqbtn back" onclick="dqShowMenu(\'main\')">← もどる</button>';
+  }
+}
+
+// --- プレイヤーのターン ---
+function dqAct(type, id){
+  if(dqBusy || bPhase!=='battle') return;
+  dqBusy=true; dqMenu='main'; dqRenderCmds();
+  const heroN=dqHeroName();
+  const st=S.stats||{};
+  const atkMult=(dqAtkT>0?1.5:1);
+  let msgs=[];
+
+  if(type==='attack'){
+    let d=(5+Math.random()*4)*(1+((st.physical||1)-1)*0.12)*atkMult;
+    const crit=Math.random()<0.1;
+    if(dqKiai){ d*=2.2; dqKiai=false; }
+    if(crit) d*=2;
+    d=Math.round(d);
+    dqEHP=Math.max(0,dqEHP-d);
+    msgs.push(heroN+'の こうげき！');
+    if(crit) msgs.push('かいしんの いちげき！！');
+    msgs.push(bEnemy.name+'に '+d+'の ダメージ！');
+    dqShake(); dqPop('-'+d, crit?'#FCD34D':'#F87171'); playSound('tap');
+  }
+  else if(type==='spell'){
+    const sp=DQ_SPELLS.find(s=>s.id===id);
+    if(!sp || dqMP<sp.mp){ dqBusy=false; dqRenderCmds(); return; }
+    dqMP-=sp.mp;
+    if(id==='mera'){
+      const d=Math.round((16+(st.intelligence||1)*2+Math.random()*6)*atkMult);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=[heroN+'は メラメラを となえた！','ほのおが '+bEnemy.name+'を つつむ！ '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#FB923C');
+    } else if(id==='gira'){
+      const d=Math.round((30+(st.intelligence||1)*3+Math.random()*8)*atkMult);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=[heroN+'は ピカゴロンを となえた！','いなずまが '+bEnemy.name+'に おちた！ '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#FCD34D');
+    } else if(id==='hoi'){
+      const h=Math.round(20+(st.heart||1)*2.5);
+      dqHP=Math.min(dqHPMax,dqHP+h);
+      msgs=[heroN+'は ホイポンを となえた！','HPが '+h+' かいふくした！'];
+    } else if(id==='mamo'){
+      dqDefT=3;
+      msgs=[heroN+'は マモールを となえた！','ひかりのカベが みをまもる！（3ターン）'];
+    } else if(id==='pow'){
+      dqAtkT=3;
+      msgs=[heroN+'は パワフルンを となえた！','ちからが みなぎってきた！（3ターン）'];
     }
-    el.innerHTML=`<div class="b-res">
-      <div class="b-res-emoji">🏆</div>
-      <h3>しょうり！</h3>
-      <p>${bEnemy.name}を たおした！<br>ポイント +2 ゲット！</p>
-      <button onclick="bEnemy=null;bPhase='start';render()">もどる</button>
-    </div>`;
-    confetti(); playSound('reward');
-  } else {
-    el.innerHTML=`<div class="b-res">
-      <div class="b-res-emoji">😴</div>
-      <h3>ひとやすみ…</h3>
-      <p>つかれてしまった。また いつでも挑戦できるよ！</p>
-      <button onclick="bPhase='battle';bHeroHP=bHeroMax;bAP=B_AP_MAX;bCharged=false;bGuard=false;bHeroAtk=1;bHeroDef=1;bAtkUpT=0;bDefUpT=0;bEnemyAtkUpT=0;bTurn='player';bBusy=false;render()">もう一度</button>
-    </div>`;
+    playSound('tap');
   }
-}
+  else if(type==='skill'){
+    if(id==='kiai'){
+      dqKiai=true;
+      msgs=[heroN+'は きあいを ためた！','つぎの こうげきが つよくなるぞ！'];
+    } else if(id==='nakama'){
+      const d=Math.round((4+(st.social||1)*1.5+Math.random()*3)*atkMult);
+      dqEHP=Math.max(0,dqEHP-d);
+      msgs=['なかまの こえが ひびきわたった！',bEnemy.name+'に '+d+'の ダメージ！'];
+      dqShake(); dqPop('-'+d,'#86EFAC');
+    }
+    playSound('tap');
+  }
+  else if(type==='defend'){
+    dqGuard=true;
+    msgs=[heroN+'は みを まもっている。'];
+    playSound('tap');
+  }
 
-// --- 敵ターン ---
-function bEnemyTurn(){
-  bTurn='enemy'; bRefreshCmd();
-  const el=document.getElementById('bEnemySlot');
-  if(bEnemyAtkUpT>0) bEnemyAtkUpT--;
-
-  const moves=B_ENEMY_MOVES.filter(m=>{
-    if(m.type==='heal' && bEHP>bEMax*0.6) return false;
-    return true;
+  dqSync();
+  dqSay(msgs, ()=>{
+    if(dqEHP<=0){ dqWin(); return; }
+    setTimeout(dqEnemyTurn, 320);
   });
-  const total=moves.reduce((a,m)=>a+m.w,0);
-  let r=Math.random()*total, chosen=moves[moves.length-1];
-  for(const m of moves){ r-=m.w; if(r<=0){ chosen=m; break; } }
-
-  let msg='';
-  if(bCharged && chosen.type!=='charge'){
-    const ultMult=(bEnemyAtkUpT>0)?1.3:1;
-    const dmg=Math.round((bEnemy.aMin*1.8+Math.random()*(bEnemy.aMax-bEnemy.aMin)*1.8)*ultMult);
-    const actual=Math.round(dmg*bHeroDef*(bGuard?B_DEF_BUFF:1));
-    bHeroHP=Math.max(0,bHeroHP-actual);
-    bShake('bHeroSlot'); bPop('bHeroSlot','-'+actual,'#EF4444');
-    msg=`⚡ ${B_ULT.name}！ <b>${actual}</b> ダメージ！`;
-    if(bGuard) msg+=' <span style="color:#2563EB">（ガードで半減！）</span>';
-    bCharged=false; bGuard=false;
-  } else if(chosen.type==='charge'){
-    bCharged=true;
-    msg=`💨 <b>${chosen.name}</b> — 次のターン、大技を放つ！`;
-    if(el){ el.style.filter='brightness(1.5)'; setTimeout(()=>{ if(el) el.style.filter=''; },600); }
-  } else if(chosen.type==='heal'){
-    const healAmt=Math.round(bEMax*0.12);
-    bEHP=Math.min(bEMax,bEHP+healAmt);
-    bPop('bEnemySlot','+'+healAmt,'#22C55E');
-    msg=`💚 <b>${chosen.name}</b> — ${healAmt} 回復！`;
-  } else if(chosen.type==='buff'){
-    bEnemyAtkUpT=B_BUFF_TURNS;
-    msg=`🔥 <b>${chosen.name}</b> — 敵の攻撃力アップ！`;
-  } else {
-    const mult=(chosen.dmgMult||1)*(bEnemyAtkUpT>0?1.3:1);
-    const dmg=Math.round((bEnemy.aMin+Math.random()*(bEnemy.aMax-bEnemy.aMin))*mult);
-    const actual=Math.round(dmg*bHeroDef*(bGuard?B_DEF_BUFF:1));
-    bHeroHP=Math.max(0,bHeroHP-actual);
-    bShake('bHeroSlot'); bPop('bHeroSlot','-'+actual,'#EF4444');
-    msg=`👹 <b>${chosen.name}</b> — <b>${actual}</b> ダメージ！`;
-    if(bGuard) msg+=' <span style="color:#2563EB">（ガードで半減！）</span>';
-    bGuard=false;
-  }
-  bLog(msg); bSetHP();
-
-  setTimeout(()=>{
-    bTurn='player'; bBusy=false;
-    bAP=Math.min(B_AP_MAX,bAP+B_AP_REGEN); bSetAP();
-    if(bAtkUpT>0){ bAtkUpT--; if(bAtkUpT===0) bHeroAtk=1; }
-    if(bDefUpT>0){ bDefUpT--; if(bDefUpT===0) bHeroDef=1; }
-    if(bHeroHP<=0){ bShowResult(false); return; }
-    bRefreshCmd();
-    const tp=document.getElementById('bTurnPill'); if(tp) tp.textContent='あなたのターン';
-  },700);
 }
 
-// --- プレイヤーターン ---
-function bPlayerTurn(si){
-  if(bTurn!=='player'||bBusy) return;
-  const s=B_SKILLS[si]; if(!s) return;
-  if(s.type!=='apcharge' && s.cost>bAP) return;
-  bBusy=true; bRefreshCmd();
-  const tp=document.getElementById('bTurnPill'); if(tp) tp.textContent='しょりちゅう…';
+// --- てきのターン ---
+function dqEnemyTurn(){
+  const e=bEnemy, heroN=dqHeroName();
+  if(dqEBuffT>0) dqEBuffT--;
+  const defMult=(dqGuard?0.5:1)*(dqDefT>0?0.6:1);
+  const buffMult=(dqEBuffT>0?1.3:1);
+  let msgs=[], tookHit=false;
 
-  if(s.type==='atk'){
-    bAP=Math.max(0,bAP-s.cost); bSetAP();
-    const dmg=bSkillDmg(s);
-    bEHP=Math.max(0,bEHP-dmg);
-    bShake('bEnemySlot'); bPop('bEnemySlot','-'+dmg,'#EF4444');
-    bLog(`⚔️ <b>${s.name}</b> — ${s.msg} <b>${dmg}</b> ダメージ！`);
-    bSetHP();
-    if(bEHP<=0){ bShowResult(true); return; }
-  } else if(s.type==='heal'){
-    bAP=Math.max(0,bAP-s.cost); bSetAP();
-    const h=s.healAmt+(S.stats.heart||1)*2;
-    bHeroHP=Math.min(bHeroMax,bHeroHP+h);
-    bPop('bHeroSlot','+'+h,'#22C55E');
-    bLog(`✨ <b>${s.name}</b> — ${h} HP 回復！`); bSetHP();
-  } else if(s.type==='guard'){
-    bAP=Math.max(0,bAP-s.cost); bSetAP();
-    bGuard=true; bLog(`🛡️ <b>${s.name}</b> — ${s.msg}`);
-  } else if(s.type==='atkup'){
-    bAP=Math.max(0,bAP-s.cost); bSetAP();
-    bHeroAtk=B_ATK_BUFF; bAtkUpT=B_BUFF_TURNS;
-    bLog(`🔥 <b>${s.name}</b> — ${s.msg}`);
-  } else if(s.type==='defup'){
-    bAP=Math.max(0,bAP-s.cost); bSetAP();
-    bHeroDef=B_DEF_BUFF; bDefUpT=B_BUFF_TURNS;
-    bLog(`🛡 <b>${s.name}</b> — ${s.msg}`);
-  } else if(s.type==='apcharge'){
-    bAP=Math.min(B_AP_MAX,bAP+s.apGain); bSetAP();
-    bPop('bHeroSlot','⚡+'+s.apGain,'#FFD23F');
-    bLog(`💫 <b>${s.name}</b> — ${s.msg}`);
+  const hit=(mult)=>{
+    const dmg=Math.max(1,Math.round((e.aMin+Math.random()*(e.aMax-e.aMin))*mult*buffMult*defMult));
+    dqHP=Math.max(0,dqHP-dmg);
+    tookHit=true;
+    return dmg;
+  };
+
+  if(dqECharge){
+    dqECharge=false;
+    msgs.push(e.name+'の '+e.ult+'！！');
+    const d=hit(1.8);
+    msgs.push(heroN+'は '+d+'の ダメージを うけた！');
+  } else {
+    const r=Math.random();
+    if(r<0.42){
+      msgs.push(e.name+'の '+e.atk+'！');
+      const d=hit(1);
+      msgs.push(heroN+'は '+d+'の ダメージを うけた！');
+    } else if(r<0.54){
+      msgs.push(e.name+'の こうげき！','つうこんの いちげき！！');
+      const d=hit(1.4);
+      msgs.push(heroN+'は '+d+'の ダメージを うけた！');
+    } else if(r<0.69){
+      dqECharge=true;
+      msgs.push(e.name+'は ちからを ためている…！','（つぎは 大わざが くるぞ！ ぼうぎょだ！）');
+    } else if(r<0.79 && dqEHP<dqEMax*0.6){
+      const h=Math.round(dqEMax*0.12);
+      dqEHP=Math.min(dqEMax,dqEHP+h);
+      msgs.push(e.name+'は きずを かいふくした！','HPが '+h+' かいふく！');
+      dqPop('+'+h,'#86EFAC');
+    } else if(r<0.88){
+      dqEBuffT=3;
+      msgs.push(e.name+'は いかりに もえている！','こうげき力が あがった！');
+    } else {
+      msgs.push(e.name+'は ようすを うかがっている。');
+    }
   }
-  setTimeout(()=>bEnemyTurn(), 500);
+  if(tookHit){
+    if(dqGuard) msgs.push('ぼうぎょで ダメージを へらした！');
+    dqHurtFx(); playSound('tap');
+  }
+  dqGuard=false;
+  dqSync();
+  dqSay(msgs, ()=>{
+    if(dqHP<=0){ dqLose(); return; }
+    if(dqAtkT>0) dqAtkT--;
+    if(dqDefT>0) dqDefT--;
+    dqSync();
+    dqBusy=false; dqMenu='main';
+    dqRenderCmds(); dqPrompt();
+  });
+}
+
+// --- しょうり／はいぼく ---
+function dqWin(){
+  const first=S.lastBattleDate!==bToday();
+  if(first){
+    S.lastBattleDate=bToday();
+    S.points=(S.points||0)+2;
+    save(); checkBadges(); save();
+  }
+  dqSay([bEnemy.name+'を やっつけた！',
+         first?'けいけんち 2ポイントを かくとく！':'きょうの ポイントは もう ゲットずみ！ ナイスバトル！'], ()=>{
+    bPhase='win';
+    confetti(); playSound('reward');
+    render();
+  });
+}
+function dqLose(){
+  dqSay([dqHeroName()+'は ちからつきた…','めのまえが まっくらに なった。'], ()=>{
+    bPhase='rest';
+    render();
+  });
 }
 
 // --- バトル画面のHTML ---
@@ -2149,92 +2208,66 @@ function renderBattle(){
 
   if(bPhase==='start'){
     bEnemy=genDailyEnemy();
-    bHeroMax=bEnemy.hMax; bEMax=bEnemy.eMax;
-    bHeroHP=bHeroMax; bEHP=bEMax;
-    bAP=B_AP_MAX; bGuard=false;
-    bHeroAtk=1; bHeroDef=1;
-    bAtkUpT=0; bDefUpT=0; bEnemyAtkUpT=0;
-    bCharged=false; bTurn='player'; bBusy=false;
-    bPhase='battle';
+    dqHPMax=bEnemy.hMax; dqHP=dqHPMax;
+    dqMPMax=10+(S.stats.intelligence||1)*2; dqMP=dqMPMax;
+    dqEMax=bEnemy.eMax; dqEHP=dqEMax;
+    dqGuard=false; dqKiai=false; dqECharge=false;
+    dqAtkT=0; dqDefT=0; dqEBuffT=0;
+    dqBusy=true; dqMenu='main'; dqIntroDone=false;
+    bPhase='intro';
   }
 
   if(bPhase==='win'||bPhase==='rest'){
-    const emoji=bPhase==='win'?'🏆':'😴';
-    const title=bPhase==='win'?'しょうり！':'ひとやすみ…';
-    const sub=bPhase==='win'?`${bEnemy.name}を たおした！<br>ポイント +2 ゲット！`:'つかれてしまった。また いつでも挑戦できるよ！';
-    const btnLabel=bPhase==='win'?'もどる':'もう一度';
-    const btnAct=bPhase==='win'?`bEnemy=null;bPhase='start';render()`:`bPhase='battle';bHeroHP=bHeroMax;bAP=B_AP_MAX;bCharged=false;bGuard=false;bHeroAtk=1;bHeroDef=1;bAtkUpT=0;bDefUpT=0;bEnemyAtkUpT=0;bTurn='player';bBusy=false;render()`;
-    return `<div class="sect"><div class="b-res">
-      <div class="b-res-emoji">${emoji}</div>
-      <h3>${title}</h3><p>${sub}</p>
-      <button onclick="${btnAct}">${btnLabel}</button>
+    const won=bPhase==='win';
+    return `<div class="sect"><div class="dq">
+      <div class="dq-res">
+        <div class="em">${won?'🏆':'😵'}</div>
+        <h3>${won?'しょうり！':'ぜんめつ…'}</h3>
+        <p>${won
+          ?esc(bEnemy?bEnemy.name:'てき')+'を やっつけた！<br>あしたに なると あたらしい てきが あらわれるよ。'
+          :'ちからつきて しまった…。<br>でも だいじょうぶ！ なんどでも ちょうせんできる！<br>じゅもんや ぼうぎょを うまく つかってみよう。'}</p>
+        <button onclick="${won?"bEnemy=null;bPhase='start';render()":"bPhase='start';render()"}">${won?'もどる':'もういちど たたかう'}</button>
+      </div>
     </div></div>`;
   }
 
-  const skillsHTML=B_SKILLS.map((s,i)=>{
-    const costTxt=s.cost===0
-      ?`<span class="bcost" style="color:#FFD23F">FREE</span>`
-      :`<span class="bcost">⚡${s.cost}</span>`;
-    const wide=s.wide?'wide':'';
-    return `<button class="bcmd ${wide}" data-si="${i}" style="background:${s.color}" onclick="bPlayerTurn(${i})">
-      <span class="bicon">${s.icon}</span>
-      <span class="bname">${s.name}</span>
-      ${costTxt}
-      <span class="bdesc">${s.desc||''}</span>
-    </button>`;
-  }).join('');
-
-  const apPips=Array.from({length:B_AP_MAX},(_,i)=>`<span class="b-ap-pip${i<bAP?' on':''}"></span>`).join('');
-  const chargeWarn=bCharged
-    ?`<div style="background:#FEF2F2;border:2px solid #EF4444;border-radius:10px;padding:6px 10px;text-align:center;font-size:12px;font-weight:800;color:#EF4444;width:100%">⚠️ てきが チャージちゅう！<br><span style="font-size:10px;font-weight:700">ガードで ダメージを はんぶんにできる！</span></div>`
-    :'';
-  const eHPpct=Math.max(0,bEHP/bEMax*100);
-  const hHPpct=Math.max(0,bHeroHP/bHeroMax*100);
-  const eHPcolor=eHPpct>50?'#EF4444':eHPpct>25?'#F97316':'#DC2626';
-
-  return `<div class="sect"><div id="bBattle" class="bstage">
-    <div class="b-tpill" id="bTurnPill">あなたのターン</div>
-    ${chargeWarn}
-
-    <!-- てきのHP（大きく表示） -->
-    <div style="width:100%;background:#FFF5F5;border:2px solid #FCA5A5;border-radius:14px;padding:10px 12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-size:14px;font-weight:900;color:#1A3A6B">${bEnemy.emoji} <span style="font-size:13px">${bEnemy.name}</span></div>
-        <div style="font-size:10px;font-weight:700;color:#9CA3AF">てきの HP</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;height:16px;background:#FEE2E2;border-radius:8px;overflow:hidden">
-          <div id="bEnemyBar" style="height:100%;width:${eHPpct}%;background:linear-gradient(90deg,${eHPcolor},#FCA5A5);border-radius:8px;transition:width .4s"></div>
+  const heroN=dqHeroName();
+  return `<div class="sect">
+    <div class="dq">
+      <div class="dq-top">
+        <div class="dqwin dq-stat">
+          <div>${esc(S.avatar||'🌱')} ${esc(heroN)}</div>
+          <div>HP <span id="dqHP" class="hp${dqHP<=dqHPMax*0.3?' low':''}">${Math.max(0,dqHP)}／${dqHPMax}</span>　MP <span id="dqMP" class="mp">${dqMP}／${dqMPMax}</span></div>
         </div>
-        <div style="font-size:15px;font-weight:900;color:${eHPcolor};min-width:64px;text-align:right" id="bEnemyLbl">${bEHP}/${bEMax}</div>
       </div>
-    </div>
-
-    <!-- キャラクター -->
-    <div class="b-field">
-      <div class="b-hpanel">
-        <div class="b-hname">${S.avatar||'🌱'} ${esc(S.name||'ゆうしゃ')}</div>
-        <div class="bhp-row">
-          <div class="bhp-bar"><div class="bhp-fill hero" id="bHeroBar" style="width:${hHPpct}%"></div></div>
-          <span id="bHeroLbl" style="font-size:11px">${bHeroHP}/${bHeroMax}</span>
+      <div class="dq-field" id="dqField">
+        <div id="dqHurt" style="position:absolute;inset:0;background:#EF4444;opacity:0;transition:opacity .15s;pointer-events:none;z-index:3"></div>
+        <div class="dq-enemy" id="dqEnemySpr">${bEnemy.emoji}</div>
+        <div class="dq-ehp">
+          <div class="nm">${esc(bEnemy.name)}</div>
+          <div class="bar"><div class="fill" id="dqEBar" style="width:${Math.max(0,dqEHP/dqEMax*100)}%"></div></div>
+          <div class="num" id="dqENum">HP ${Math.max(0,dqEHP)}／${dqEMax}</div>
         </div>
-        <div style="font-size:9px;color:#6B7280;margin-top:1px">じぶんの HP</div>
-        <div class="b-ap">${apPips}</div>
-        <div style="font-size:9px;color:#6B7280;margin-top:1px">⚡きあい</div>
       </div>
-      <div id="bHeroSlot" class="b-char hero-c">${S.avatar||'🌱'}</div>
-      <div id="bEnemySlot" class="b-char enemy-c">${bEnemy.emoji}</div>
+      <div class="dq-chips" id="dqChips"></div>
+      <div class="dqwin dq-msg" onclick="dqFastFlag=true"><span id="dqMsgTxt"></span></div>
+      <div class="dq-cmds" id="dqCmds"></div>
     </div>
-
-    <div class="b-log" id="bLog"><p>⚔️ バトルかいし！ ${bEnemy.name} があらわれた！</p></div>
-    <div style="font-size:11px;font-weight:700;color:#6B7280;margin-bottom:4px">わざをえらんで たたかおう！</div>
-    <div class="bcmd-grid">${skillsHTML}</div>
-  </div></div>`;
+    <div style="font-size:10px;color:#6B7280;font-weight:700;margin-top:8px;line-height:1.7">💡 てきが「ちからを ためている」ときは <b>ぼうぎょ</b>！　HPが へったら じゅもんの <b>ホイポン</b> で かいふく！　MPが なくなったら <b>たたかう</b> や <b>とくぎ</b> で たたかおう。</div>
+  </div>`;
 }
 
 function bMount(){
-  if(bPhase==='battle'){ bBusy=false; bTurn='player'; }
-  bRefreshCmd();
+  if(bPhase==='intro' && !dqIntroDone){
+    dqIntroDone=true; dqBusy=true;
+    dqSay([bEnemy.name+'が あらわれた！'], ()=>{
+      bPhase='battle'; dqBusy=false;
+      dqRenderCmds(); dqPrompt();
+    });
+  } else if(bPhase==='battle'){
+    dqSync();
+    if(!dqBusy){ dqRenderCmds(); dqPrompt(); }
+  }
 }
 
 /* ======================================================

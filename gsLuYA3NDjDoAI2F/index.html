@@ -296,15 +296,14 @@ body{
 @keyframes bIdleC{ 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-6px) rotate(3deg)} }
 @keyframes btwk{ 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-36px)} }
 
-/* === がんばりシート === */
+/* === がんばりシート（A4・15日） === */
 .gs-nav{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
 .gs-nav button{ background:#fff; border:2px solid var(--yellow); color:var(--navy); border-radius:11px;
   padding:7px 12px; font-size:13px; font-weight:900; cursor:pointer; font-family:inherit; }
 .gs-nav button:disabled{ opacity:.3; cursor:default; }
 .gs-month{ flex:1; text-align:center; font-size:17px; font-weight:900; color:var(--navy); }
 .gs-month span{ display:block; font-size:10px; font-weight:700; color:#9CA3AF; margin-top:1px; }
-.gs-sheet{ background:#fff; border-radius:18px; padding:13px 12px; border:3px solid var(--yellow);
-  box-shadow:0 6px 20px rgba(255,201,60,.28); }
+
 .gs-pal{ background:#FFFBEB; border:2px solid #FDE68A; border-radius:13px; padding:9px 10px; margin-bottom:11px; }
 .gs-pal-t{ font-size:11px; font-weight:900; color:#B45309; margin-bottom:6px; }
 .gs-pal-row{ display:flex; gap:4px; flex-wrap:wrap; }
@@ -315,47 +314,101 @@ body{
 .gs-pal-row button.rnd{ width:auto; padding:0 10px; font-size:11px; font-weight:900; color:var(--navy); }
 .gs-pal-row button.era{ width:auto; padding:0 10px; font-size:11px; font-weight:900; color:#9CA3AF; }
 .gs-pal-row button.era.on{ border-color:var(--red); background:#FEE2E2; color:var(--red); }
-.gs-goal{ border:2px dashed #E5E7EB; border-radius:14px; padding:10px; margin-bottom:9px; }
-.gs-goal.done{ border-style:solid; border-color:var(--green); background:rgba(34,197,94,.07); }
-.gs-gtop{ display:flex; align-items:center; gap:7px; margin-bottom:7px; }
-.gs-gno{ width:22px; height:22px; border-radius:7px; flex-shrink:0; background:var(--yellow); color:var(--navy);
-  font-size:11px; font-weight:900; display:flex; align-items:center; justify-content:center; }
-.gs-goal.done .gs-gno{ background:var(--green); color:#fff; }
+
+/* --- A4シート本体 --- */
+.gs-sheet{ background:#fff; border-radius:16px; padding:0; overflow:hidden;
+  border:3px solid var(--sky); box-shadow:0 6px 22px rgba(78,197,224,.3); }
+.gs-band{ background:linear-gradient(120deg,#4EC5E0 0%,#7DD8EC 38%,#F687C0 78%,#FFC93C 100%);
+  padding:12px 14px; display:flex; align-items:center; gap:12px; }
+.gs-logo{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.gs-logo img{ height:44px; width:auto; max-width:150px; object-fit:contain; display:block; }
+.gs-mark{ width:44px; height:44px; border-radius:13px; flex-shrink:0; background:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900;
+  color:var(--pink); box-shadow:0 3px 8px rgba(0,0,0,.16); }
+.gs-org{ line-height:1.15; }
+.gs-org b{ display:block; font-size:15px; font-weight:900; color:#fff; text-shadow:0 1px 3px rgba(26,58,107,.35); }
+.gs-org i{ display:block; font-style:normal; font-size:8px; font-weight:800; letter-spacing:1.5px;
+  color:rgba(255,255,255,.9); }
+.gs-ttl{ flex:1; text-align:center; }
+.gs-ttl b{ display:block; font-size:19px; font-weight:900; color:#fff; text-shadow:0 2px 5px rgba(26,58,107,.4); letter-spacing:1px; }
+.gs-ttl span{ display:block; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 3px rgba(26,58,107,.35); }
+.gs-who{ background:rgba(255,255,255,.92); border-radius:11px; padding:6px 11px; flex-shrink:0; text-align:center; }
+.gs-who b{ display:block; font-size:8px; font-weight:800; color:#6B7280; }
+.gs-who span{ display:block; font-size:14px; font-weight:900; color:var(--navy); }
+
+.gs-body{ padding:12px; }
+.gs-lead{ background:#FFFBEB; border:2px dashed var(--yellow); border-radius:12px;
+  padding:8px 11px; margin-bottom:11px; }
+.gs-lead b{ font-size:13px; font-weight:900; color:#B45309; }
+.gs-lead span{ display:block; font-size:10px; font-weight:700; color:#92700E; margin-top:1px; }
+
+.gs-goal{ border:2.5px solid #E5E7EB; border-radius:13px; padding:8px 9px; margin-bottom:8px; }
+.gs-gtop{ display:flex; align-items:center; gap:7px; margin-bottom:6px; }
+.gs-gno{ width:23px; height:23px; border-radius:8px; flex-shrink:0; color:#fff;
+  font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center; }
 .gs-ginput{ flex:1; min-width:0; border:none; border-bottom:2px dashed #D1D5DB; background:transparent;
   font-family:inherit; font-size:14px; font-weight:800; color:var(--navy); padding:3px 2px; outline:none;
   -webkit-user-select:text; user-select:text; }
 .gs-ginput:focus{ border-bottom-color:var(--sky); }
-.gs-ginput::placeholder{ color:#D1D5DB; font-weight:700; }
-.gs-step{ display:flex; align-items:center; gap:3px; flex-shrink:0; }
-.gs-step button{ width:22px; height:22px; border-radius:6px; border:2px solid #E5E7EB; background:#fff;
-  font-size:13px; font-weight:900; color:#6B7280; cursor:pointer; padding:0; line-height:1; font-family:inherit; }
-.gs-step span{ font-size:10px; font-weight:900; color:#6B7280; min-width:30px; text-align:center; }
-.gs-cnt{ font-size:10px; font-weight:900; margin-bottom:5px; }
-.gs-slots{ display:grid; grid-template-columns:repeat(auto-fill,minmax(33px,1fr)); gap:5px; }
-.gs-slot{ aspect-ratio:1; border-radius:9px; border:2px dashed #D8DCE3; background:#FAFBFC;
-  display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; transition:.12s; }
+.gs-ginput::placeholder{ color:#CBD5E1; font-weight:700; }
+.gs-cnt{ font-size:10px; font-weight:900; flex-shrink:0; white-space:nowrap; }
+.gs-slots{ display:grid; grid-template-columns:repeat(auto-fill,minmax(38px,1fr)); gap:4px; }
+.gs-slot{ aspect-ratio:1; border-radius:9px; border:2px dashed #D8DCE3; background:#FCFDFE;
+  display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer;
+  transition:.12s; position:relative; }
+.gs-slot .gs-day{ font-size:9px; font-weight:900; color:#C7D0DA; }
 .gs-slot:active{ transform:scale(.88); }
-.gs-slot.on{ border-style:solid; border-color:var(--yellow); background:#FFFBEB; animation:gsPop .38s ease; }
+.gs-slot.on{ border-style:solid; animation:gsPop .38s ease; }
 @keyframes gsPop{ 0%{transform:scale(.2) rotate(-30deg);opacity:0} 60%{transform:scale(1.28) rotate(10deg);opacity:1} 100%{transform:scale(1) rotate(0)} }
-.gs-foot{ margin-top:11px; padding-top:10px; border-top:2px dashed #E5E7EB; }
-.gs-sign{ display:flex; gap:8px; margin-top:9px; }
-.gs-sign div{ flex:1; border:2px solid #E5E7EB; border-radius:10px; padding:7px 9px; }
-.gs-sign b{ display:block; font-size:9px; font-weight:800; color:#9CA3AF; margin-bottom:2px; }
+
+.gs-foot{ margin-top:10px; }
+.gs-note{ border:2px solid #E5E7EB; border-radius:12px; padding:8px 10px; margin-bottom:8px; }
+.gs-note b{ display:block; font-size:10px; font-weight:900; color:var(--purple); margin-bottom:3px; }
+.gs-note textarea{ width:100%; border:none; background:transparent; resize:none; outline:none;
+  font-family:inherit; font-size:12px; font-weight:700; color:var(--navy); line-height:1.9;
+  min-height:44px; -webkit-user-select:text; user-select:text; }
+.gs-note textarea::placeholder{ color:#D1D5DB; }
+.gs-sign{ display:flex; gap:8px; }
+.gs-sign div{ flex:1; border:2px solid #E5E7EB; border-radius:11px; padding:6px 9px; }
+.gs-sign b{ display:block; font-size:9px; font-weight:800; color:#9CA3AF; margin-bottom:1px; }
 .gs-sign input{ width:100%; border:none; background:transparent; font-family:inherit; font-size:13px;
   font-weight:800; color:var(--navy); outline:none; -webkit-user-select:text; user-select:text; }
 
+/* --- 印刷（A4 たて 1まい） --- */
 @media print{
-  @page{ margin:12mm; }
-  body{ background:#fff !important; padding:0 !important; }
-  .clouds,.tabs,.header,.flash,.gs-noprint,.savebar,.savenote,.sect-h{ display:none !important; }
-  .wrap{ max-width:100%; padding:0 !important; }
-  .sect-sub{ display:none; }
-  .gs-sheet{ border-color:#999 !important; box-shadow:none !important; page-break-inside:avoid; }
-  .gs-goal{ border-color:#999 !important; background:#fff !important; page-break-inside:avoid; }
-  .gs-slot{ border-color:#aaa !important; background:#fff !important; }
-  .gs-slots{ grid-template-columns:repeat(auto-fill,minmax(30px,1fr)); }
-  .gs-ginput,.gs-sign input{ border-bottom:1px solid #bbb !important; }
-  .gs-ginput::placeholder,.gs-sign input::placeholder{ color:transparent !important; }
+  @page{ size:A4 portrait; margin:9mm; }
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  html,body{ height:auto !important; background:#fff !important; padding:0 !important; margin:0 !important; }
+  .clouds,.tabs,.header,.flash,.gs-noprint,.savebar,.savenote,.sect-h,.sect-sub{ display:none !important; }
+  .wrap{ max-width:100% !important; padding:0 !important; margin:0 !important; }
+  #content{ animation:none !important; }
+  .gs-sheet{ border-width:2.5pt !important; border-radius:5mm !important; box-shadow:none !important;
+    page-break-inside:avoid; break-inside:avoid; }
+  .gs-band{ padding:6mm 6mm !important; }
+  .gs-logo img{ height:16mm !important; max-width:52mm !important; }
+  .gs-mark{ width:16mm !important; height:16mm !important; font-size:9mm !important; border-radius:4mm !important; }
+  .gs-org b{ font-size:5mm !important; } .gs-org i{ font-size:2.4mm !important; }
+  .gs-ttl b{ font-size:7.5mm !important; } .gs-ttl span{ font-size:3.6mm !important; }
+  .gs-who{ padding:2mm 4mm !important; } .gs-who b{ font-size:2.6mm !important; } .gs-who span{ font-size:4.6mm !important; }
+  .gs-body{ padding:6mm !important; }
+  .gs-lead{ padding:3.5mm 4mm !important; margin-bottom:5mm !important; }
+  .gs-lead b{ font-size:4.4mm !important; } .gs-lead span{ font-size:3.1mm !important; }
+  .gs-goal{ padding:4.5mm 4mm !important; margin-bottom:4.5mm !important; border-radius:4mm !important;
+    page-break-inside:avoid; break-inside:avoid; }
+  .gs-gtop{ margin-bottom:3.5mm !important; }
+  .gs-gno{ width:7.5mm !important; height:7.5mm !important; font-size:4mm !important; }
+  .gs-ginput{ font-size:4.8mm !important; border-bottom:0.4mm solid #B8C0CC !important; }
+  .gs-cnt{ font-size:3.2mm !important; }
+  .gs-slots{ grid-template-columns:repeat(15,1fr) !important; gap:1.6mm !important; }
+  .gs-slot{ border-radius:2.6mm !important; font-size:6.4mm !important; }
+  .gs-slot .gs-day{ font-size:2.8mm !important; }
+  .gs-foot{ margin-top:5mm !important; }
+  .gs-note{ padding:3.5mm 4mm !important; margin-bottom:4mm !important; } .gs-note b{ font-size:3.2mm !important; }
+  .gs-note textarea{ font-size:3.8mm !important; min-height:24mm !important; }
+  .gs-sign div{ padding:3mm 4mm !important; } .gs-sign b{ font-size:2.9mm !important; }
+  .gs-sign input{ font-size:4.4mm !important; border-bottom:0.4mm solid #B8C0CC !important; }
+  .gs-sign input{ border-bottom:0.4mm solid #B8C0CC !important; }
+  .gs-ginput::placeholder,.gs-sign input::placeholder,.gs-note textarea::placeholder{ color:transparent !important; }
 }
 </style>
 </head>
@@ -551,6 +604,7 @@ function defaultRoot(){
   return {
     current:id,
     staffPin:"1111",
+    logo:null, orgName:"夢門塾",
     customDaily:null, customWeekly:null, customRewards:null,
     profiles:{ [id]: defaultProfile() }
   };
@@ -1702,6 +1756,25 @@ function renderSettingsMain(){
     '<button onclick="changePin()" style="background:#1A3A6B;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">変更</button>'+
     '</div></div>';
 
+  // ロゴ設定（がんばりシートに印刷される）
+  h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #4EC5E0">'+
+    '<div style="font-size:12px;font-weight:800;color:#1A3A6B;margin-bottom:3px">🏫 ロゴ・教室名</div>'+
+    '<div style="font-size:10px;color:#6B7280;font-weight:700;margin-bottom:9px">がんばりシートの 見出しに 印刷されます</div>'+
+    '<div style="display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,#4EC5E0,#7DD8EC 40%,#F687C0 80%,#FFC93C);border-radius:11px;padding:9px 11px;margin-bottom:9px">'+
+      logoHTML()+
+    '</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:8px">'+
+      '<input value="'+esc(ROOT.orgName||'夢門塾')+'" maxlength="12" placeholder="教室名" onchange="setOrgName(this.value);render()" '+
+      'style="-webkit-user-select:text;user-select:text;flex:1;border:2px solid #E5E7EB;border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none">'+
+    '</div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button onclick="document.getElementById(\'logoInput\').click()" style="flex:1;background:#4EC5E0;color:#fff;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">🖼️ ロゴ画像をえらぶ</button>'+
+      (ROOT.logo?'<button onclick="clearLogo()" style="background:#fff;color:#EF4444;border:2px solid #EF4444;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">もどす</button>':'')+
+    '</div>'+
+    '<input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadLogo(event)">'+
+    '<div style="font-size:10px;color:#9CA3AF;font-weight:700;margin-top:7px;line-height:1.6">※ PNG・JPGなど。よこ420pxに縮小して保存します（背景が透明なPNGがおすすめ）。</div>'+
+  '</div>';
+
   // 児童プロフィール管理
   h+='<div style="background:#fff;border-radius:14px;padding:13px;margin-bottom:12px;border:2px solid #E8197D">'+
     '<div style="font-size:13px;font-weight:800;color:#1A3A6B;margin-bottom:10px">👦👧 冒険者（児童）の管理</div>';
@@ -2065,11 +2138,13 @@ function checkDateReset(){
 }
 
 /* ======================================================
-   がんばりシート（ひと月ごと）
+   がんばりシート（ひと月15日ぶん・A4いんさつ）
 ====================================================== */
 const SHEET_STICKERS=['⭐','🌟','🎉','🌈','🍀','🌸','🐱','🐶','🦄','🐰','🍓','🍩','🎈','🚀','⚽','👑'];
 const SHEET_HINTS=['あいさつを げんきに する','じかんを まもる','おかたづけを する','しゅくだいを やる'];
-const SHEET_SLOT_MIN=5, SHEET_SLOT_MAX=30, SHEET_GOAL_PT=5, SHEET_BONUS_PT=10;
+const SHEET_COLORS=['#4EC5E0','#E8197D','#22C55E','#FF8C42'];
+const SHEET_DAYS=15;                       // ひと月＝15日ぶん
+const SHEET_GOAL_PT=5, SHEET_BONUS_PT=10;
 
 let sheetMonth=null;     // 表示中の月 "2026-08"
 let sheetSticker='';     // '' = ランダム
@@ -2081,21 +2156,59 @@ function ymShift(k,n){ const p=k.split('-').map(Number); return ymKey(new Date(p
 
 function getSheet(key){
   if(!S.sheets) S.sheets={};
-  if(!S.sheets[key]) S.sheets[key]={ goals:[], rewarded:[], bonus:false, sign:'' };
+  if(!S.sheets[key]) S.sheets[key]={ goals:[], rewarded:[], bonus:false, sign:'', note:'' };
   const sh=S.sheets[key];
   if(!Array.isArray(sh.goals)) sh.goals=[];
-  while(sh.goals.length<4) sh.goals.push({ text:'', slots:20, st:[] });
+  while(sh.goals.length<4) sh.goals.push({ text:'', st:[] });
   sh.goals.forEach(g=>{
     if(!Array.isArray(g.st)) g.st=[];
-    if(!g.slots) g.slots=20;
+    if(g.st.length>SHEET_DAYS) g.st=g.st.slice(0,SHEET_DAYS);   // 15日ぶんに そろえる
+    g.slots=SHEET_DAYS;
     if(typeof g.text!=='string') g.text='';
   });
   if(!Array.isArray(sh.rewarded)) sh.rewarded=[];
+  if(typeof sh.note!=='string') sh.note='';
   return sh;
 }
 function gsFilled(g){ return g.st.filter(Boolean).length; }
-function gsDone(g){ return g.text.trim()!=='' && gsFilled(g)>=g.slots; }
+function gsDone(g){ return g.text.trim()!=='' && gsFilled(g)>=SHEET_DAYS; }
 
+/* ---- ロゴ（せっていで さしかえ可能）---- */
+function logoHTML(){
+  if(ROOT.logo) return '<div class="gs-logo"><img src="'+ROOT.logo+'" alt="ロゴ"></div>';
+  return '<div class="gs-logo"><div class="gs-mark">夢</div>'+
+    '<div class="gs-org"><b>'+esc(ROOT.orgName||'夢門塾')+'</b><i>YUMEMON JUKU</i></div></div>';
+}
+function uploadLogo(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f) return;
+  if(!/^image\//.test(f.type)){ flash('画像ファイルを えらんでください'); return; }
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=420, sc=Math.min(1, max/img.width);
+      const cv=document.createElement('canvas');
+      cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      try{
+        ROOT.logo=cv.toDataURL('image/png');
+        save(); flash('✅ ロゴを とうろくしました'); render();
+      }catch(err){ flash('ロゴの ほぞんに しっぱいしました'); }
+    };
+    img.onerror=()=>flash('画像を よみこめませんでした');
+    img.src=e.target.result;
+  };
+  rd.readAsDataURL(f);
+  ev.target.value='';
+}
+function clearLogo(){
+  ROOT.logo=null; save(); flash('ロゴを もとに もどしました'); render();
+}
+function setOrgName(v){
+  ROOT.orgName=String(v||'').slice(0,12); save();
+}
+
+/* ---- そうさ ---- */
 function sheetGo(n){
   const max=ymShift(ymKey(new Date()),1);
   const next=ymShift(sheetMonth,n);
@@ -2110,25 +2223,18 @@ function sheetPick(em){
 function sheetSetGoal(gi, val){
   const sh=getSheet(sheetMonth);
   if(!sh.goals[gi]) return;
-  sh.goals[gi].text=String(val||'').slice(0,24);
+  sh.goals[gi].text=String(val||'').slice(0,20);
   save(); render();
 }
-function sheetSlots(gi, d){
-  const sh=getSheet(sheetMonth), g=sh.goals[gi]; if(!g) return;
-  const n=Math.max(SHEET_SLOT_MIN, Math.min(SHEET_SLOT_MAX, g.slots+d));
-  if(n===g.slots) return;
-  g.slots=n;
-  if(g.st.length>n) g.st=g.st.slice(0,n);
-  playSound('tap'); save(); render();
-}
 function sheetSign(val){
-  const sh=getSheet(sheetMonth);
-  sh.sign=String(val||'').slice(0,16);
-  save();
+  getSheet(sheetMonth).sign=String(val||'').slice(0,16); save();
+}
+function sheetNote(val){
+  getSheet(sheetMonth).note=String(val||'').slice(0,120); save();
 }
 function sheetStick(gi, si){
   const sh=getSheet(sheetMonth), g=sh.goals[gi]; if(!g) return;
-  if(si>=g.slots) return;
+  if(si>=SHEET_DAYS) return;
   if(!g.text.trim()){ flash('さきに もくひょうを かいてね！'); return; }
 
   if(sheetErase){
@@ -2140,14 +2246,13 @@ function sheetStick(gi, si){
   g.st[si]= sheetSticker || SHEET_STICKERS[Math.floor(Math.random()*SHEET_STICKERS.length)];
   playSound('mission');
 
-  // ごほうび判定（1つの もくひょうにつき ひと月1かい）
+  // ごほうび（もくひょう1つにつき ひと月1かいだけ）
   let pts=0, msg='';
   if(gsDone(g) && sh.rewarded.indexOf(gi)<0){
     sh.rewarded.push(gi); pts+=SHEET_GOAL_PT;
-    msg='🎊 「'+g.text+'」ぜんぶ たまった！ +'+SHEET_GOAL_PT+'pt';
+    msg='🎊 「'+g.text+'」15日ぶん たっせい！ +'+SHEET_GOAL_PT+'pt';
   }
-  const allSet=sh.goals.every(x=>x.text.trim()!=='');
-  if(allSet && sh.goals.every(gsDone) && !sh.bonus){
+  if(sh.goals.every(x=>x.text.trim()!=='') && sh.goals.every(gsDone) && !sh.bonus){
     sh.bonus=true; pts+=SHEET_BONUS_PT;
     msg='🏆 '+ymLabel(sheetMonth)+'の シート コンプリート！ +'+SHEET_BONUS_PT+'pt';
   }
@@ -2155,22 +2260,21 @@ function sheetStick(gi, si){
     S.points=(S.points||0)+pts;
     confetti(); playSound('badge'); flash(msg);
     afterAction();
-  } else {
-    save(); render();
-  }
+  } else { save(); render(); }
 }
 function sheetPrint(){ window.print(); }
 
+/* ---- 描画 ---- */
 function renderSheet(){
   if(!sheetMonth) sheetMonth=ymKey(new Date());
   const key=sheetMonth, sh=getSheet(key), cur=ymKey(new Date());
   const max=ymShift(cur,1);
   const named=sh.goals.filter(g=>g.text.trim()!=='');
-  const totS=named.reduce((a,g)=>a+g.slots,0);
+  const totS=named.length*SHEET_DAYS;
   const totF=named.reduce((a,g)=>a+gsFilled(g),0);
   const pct=totS?Math.round(totF/totS*100):0;
 
-  let h='<div class="sect">'+sectHTML('📝','がんばりシート','もくひょうを きめて シールを あつめよう','#FFC93C')+'</div>';
+  let h='<div class="sect">'+sectHTML('📝','がんばりシート','もくひょうを きめて 15日ぶん シールを あつめよう','#FFC93C')+'</div>';
 
   // 月ナビ
   h+='<div class="gs-nav gs-noprint">'+
@@ -2189,59 +2293,66 @@ function renderSheet(){
   h+='<button class="era'+(sheetErase?' on':'')+'" onclick="sheetPick(\'__erase\')">🧽 けす</button>';
   h+='</div></div>';
 
-  // シート本体
+  /* ===== A4シート本体 ===== */
   h+='<div class="gs-sheet">';
-  h+='<div style="text-align:center;margin-bottom:10px">'+
-      '<div style="font-size:16px;font-weight:900;color:#1A3A6B">'+esc(ymLabel(key))+' がんばりシート</div>'+
-      '<div style="font-size:12px;font-weight:800;color:#6B7280;margin-top:2px">'+esc(S.avatar||'🌱')+' '+esc(S.name||'なまえ')+'</div>'+
-    '</div>';
+
+  // ヘッダー帯（ロゴ・タイトル・なまえ）
+  h+='<div class="gs-band">'+logoHTML()+
+    '<div class="gs-ttl"><b>がんばりシート</b><span>'+esc(ymLabel(key))+'　ぜんぶで '+SHEET_DAYS+'日ぶん</span></div>'+
+    '<div class="gs-who"><b>なまえ</b><span>'+esc(S.name||'　　　　')+'</span></div>'+
+  '</div>';
+
+  h+='<div class="gs-body">';
+
+  // 目標設定欄
+  h+='<div class="gs-lead"><b>🎯 こんげつの もくひょう（4つまで）</b>'+
+     '<span>できた日に 1マスずつ シールを はろう！　15マス たまったら たっせい！</span></div>';
 
   sh.goals.forEach((g,i)=>{
-    const filled=gsFilled(g), done=gsDone(g), has=g.text.trim()!=='';
-    h+='<div class="gs-goal'+(done?' done':'')+'">';
+    const col=SHEET_COLORS[i], filled=gsFilled(g), done=gsDone(g), has=g.text.trim()!=='';
+    h+='<div class="gs-goal" style="border-color:'+col+(done?'':'55')+';background:'+(done?col+'12':'#fff')+'">';
     h+='<div class="gs-gtop">'+
-        '<div class="gs-gno">'+(done?'✓':(i+1))+'</div>'+
+        '<div class="gs-gno" style="background:'+col+'">'+(done?'✓':(i+1))+'</div>'+
         '<input class="gs-ginput" value="'+esc(g.text)+'" placeholder="'+esc(SHEET_HINTS[i]||'もくひょうを かこう')+'" '+
-          'maxlength="24" onchange="sheetSetGoal('+i+',this.value)">'+
-        '<div class="gs-step gs-noprint">'+
-          '<button onclick="sheetSlots('+i+',-5)">−</button>'+
-          '<span>'+g.slots+'マス</span>'+
-          '<button onclick="sheetSlots('+i+',5)">＋</button>'+
-        '</div>'+
+          'maxlength="20" onchange="sheetSetGoal('+i+',this.value)">'+
+        (has?'<div class="gs-cnt" style="color:'+(done?col:'#9CA3AF')+'">'+
+             (done?'🎉 たっせい！':filled+' / '+SHEET_DAYS)+'</div>':'')+
       '</div>';
-    if(has){
-      h+='<div class="gs-cnt" style="color:'+(done?'#22C55E':'#B45309')+'">'+
-        (done?'🎉 ぜんぶ たまった！':'シール '+filled+' / '+g.slots+'　あと'+(g.slots-filled)+'こ')+'</div>';
-    }
     h+='<div class="gs-slots">';
-    for(let s=0;s<g.slots;s++){
+    for(let s=0;s<SHEET_DAYS;s++){
       const em=g.st[s];
-      h+='<div class="gs-slot'+(em?' on':'')+'" onclick="sheetStick('+i+','+s+')">'+(em||'')+'</div>';
+      h+='<div class="gs-slot'+(em?' on':'')+'" onclick="sheetStick('+i+','+s+')"'+
+         (em?' style="border-color:'+col+';background:'+col+'14"':'')+'>'+
+         (em||'<span class="gs-day">'+(s+1)+'</span>')+'</div>';
     }
     h+='</div></div>';
   });
 
-  // フッター（がんばり度・サイン）
+  // ふりかえり・サイン
   h+='<div class="gs-foot">';
   h+='<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:900;color:#1A3A6B;margin-bottom:4px">'+
       '<span>こんげつの がんばり</span><span>'+(totS?totF+' / '+totS+' シール（'+pct+'%）':'もくひょうを かこう！')+'</span></div>'+
-    '<div style="height:10px;border-radius:6px;background:#F3F4F6;overflow:hidden">'+
-      '<div style="height:100%;width:'+pct+'%;border-radius:6px;background:linear-gradient(90deg,#FFC93C,#FF8C42);transition:width .5s"></div></div>';
+    '<div style="height:9px;border-radius:6px;background:#F1F3F6;overflow:hidden;margin-bottom:8px">'+
+      '<div style="height:100%;width:'+pct+'%;border-radius:6px;background:linear-gradient(90deg,#4EC5E0,#22C55E,#FFC93C,#FF8C42);transition:width .5s"></div></div>';
+  h+='<div class="gs-note"><b>✏️ ふりかえり・がんばったこと</b>'+
+      '<textarea maxlength="120" placeholder="れい：まいにち げんきに あいさつが できました！" '+
+      'onchange="sheetNote(this.value)">'+esc(sh.note||'')+'</textarea></div>';
   h+='<div class="gs-sign">'+
       '<div><b>おうちの ひと</b><input value="'+esc(sh.sign||'')+'" placeholder="サイン" maxlength="16" onchange="sheetSign(this.value)"></div>'+
       '<div><b>スタッフ</b><input value="" placeholder="サイン" maxlength="16"></div>'+
     '</div>';
-  h+='</div></div>';
+  h+='</div></div></div>';
 
   // 説明＋いんさつ
   h+='<div class="gs-noprint" style="margin-top:12px">'+
-    '<button onclick="sheetPrint()" style="width:100%;background:#1A3A6B;color:#fff;border:none;border-radius:13px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit">🖨️ この シートを いんさつする</button>'+
+    '<button onclick="sheetPrint()" style="width:100%;background:linear-gradient(135deg,#4EC5E0,#1A3A6B);color:#fff;border:none;border-radius:13px;padding:13px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(78,197,224,.4)">🖨️ A4で いんさつする</button>'+
     '<div style="font-size:10px;color:#6B7280;font-weight:700;line-height:1.8;margin-top:9px">'+
       '💡 もくひょうは 4つまで じゆうに かけます（スタッフ・おうちのかたが にゅうりょく）。<br>'+
-      '💡 マスの かずは「−／＋」で 5〜30こに かえられます。<br>'+
-      '💡 できた日に マスを タップすると シールが つきます。まちがえたら「🧽 けす」を おしてから タップ。<br>'+
-      '💡 もくひょうを ぜんぶ うめると +'+SHEET_GOAL_PT+'pt、4つ ぜんぶで さらに +'+SHEET_BONUS_PT+'pt！<br>'+
-      '💡 つきが かわると あたらしい シートに なります（まえの つきは「◀ まえ」で みられます）。'+
+      '💡 ひと月は <b>15日ぶん</b>。できた日に マスを タップすると シールが つきます。<br>'+
+      '💡 まちがえたら「🧽 けす」を おしてから マスを タップ。<br>'+
+      '💡 もくひょう1つ たっせいで +'+SHEET_GOAL_PT+'pt、4つ ぜんぶで さらに +'+SHEET_BONUS_PT+'pt！<br>'+
+      '💡 いんさつは <b>A4たて・1まい</b>に おさまります（白紙のまま いんさつして 手書きでも つかえます）。<br>'+
+      '💡 ロゴは「せってい」タブで じゆうに さしかえられます。'+
     '</div></div>';
 
   return h;

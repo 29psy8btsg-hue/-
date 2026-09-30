@@ -335,13 +335,174 @@ const D = Object.assign(Object.create(baseTheme), {
   },
 });
 
+// ================= 候補E：ブルーウェーブ（参考画像のデザイン） =================
+// 背景の波・虹色の光はPowerPointの図形では描けないため、SVGで画像を作って背景に使う
+const ASSET = {};
+const EC = ['0B3A9E', '1F5FD6', '1E88D0', '2E5BE8', '4B3BC9', '6A3FC9', '9A4DC9'];   // 図形用（濃紺→青→紫）
+const ED = ['0B3A9E', '1F5FD6', '176AA6', '2E4FD8', '4B3BC9', '6A3FC9', '8E3FB8'];   // 文字用（白地でコントラスト4.5以上）
+const EORB = [['4E86FF', '0B2F9E'], ['66AEFF', '1F5FD6'], ['5CCBF5', '1676BA'], ['7A95FF', '2E4FD8'], ['9A86FF', '4B3BC9'], ['B58CFF', '6A3FC9'], ['E28BE6', '8E3FB8']];
+const EDEEP = '0B3A9E', ELABEL = '3F6FC6', ETEXT = '2D4C8A';
+
+function streakPath(x0, y0, x1, y1, h0, h1) { // 太さが先細りする帯
+  const L = Math.hypot(x1 - x0, y1 - y0), nx = -(y1 - y0) / L, ny = (x1 - x0) / L;
+  const p = (x, y, h, sg) => `${(x + nx * h * sg).toFixed(1)},${(y + ny * h * sg).toFixed(1)}`;
+  return `M ${p(x0, y0, h0, 1)} L ${p(x1, y1, h1, 1)} L ${p(x1, y1, h1, -1)} L ${p(x0, y0, h0, -1)} Z`;
+}
+const BLUR = [2, 4, 6, 12, 18, 30, 40].map(v => `<filter id="b${v}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${v}"/></filter>`).join('');
+const stops = arr => arr.map(([o, c, a]) => `<stop offset="${o}" stop-color="#${c}" stop-opacity="${a}"/>`).join('');
+const lg = (id, x1, y1, x2, y2, st) => `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">${stops(st)}</linearGradient>`;
+const IRIS = [[0, '2A4BFF', 0.95], [0.3, '5B3BF5', 0.95], [0.48, '9B45F0', 0.9], [0.62, 'E070E0', 0.75], [0.76, 'FF9FC8', 0.5], [0.88, 'FFE0A0', 0.3], [1, 'FFFFFF', 0]];
+
+function svgTitle() { // 表紙・結び：上に大きな青い波、対角線に虹色の光、右下に波
+  const sx0 = 80, sy0 = 1427, sx1 = 2500, sy1 = 338;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1350" viewBox="0 0 2400 1350"><defs>${BLUR}
+  <radialGradient id="hz1" cx="0" cy="0.5" r="0.45"><stop offset="0" stop-color="#9FE6FF" stop-opacity="0.28"/><stop offset="1" stop-color="#9FE6FF" stop-opacity="0"/></radialGradient>
+  <radialGradient id="hz2" cx="1" cy="1" r="0.55"><stop offset="0" stop-color="#CFE6FF" stop-opacity="0.55"/><stop offset="1" stop-color="#CFE6FF" stop-opacity="0"/></radialGradient>
+  ${lg('deep', 0, 0, 2400, 0, [[0, '0A2FB8', 0.95], [0.45, '1347E0', 0.95], [0.8, '2F86FF', 0.85], [1, '8FD0FF', 0.5]])}
+  ${lg('soft', 0, 0, 2400, 0, [[0, '7FC0FF', 0.4], [0.5, '5AA0FF', 0.45], [1, 'A8DDFF', 0.3]])}
+  ${lg('deep2', 1150, 0, 2460, 0, [[0, '0A2FB8', 0.9], [0.55, '2F86FF', 0.9], [1, '9FDBFF', 0.7]])}
+  ${lg('iris', sx0, sy0, sx1, sy1, IRIS)}
+  ${lg('band', 0, 1500, 1500, 800, [[0, '1E3FE0', 0.55], [0.5, '6A5CFF', 0.3], [1, 'FFFFFF', 0]])}
+  ${lg('rib', 150, 1480, 1650, 820, [[0, '0A2FB8', 0.95], [0.35, '1F5FE8', 0.9], [0.6, '6C5CFF', 0.6], [0.85, 'B98CFF', 0.25], [1, 'FFFFFF', 0]])}
+  </defs>
+  <rect width="2400" height="1350" fill="#FFFFFF"/>
+  <rect width="2400" height="1350" fill="url(#hz1)"/><rect width="2400" height="1350" fill="url(#hz2)"/>
+  <path d="M -60,80 C 700,220 1450,80 2460,-200 L 2460,50 C 1450,320 700,440 -60,360 Z" fill="url(#soft)" filter="url(#b40)"/>
+  <path d="M -60,20 C 700,140 1450,20 2460,-230 L 2460,-190 C 1450,70 700,195 -60,70 Z" fill="#8ED8FF" fill-opacity="0.55" filter="url(#b6)"/>
+  <path d="M 300,-20 C 700,30 1100,30 1500,-30 L 1500,-8 C 1100,58 700,60 300,8 Z" fill="#1D5CF0" fill-opacity="0.45" filter="url(#b2)"/>
+  <path d="M -60,165 C 700,290 1450,165 2460,-110 L 2460,-55 C 1450,225 700,365 -60,250 Z" fill="url(#deep)" filter="url(#b2)"/>
+  <path d="M -60,182 C 700,305 1450,178 2460,-98" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="4" fill="none" filter="url(#b2)"/>
+  <path d="${streakPath(-20, 1640, 1560, 900, 130, 60)}" fill="url(#band)" filter="url(#b30)"/>
+  <path d="${streakPath(150, 1590, 1700, 890, 70, 30)}" fill="url(#rib)" fill-opacity="0.35" filter="url(#b18)"/>
+  <path d="${streakPath(150, 1590, 1700, 890, 38, 14)}" fill="url(#rib)" filter="url(#b4)"/>
+  <path d="${streakPath(150, 1566, 1700, 880, 3, 1)}" fill="#FFFFFF" fill-opacity="0.5" filter="url(#b2)"/>
+  <path d="${streakPath(sx0, sy0, sx1, sy1, 120, 45)}" fill="url(#iris)" fill-opacity="0.32" filter="url(#b40)"/>
+  <path d="${streakPath(sx0, sy0, sx1, sy1, 34, 8)}" fill="url(#iris)" filter="url(#b6)"/>
+  <path d="${streakPath(sx0, sy0, sx1, sy1, 5, 1.5)}" fill="#FFFFFF" fill-opacity="0.55" filter="url(#b2)"/>
+  <path d="M 1100,1400 C 1600,1180 2000,1120 2460,1150 L 2460,1300 C 2000,1250 1600,1300 1150,1420 Z" fill="#6FB6FF" fill-opacity="0.25" filter="url(#b18)"/>
+  <path d="M 1000,1400 C 1500,1240 1950,1200 2460,1260 L 2460,1400 Z" fill="#CFEAFF" fill-opacity="0.7" filter="url(#b6)"/>
+  <path d="M 1150,1370 C 1550,1210 1950,1150 2460,1190 L 2460,1240 C 1950,1215 1600,1265 1250,1380 Z" fill="url(#deep2)" filter="url(#b2)"/>
+  <path d="M 1300,1360 C 1700,1230 2050,1200 2460,1215 L 2460,1232 C 2050,1222 1700,1255 1320,1375 Z" fill="#7FD0FF" fill-opacity="0.7" filter="url(#b2)"/>
+  </svg>`;
+}
+function svgContent() { // 本文：右上に波、左下に虹色の光（文字の場所は白いまま）
+  const sx0 = -60, sy0 = 1318, sx1 = 1750, sy1 = 1262;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1350" viewBox="0 0 2400 1350"><defs>${BLUR}
+  <radialGradient id="hz" cx="1" cy="0" r="0.45"><stop offset="0" stop-color="#D6ECFF" stop-opacity="0.6"/><stop offset="1" stop-color="#D6ECFF" stop-opacity="0"/></radialGradient>
+  ${lg('deep', 1460, 0, 2460, 0, [[0, '1447E6', 0], [0.35, '1447E6', 0.85], [1, '0A2FB8', 0.95]])}
+  ${lg('bl', -60, 0, 1950, 0, [[0, '1447E6', 0.45], [0.55, '9FDBFF', 0.3], [1, 'FFFFFF', 0]])}
+  ${lg('iris', sx0, sy0, sx1, sy1, [[0, '2A4BFF', 0.9], [0.35, '7B3FF2', 0.9], [0.6, 'E070E0', 0.7], [0.8, 'FFB3C8', 0.4], [1, 'FFFFFF', 0]])}
+  </defs>
+  <rect width="2400" height="1350" fill="#FFFFFF"/><rect width="2400" height="1350" fill="url(#hz)"/>
+  <path d="M 1350,-80 C 1800,20 2120,110 2460,280 L 2460,110 C 2120,0 1800,-60 1350,-120 Z" fill="#7FC0FF" fill-opacity="0.35" filter="url(#b18)"/>
+  <path d="M 1250,-40 C 1750,40 2100,120 2460,320 L 2460,355 C 2100,160 1750,75 1230,-15 Z" fill="#9FDBFF" fill-opacity="0.6" filter="url(#b4)"/>
+  <path d="M 1480,-30 C 1880,15 2160,80 2460,200 L 2460,250 C 2160,120 1880,50 1460,-8 Z" fill="url(#deep)" filter="url(#b2)"/>
+  <path d="M 1500,-22 C 1890,22 2165,88 2460,208" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="3" fill="none" filter="url(#b2)"/>
+  <path d="M 1700,-20 C 2000,0 2250,40 2460,90 L 2460,105 C 2250,55 2000,18 1690,-8 Z" fill="#8ED8FF" fill-opacity="0.7" filter="url(#b2)"/>
+  <path d="M -60,1290 C 500,1250 1200,1270 1950,1370 L -60,1370 Z" fill="url(#bl)" filter="url(#b6)"/>
+  <path d="${streakPath(sx0, sy0, sx1, sy1, 30, 10)}" fill="url(#iris)" fill-opacity="0.35" filter="url(#b12)"/>
+  <path d="${streakPath(sx0, sy0, sx1, sy1, 7, 2)}" fill="url(#iris)" filter="url(#b2)"/>
+  </svg>`;
+}
+function svgOrb([light, dark]) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#${light}"/><stop offset="1" stop-color="#${dark}"/></linearGradient>
+  <radialGradient id="h" cx="0.3" cy="0.25" r="0.5"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.4"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="128" cy="128" r="126" fill="url(#g)"/><circle cx="128" cy="128" r="126" fill="url(#h)"/></svg>`;
+}
+async function makeAssets(dir) {
+  const fs = require('fs'); fs.mkdirSync(dir, { recursive: true });
+  ASSET.bgTitle = path.join(dir, 'wave_title.jpg'); ASSET.bgContent = path.join(dir, 'wave_content.jpg');
+  await sharp(Buffer.from(svgTitle())).jpeg({ quality: 90 }).toFile(ASSET.bgTitle);
+  await sharp(Buffer.from(svgContent())).jpeg({ quality: 90 }).toFile(ASSET.bgContent);
+  ASSET.orb = [];
+  for (let i = 0; i < EORB.length; i++) {
+    const f = path.join(dir, `orb_${i}.png`); await sharp(Buffer.from(svgOrb(EORB[i]))).png().toFile(f); ASSET.orb.push(f);
+  }
+  ASSET.axis = path.join(dir, 'axis.png');
+  await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="12"><defs>${lg('a', 0, 0, 2400, 0, [[0, '1F5FD6', 0.9], [0.55, '6A3FC9', 0.8], [0.85, 'E070E0', 0.55], [1, 'FFB3C8', 0.15]])}</defs><rect width="2400" height="12" rx="6" fill="url(#a)"/></svg>`)).png().toFile(ASSET.axis);
+}
+
+const E = Object.assign(Object.create(baseTheme), {
+  id: 'E', file: '候補E_ブルーウェーブ', name: '候補E　ブルーウェーブ',
+  desc: '参考画像をもとに、白地に流れる青い波と虹色の光。透明感のある上品な印象',
+  contentMaster: 'WAVE_CONTENT',
+  defineMasters(pres) {
+    pres.defineSlideMaster({ title: 'WAVE_TITLE', background: { path: ASSET.bgTitle }, objects: [] });
+    pres.defineSlideMaster({ title: 'WAVE_CONTENT', background: { path: ASSET.bgContent }, objects: [] });
+  },
+  c(i) { return EC[i]; },
+  d(i) { return ED[i]; },
+  mark(i) { return EC[i]; },
+  acc() { return EDEEP; },
+  chevColor() { return 'B9CCF2'; },
+  barHL() { return '1F5FD6'; },
+  lineColor() { return '1F5FD6'; },
+  card(s, k, x, y, w, h) {
+    k.rrect(s, x, y, w, h, 'F4F8FF', 0.16, { shadow: { type: 'outer', color: '1F4FB0', opacity: 0.14, blur: 10, offset: 3, angle: 90 } });
+  },
+  axis(s, k, x, y, w) { s.addImage({ path: ASSET.axis, x, y: y - 0.03, w, h: 0.06 }); },
+  node(s, k, x, cy, i) { k.oval(s, x - 0.04, cy - 0.22, 0.44, WHITE); s.addImage({ path: ASSET.orb[i], x, y: cy - 0.18, w: 0.36, h: 0.36 }); },
+  badge(s, k, x, y, d, text, i) {
+    s.addImage({ path: ASSET.orb[i], x, y, w: d, h: d });
+    k.tx(s, text, { x, y, w: d, h: d, fontSize: Math.round(d * 30), bold: true, color: WHITE, align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  iconBadge(s, k, x, y, d, name, i) {
+    s.addImage({ path: ASSET.orb[i], x, y, w: d, h: d });
+    const p = d * 0.24; k.icon(s, name, x + p, y + p, d - 2 * p, WHITE);
+  },
+  pill(s, k, x, y, w, h, text, i) {
+    k.rrect(s, x, y, w, h, WHITE, h / 2, { line: { color: EC[i], width: 1.5 } });
+    k.tx(s, text, { x, y, w, h, fontSize: 15, color: ETEXT, align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  take(s, k, text, y, ctx, o = {}) {
+    const x = o.x ?? M, w = o.w ?? CW, h = o.h ?? 0.6, fs = o.fontSize ?? 20;
+    if (o.boxed) {
+      k.rrect(s, x, y, w, h, 'EAF0FE', 0.16);
+      s.addImage({ path: ASSET.orb[5], x: x + 0.35, y: y + (h - 0.24) / 2, w: 0.24, h: 0.24 });
+      k.tx(s, text, { x: x + 0.78, y, w: w - 1.1, h, fontSize: fs, bold: true, color: EDEEP, valign: 'middle' });
+      return;
+    }
+    const mark = o.bullet !== false;
+    if (mark) s.addImage({ path: ASSET.orb[5], x, y: y + (h - 0.24) / 2, w: 0.24, h: 0.24 });
+    const off = mark ? 0.42 : 0;
+    k.tx(s, text, { x: x + off, y, w: w - off, h, fontSize: fs, bold: true, color: EDEEP, valign: 'middle', lh: o.lh });
+  },
+  base(s, k, ctx, title, n) {
+    k.tx(s, ctx.tag, { x: M, y: 0.46, w: 6, h: 0.3, fontSize: 12, bold: true, color: ELABEL, charSpacing: 4, valign: 'middle', lh: 1.0 });
+    k.tx(s, title, { x: M, y: 0.8, w: 10.2, h: 0.65, fontSize: 30, bold: true, color: EDEEP });
+    k.tx(s, String(n), { x: W - M - 0.6, y: 6.98, w: 0.6, h: 0.3, fontSize: 11, bold: true, color: ELABEL, align: 'right', lh: 1.0 });
+  },
+  titleSlide(pres, k) {
+    const s = pres.addSlide({ masterName: 'WAVE_TITLE' });
+    k.tx(s, 'CROSS-BORDER CAREER PATH', { x: 0.73, y: 2.08, w: 7, h: 0.32, fontSize: 13, bold: true, color: ELABEL, charSpacing: 5, valign: 'middle', lh: 1.0 });
+    k.tx(s, 'クロスボーダーキャリアパス　候補生発表', { x: 0.73, y: 2.42, w: 7.5, h: 0.36, fontSize: 15, color: ETEXT, valign: 'middle', lh: 1.1 });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 0.73, y: 2.85, w: 7.4, h: 1.7, fontSize: 46, bold: true, color: EDEEP, lh: 1.22 });
+    k.tx(s, 'その始まりを、\n　愛媛から。', { x: 9.4, y: 4.3, w: W - M - 9.4, h: 1.0, fontSize: 24, color: EDEEP, lh: 1.45 });
+    k.tx(s, '放課後等デイサービス\n管理者 兼 エリアマネージャー\n夢門塾ゆうゆう西条', { x: 9.4, y: 5.42, w: W - M - 9.4, h: 0.8, fontSize: 12, color: ETEXT, lh: 1.45 });
+    return s;
+  },
+  closing(pres, k) {
+    const s = pres.addSlide({ masterName: 'WAVE_TITLE' });
+    k.tx(s, 'CROSS-BORDER CAREER PATH', { x: 0.73, y: 2.08, w: 7, h: 0.32, fontSize: 13, bold: true, color: ELABEL, charSpacing: 5, valign: 'middle', lh: 1.0 });
+    k.tx(s, 'その始まりを、愛媛で実践する人材に。', { x: 0.73, y: 2.42, w: 7.5, h: 0.36, fontSize: 16, color: ETEXT, valign: 'middle', lh: 1.1 });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 0.73, y: 2.85, w: 7.4, h: 1.7, fontSize: 46, bold: true, color: EDEEP, lh: 1.22 });
+    k.tx(s, 'ご清聴\n　ありがとうございました', { x: 9.4, y: 4.3, w: W - M - 9.4, h: 1.0, fontSize: 19, color: EDEEP, lh: 1.5 });
+    return s;
+  },
+});
+
 // ---------------- 本文スライド（全候補共通のレイアウト） ----------------
 function buildDeck(T) {
   const pres = new pptxgen();
   pres.layout = 'LAYOUT_WIDE';
   pres.title = '全国にトータルサポートを。';
   const k = makeKit(pres);
-  const add = (ctx, title, n) => { const s = pres.addSlide(); T.base(s, k, ctx, title, n); return s; };
+  if (T.defineMasters) T.defineMasters(pres);
+  const add = (ctx, title, n) => {
+    const s = T.contentMaster ? pres.addSlide({ masterName: T.contentMaster }) : pres.addSlide();
+    T.base(s, k, ctx, title, n); return s;
+  };
 
   // 1. 表紙
   T.titleSlide(pres, k).addNotes(NOTES[0]);
@@ -355,7 +516,7 @@ function buildDeck(T) {
       ['異動', '2026.9.1', '愛媛県西条市\n夢門塾ゆうゆう西条', '管理者 兼 エリアマネージャー\nとして愛媛エリアを担う', 5],
     ];
     const cw = 3.8, gap = (CW - 3 * cw) / 2, ly = 3.25;
-    k.hline(s, M, ly, CW, LINE, 2);
+    if (T.axis) T.axis(s, k, M, ly, CW); else k.hline(s, M, ly, CW, LINE, 2);
     items.forEach(([lab, d, place, desc, ci], i) => {
       const x = M + i * (cw + gap);
       k.tx(s, lab, { x, y: 1.95, w: cw, h: 0.32, fontSize: 13, color: SUB });
@@ -538,12 +699,15 @@ function buildDeck(T) {
   return pres;
 }
 
-module.exports = { NOTES, SLIDE_TITLES, THEMES: [A, B, C, D] };
+module.exports = { NOTES, SLIDE_TITLES, THEMES: [A, B, C, D, E] };
 
+// 使い方: node build_candidates.js [出力フォルダ] [候補ID（例: E または A,B）]
 if (require.main === module) {
   (async () => {
     await loadIcons();
-    for (const T of [A, B, C, D]) {
+    await makeAssets(path.join(__dirname, 'assets'));
+    const ids = (process.argv[3] || 'A,B,C,D,E').split(',');
+    for (const T of [A, B, C, D, E].filter(t => ids.includes(t.id))) {
       const f = await buildDeck(T).writeFile({ fileName: path.join(OUT, T.file + '.pptx') });
       console.log(f);
     }

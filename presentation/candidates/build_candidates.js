@@ -1,0 +1,551 @@
+// クロスボーダーキャリアパス発表資料：見た目の候補（A〜D）を同じ内容で生成する
+// 使い方: node build_candidates.js [出力フォルダ]
+const pptxgen = require('pptxgenjs');
+const React = require('react');
+const RDS = require('react-dom/server');
+const sharp = require('sharp');
+const fa = require('react-icons/fa');
+const path = require('path');
+
+const OUT = process.argv[2] || __dirname;
+const F = 'Meiryo UI';
+const W = 13.333, H = 7.5, M = 0.6, CW = W - 2 * M;
+const INK = '2E3440', SUB = '5B6472', MUTED = '8A93A3', LINE = 'D5DAE3', CARD = 'F3F5F9', NAVY = '1F2A44', WHITE = 'FFFFFF';
+// 虹の7色（図形用）と、白地の文字に使える濃い色（コントラスト4.4以上）
+const RB = ['E8505B', 'F39C33', 'F2C230', '5DBB63', '3FA7D6', '4A6FC7', '9A6BC4'];
+const DEEP = ['C73B4A', 'A85800', '8F6E00', '2F7F3A', '1D72A3', '3A5BB8', '7A4DAE'];
+
+// B型シミュレーション（標準シナリオ）の資金残高（万円）：開設前〜36か月目
+const CASH = [-900, -1056, -1214, -1290, -1348, -1389, -1412, -1432, -1435, -1420, -1403, -1369, -1316, -1242, -1152, -1061, -971, -880, -790, -699, -609, -518, -428, -337, -247, -158, -69, 33, 135, 237, 339, 441, 542, 644, 746, 848, 950];
+
+function mix(hex, a) { // 白と混ぜた淡い色（a=色の割合）
+  const c = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
+  return c.map(v => Math.round(255 - (255 - v) * a).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+function lum(hex) {
+  const f = c => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const [r, g, b] = [0, 2, 4].map(i => f(parseInt(hex.slice(i, i + 2), 16) / 255));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function contrast(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+const onColor = hex => (contrast(WHITE, hex) >= 3 ? WHITE : INK);
+
+// ---------------- 発表原稿（全候補共通・約5分） ----------------
+const NOTES = [
+  '本日は「全国にトータルサポートを。」というテーマで、クロスボーダーキャリアパスの候補生として、これから取り組みたいことをお話しします。',
+  '2019年に奈良津1組で入社し、放課後等デイサービスの現場を経験しました。2024年に愛媛県今治市の日吉へ、2026年9月からは西条へ異動し、管理者兼エリアマネージャーとして愛媛エリアを担っています。',
+  '一つ目のきっかけは保護者の声です。異動先ではさまざまな困難もありましたが、愛媛の地にもキャレオス、夢門塾はあり、利用者の居場所として確立していました。そんな中、高校生になる利用者の保護者から「ゆうゆうを卒業したあとがとても不安」「愛媛にキャレオスの就労があったらとっても安心する」という言葉をいただきました。嬉しい一方で、胸の痛む言葉でした。',
+  '二つ目は、サービス支給量の決定基準の制定です。支給日数の上限が手帳や個別サポートの有無で決まるようになり、「お留守番ができるのか」「行き場が見つからない」「放デイ利用中を理由に児童クラブを断られた」といった不安の声が聞かれました。キャレオスには放課後児童クラブの委託事業があり、愛媛でも受け皿になれるのではと考えました。',
+  '三つ目は、愛媛でナンバーワンになるためです。愛媛には、児童から就労、介護まで多数展開する法人があります。総量規制や人口減少の中で選ばれ続けるには、同等以上のトータルサポートを、地域に根差して提供する必要があります。',
+  'クロスボーダーで関わりたいのは、第三管理部の事業開発課・地域共創係と、マーケティング課・トータルサポート推進係です。地域共創係では新規事業の立ち上げ方と、自治体・地域企業・学校と関係を築く動き方を。推進係では、トータルサポートの全体像と事業部のつなぎ方、放デイから就労へ切れ目なくつなぐ導線づくりを学びたいと考えています。',
+  '具体的な第一歩は、愛媛での就労継続支援B型です。B型の平均工賃は全国で約2万4千円、愛媛で約2万3千円。作業の主流は企業からの軽作業で、3分の2の事業所が取り組んでいます。立ち上げ期は軽作業で仕事を確保し、施設外就労や自主製品で工賃を上げる。放デイ卒業生に合わせ、ITや接客など一般就労につながる作業も用意します。',
+  '西条市で定員20名の事業所を開設した場合の試算です。標準シナリオでは1日18人の利用で、6か月目に単月黒字、27か月目に初期投資を回収し、3年目の営業利益は約1,140万円です。黒字ラインは1日11人前後。放デイ卒業生の受け皿になれるかが集客の土台です。工賃が愛媛平均に届けば、さらに年間約100万円上乗せできます。',
+  'ここからは、まだ妄想の域を出ない仮構想です。まず愛媛で、B型を第一歩に、放デイ・児童クラブ・就労をつなぐトータルサポートの形をつくります。次に四国支社として四国全域へ。インドネシアの特定技能などの人材も含めて考えています。そして関西支社、中部支社と、全国へ。まだキャレオスにいない人材、ポジションだからこそ、確立させることに価値があると考えています。',
+  '全国にトータルサポートを届ける。その始まりを、愛媛で実践する人材になります。ご清聴ありがとうございました。',
+];
+const SLIDE_TITLES = ['表紙', 'これまでの歩み', 'きっかけ① 保護者の声', 'きっかけ② サービス支給量の決定基準の制定', 'きっかけ③ 愛媛でナンバーワンになるために',
+  'クロスボーダーで関わりたい部署', 'まずは、愛媛に就労継続支援B型を', 'B型を開設した場合の試算', '描く未来 ― 愛媛から全国へ（仮構想）', '結び'];
+
+// ---------------- アイコン（白と濃紺の2色を用意） ----------------
+const ICON_NAMES = ['FaHandshake', 'FaRoute', 'FaBoxOpen', 'FaSeedling', 'FaLaptop', 'FaMapMarkedAlt', 'FaBuilding', 'FaFlag'];
+const ICONS = {};
+async function loadIcons() {
+  for (const n of ICON_NAMES) {
+    ICONS[n] = {};
+    for (const [k, col] of [['w', '#FFFFFF'], ['k', '#' + INK]]) {
+      const svg = RDS.renderToStaticMarkup(React.createElement(fa[n], { color: col, size: 256 }));
+      const buf = await sharp(Buffer.from(svg)).resize(256, 256).png().toBuffer();
+      ICONS[n][k] = 'image/png;base64,' + buf.toString('base64');
+    }
+  }
+}
+
+// ---------------- 部品 ----------------
+function makeKit(pres) {
+  const SH = pres.shapes;
+  const k = {
+    tx(s, text, o) {
+      const fs = o.fontSize || 14, lh = o.lh || 1.3;
+      const opts = Object.assign({ fontFace: F, color: INK, margin: 0, isTextBox: true, valign: 'top', lineSpacing: Math.round(fs * lh * 10) / 10 }, o);
+      delete opts.lh;
+      s.addText(text, opts);
+    },
+    oval(s, x, y, d, fill, o = {}) { s.addShape(SH.OVAL, Object.assign({ x, y, w: d, h: d, fill: { color: fill }, line: { color: fill, width: 0.5 } }, o)); },
+    ring(s, x, y, d, color, width) { s.addShape(SH.OVAL, { x, y, w: d, h: d, fill: { color: WHITE, transparency: 100 }, line: { color, width } }); },
+    rrect(s, x, y, w, h, fill, r = 0.14, o = {}) { s.addShape(SH.ROUNDED_RECTANGLE, Object.assign({ x, y, w, h, rectRadius: r, fill: { color: fill }, line: { color: fill, width: 0.5 } }, o)); },
+    rect(s, x, y, w, h, fill, o = {}) { s.addShape(SH.RECTANGLE, Object.assign({ x, y, w, h, fill: { color: fill }, line: { color: fill, width: 0.5 } }, o)); },
+    hline(s, x, y, w, color, width) { s.addShape(SH.LINE, { x, y, w, h: 0, line: { color, width } }); },
+    chev(s, x, y, w, h, color) { s.addShape(SH.CHEVRON, { x, y, w, h, fill: { color }, line: { color, width: 0.5 } }); },
+    arc(s, cx, cy, r, color, range, thick) {
+      s.addShape(SH.BLOCK_ARC, { x: cx - r, y: cy - r, w: r * 2, h: r * 2, fill: { color }, line: { color, width: 0.5 }, angleRange: range, arcThicknessRatio: thick / r });
+    },
+    icon(s, name, x, y, d, onHex) { s.addImage({ data: ICONS[name][onHex === WHITE ? 'w' : 'k'], x, y, w: d, h: d }); },
+    dots(s, x, y, d = 0.13, gap = 0.08) { RB.forEach((c, i) => k.oval(s, x + i * (d + gap), y, d, c)); },
+  };
+  return k;
+}
+
+// ---------------- テーマ共通の既定動作 ----------------
+const baseTheme = {
+  c(i) { return RB[i]; },            // 図形の色
+  d(i) { return DEEP[i]; },          // 文字の強調色
+  mark(i) { return RB[i]; },         // 小さな目印の色
+  acc() { return DEEP[5]; },         // 結論文の色
+  chevColor() { return 'C9CFDA'; },
+  barHL() { return RB[5]; },
+  lineColor() { return RB[5]; },
+  pageNum(s, k, n) { k.tx(s, String(n), { x: W - M - 0.6, y: 6.98, w: 0.6, h: 0.3, fontSize: 11, color: SUB, align: 'right' }); },
+  card(s, k, x, y, w, h) { k.rrect(s, x, y, w, h, CARD, 0.14); },
+  node(s, k, x, cy, i, ctx) { k.oval(s, x, cy - 0.18, 0.36, this.mark(i, ctx), { line: { color: WHITE, width: 3 } }); },
+  badge(s, k, x, y, d, text, i, ctx) {
+    const c = this.c(i, ctx); k.oval(s, x, y, d, c);
+    k.tx(s, text, { x, y, w: d, h: d, fontSize: Math.round(d * 30), bold: true, color: onColor(c), align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  iconBadge(s, k, x, y, d, name, i, ctx) {
+    const c = this.c(i, ctx); k.oval(s, x, y, d, c);
+    const p = d * 0.24; k.icon(s, name, x + p, y + p, d - 2 * p, onColor(c));
+  },
+  label(s, k, x, y, w, h, text, i, ctx) { // 小さなラベル（知識・動き方・STEP）
+    const c = this.d(i, ctx); k.rrect(s, x, y, w, h, c, h / 2);
+    k.tx(s, text, { x, y, w, h, fontSize: 13, bold: true, color: WHITE, align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  pill(s, k, x, y, w, h, text, i, ctx) {
+    k.rrect(s, x, y, w, h, WHITE, h / 2, { line: { color: this.c(i, ctx), width: 1.75 } });
+    k.tx(s, text, { x, y, w, h, fontSize: 15, align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  stat(s, k, x, y, w, h, value, label, i, ctx) {
+    this.card(s, k, x, y, w, h, i, ctx);
+    k.tx(s, value, { x: x + 0.1, y: y + h * 0.16, w: w - 0.2, h: 0.62, fontSize: value.length >= 7 ? 24 : 28, bold: true, color: this.d(i, ctx), align: 'center', valign: 'middle', lh: 1.0 });
+    k.tx(s, label, { x: x + 0.15, y: y + h * 0.16 + 0.72, w: w - 0.3, h: h * 0.84 - 0.8, fontSize: 12, color: SUB, align: 'center', lh: 1.3 });
+  },
+  take(s, k, text, y, ctx, o = {}) {
+    const x = o.x ?? M, w = o.w ?? CW, h = o.h ?? 0.6, fs = o.fontSize ?? 20;
+    if (o.boxed) {
+      k.rrect(s, x, y, w, h, mix(RB[5], 0.1), 0.14);
+      k.tx(s, text, { x: x + 0.35, y, w: w - 0.7, h, fontSize: fs, bold: true, color: this.acc(ctx), valign: 'middle' });
+    } else {
+      k.tx(s, text, { x, y, w, h, fontSize: fs, bold: true, color: this.acc(ctx), valign: 'middle', lh: o.lh });
+    }
+  },
+};
+
+// ================= 候補A：レインボーアーチ =================
+const A = Object.assign(Object.create(baseTheme), {
+  id: 'A', file: '候補A_レインボーアーチ', name: '候補A　レインボーアーチ',
+  desc: '白地に虹のアーチ。やさしく明るい印象（前回デザインの改良版）',
+  base(s, k, ctx, title, n) {
+    s.background = { color: WHITE };
+    k.dots(s, M, 0.5);
+    k.tx(s, title, { x: M, y: 0.74, w: 11.4, h: 0.7, fontSize: 30, bold: true });
+    this.pageNum(s, k, n);
+  },
+  titleSlide(pres, k) {
+    const s = pres.addSlide(); s.background = { color: WHITE };
+    RB.forEach((c, i) => k.arc(s, W - 1.2, H + 0.7, 5.0 - i * 0.46, c, [180, 270], 0.3));
+    k.dots(s, 0.9, 1.72);
+    k.tx(s, 'クロスボーダーキャリアパス　候補生発表', { x: 0.9, y: 2.0, w: 7.5, h: 0.4, fontSize: 16, color: SUB });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 0.9, y: 2.5, w: 7.8, h: 1.8, fontSize: 48, bold: true, lh: 1.25 });
+    k.tx(s, 'その始まりを、愛媛から。', { x: 0.9, y: 4.45, w: 7, h: 0.5, fontSize: 22, bold: true, color: DEEP[5] });
+    k.tx(s, '放課後等デイサービス　管理者 兼 エリアマネージャー\n夢門塾ゆうゆう西条', { x: 0.9, y: 5.3, w: 7, h: 0.8, fontSize: 14, color: SUB, lh: 1.5 });
+    return s;
+  },
+  closing(pres, k) {
+    const s = pres.addSlide(); s.background = { color: WHITE };
+    RB.forEach((c, i) => k.arc(s, -0.2, -0.2, 4.4 - i * 0.42, c, [0, 90], 0.28));
+    k.tx(s, 'その始まりを、愛媛で実践する人材に。', { x: 3.5, y: 2.5, w: 9.23, h: 0.5, fontSize: 20, color: SUB, align: 'right' });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 3.5, y: 3.15, w: 9.23, h: 1.8, fontSize: 48, bold: true, align: 'right', lh: 1.25 });
+    k.dots(s, W - M - (7 * 0.13 + 6 * 0.08), 5.25);
+    k.tx(s, 'ご清聴ありがとうございました', { x: 3.5, y: 5.6, w: 9.23, h: 0.4, fontSize: 15, color: SUB, align: 'right' });
+    return s;
+  },
+});
+
+// ================= 候補B：レインボー・ジャーニー =================
+const B = Object.assign(Object.create(baseTheme), {
+  id: 'B', file: '候補B_レインボージャーニー', name: '候補B　レインボー・ジャーニー',
+  desc: 'スライドが進むごとに虹の色が進み、最後に虹が完成する構成',
+  ki(i, ctx) { return ctx && ctx.key !== 'all' ? ctx.key : i; },
+  c(i, ctx) { return RB[this.ki(i, ctx)]; },
+  d(i, ctx) { return DEEP[this.ki(i, ctx)]; },
+  mark(i, ctx) { return RB[this.ki(i, ctx)]; },
+  acc(ctx) { return ctx.key === 'all' ? DEEP[5] : ctx.key === 2 ? INK : DEEP[ctx.key]; },
+  chevColor(ctx) { return mix(RB[ctx.key === 'all' ? 5 : ctx.key], 0.45); },
+  barHL(ctx) { return RB[ctx.key]; },
+  lineColor(ctx) { return RB[ctx.key]; },
+  card(s, k, x, y, w, h, i, ctx) { k.rrect(s, x, y, w, h, mix(RB[this.ki(i, ctx)], 0.12), 0.14); },
+  base(s, k, ctx, title, n) {
+    s.background = { color: WHITE };
+    const d = 0.95, x = M, y = 0.42;
+    if (ctx.key === 'all') { // 最後は虹が完成した円
+      RB.forEach((c, j) => { const dd = d - j * 0.065; k.oval(s, x + (d - dd) / 2, y + (d - dd) / 2, dd, c); });
+      k.oval(s, x + 0.2, y + 0.2, d - 0.4, WHITE);
+      k.tx(s, String(ctx.no).padStart(2, '0'), { x, y, w: d, h: d, fontSize: 15, bold: true, color: INK, align: 'center', valign: 'middle', lh: 1.0 });
+    } else {
+      k.oval(s, x, y, d, RB[ctx.key]);
+      k.tx(s, String(ctx.no).padStart(2, '0'), { x, y, w: d, h: d, fontSize: 22, bold: true, color: onColor(RB[ctx.key]), align: 'center', valign: 'middle', lh: 1.0 });
+    }
+    k.tx(s, title, { x: M + 1.2, y: 0.42, w: 10.9, h: 0.95, fontSize: 30, bold: true, valign: 'middle' });
+    const dd = 0.15, gap = 0.09;
+    RB.forEach((c, j) => {
+      const done = ctx.key === 'all' || j <= ctx.key;
+      if (done) k.oval(s, M + j * (dd + gap), 7.05, dd, c); else k.ring(s, M + j * (dd + gap), 7.05, dd, LINE, 1.25);
+    });
+    this.pageNum(s, k, n);
+  },
+  take(s, k, text, y, ctx, o = {}) {
+    if (o.boxed) return baseTheme.take.call(this, s, k, text, y, ctx, o);
+    const x = o.x ?? M, w = o.w ?? CW, h = o.h ?? 0.6, fs = o.fontSize ?? 20;
+    const c = ctx.key === 'all' ? RB[5] : RB[ctx.key];
+    if (o.bullet !== false) k.oval(s, x, y + (h - 0.2) / 2, 0.2, c);
+    const off = o.bullet !== false ? 0.38 : 0;
+    k.tx(s, text, { x: x + off, y, w: w - off, h, fontSize: fs, bold: true, color: this.acc(ctx), valign: 'middle', lh: o.lh });
+  },
+  titleSlide(pres, k) {
+    const s = pres.addSlide(); s.background = { color: WHITE };
+    let x = 0.9;
+    RB.forEach((c, i) => {
+      const d = 0.85 + i * 0.28;
+      k.oval(s, x, 6.95 - d, d, c, { line: { color: WHITE, width: 2.5 } });
+      if (i === 0) k.tx(s, '愛媛', { x, y: 6.95 - d, w: d, h: d, fontSize: 13, bold: true, color: WHITE, align: 'center', valign: 'middle', lh: 1.0 });
+      if (i === 6) k.tx(s, '全国', { x, y: 6.95 - d, w: d, h: d, fontSize: 24, bold: true, color: WHITE, align: 'center', valign: 'middle', lh: 1.0 });
+      x += d * 0.8;
+    });
+    k.tx(s, 'クロスボーダーキャリアパス　候補生発表', { x: 0.9, y: 0.95, w: 8, h: 0.4, fontSize: 16, color: SUB });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 0.9, y: 1.4, w: 9, h: 1.8, fontSize: 48, bold: true, lh: 1.25 });
+    k.tx(s, 'その始まりを、愛媛から。', { x: 0.9, y: 3.3, w: 8, h: 0.5, fontSize: 22, bold: true, color: DEEP[5] });
+    k.tx(s, '放課後等デイサービス　管理者 兼 エリアマネージャー\n夢門塾ゆうゆう西条', { x: 0.9, y: 3.95, w: 7, h: 0.8, fontSize: 14, color: SUB, lh: 1.5 });
+    return s;
+  },
+  closing(pres, k) {
+    const s = pres.addSlide(); s.background = { color: WHITE };
+    const cx = W / 2, cy = 4.25, R = 3.1, d = 0.95;
+    RB.forEach((c, j) => {
+      const th = (180 - j * 30) * Math.PI / 180;
+      k.oval(s, cx + R * Math.cos(th) - d / 2, cy - R * Math.sin(th) - d / 2, d, c);
+    });
+    k.tx(s, 'その始まりを、愛媛で実践する人材に。', { x: cx - 2.4, y: 3.3, w: 4.8, h: 0.45, fontSize: 16, color: SUB, align: 'center' });
+    k.tx(s, '全国にトータルサポートを。', { x: 1.2, y: 4.95, w: W - 2.4, h: 0.8, fontSize: 44, bold: true, align: 'center', valign: 'middle', lh: 1.2 });
+    k.tx(s, 'ご清聴ありがとうございました', { x: 1.2, y: 5.95, w: W - 2.4, h: 0.4, fontSize: 15, color: SUB, align: 'center' });
+    return s;
+  },
+});
+
+// ================= 候補C：エグゼクティブ（紺×虹） =================
+const C = Object.assign(Object.create(baseTheme), {
+  id: 'C', file: '候補C_エグゼクティブ', name: '候補C　エグゼクティブ',
+  desc: '表紙と結びは紺。本文は白地に紺の文字で、役員会議向けの落ち着いた印象',
+  c() { return NAVY; },
+  d() { return NAVY; },
+  acc() { return NAVY; },
+  chevColor() { return 'B7C0CE'; },
+  barHL() { return NAVY; },
+  lineColor() { return NAVY; },
+  card(s, k, x, y, w, h) { k.rect(s, x, y, w, h, WHITE, { line: { color: 'D6DBE4', width: 1 } }); },
+  label(s, k, x, y, w, h, text) {
+    k.rect(s, x, y, w, h, NAVY);
+    k.tx(s, text, { x, y, w, h, fontSize: 13, bold: true, color: WHITE, align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  pill(s, k, x, y, w, h, text, i) {
+    k.rect(s, x, y, w, h, WHITE, { line: { color: 'B7C0CE', width: 1 } });
+    k.oval(s, x + 0.2, y + (h - 0.14) / 2, 0.14, RB[i]);
+    k.tx(s, text, { x: x + 0.42, y, w: w - 0.5, h, fontSize: 15, valign: 'middle', lh: 1.0 });
+  },
+  take(s, k, text, y, ctx, o = {}) {
+    const x = o.x ?? M, w = o.w ?? CW, h = o.h ?? 0.62, fs = o.fontSize ?? 18;
+    k.rect(s, x, y, w, h, NAVY);
+    k.tx(s, text, { x: x + 0.3, y, w: w - 0.6, h, fontSize: fs, bold: true, color: WHITE, valign: 'middle', lh: o.lh });
+  },
+  base(s, k, ctx, title, n) {
+    s.background = { color: WHITE };
+    k.rect(s, M, 0.54, 0.13, 0.13, RB[ctx.key === 'all' ? 5 : ctx.key]);
+    k.tx(s, ctx.tag, { x: M + 0.25, y: 0.46, w: 6, h: 0.3, fontSize: 11, bold: true, color: NAVY, charSpacing: 3, valign: 'middle', lh: 1.0 });
+    k.tx(s, title, { x: M, y: 0.82, w: 12, h: 0.62, fontSize: 28, bold: true, color: NAVY });
+    k.tx(s, '全国にトータルサポートを。｜クロスボーダーキャリアパス 候補生発表', { x: M, y: 7.0, w: 9, h: 0.25, fontSize: 9, color: MUTED, lh: 1.0 });
+    k.tx(s, String(n), { x: W - M - 0.6, y: 6.98, w: 0.6, h: 0.28, fontSize: 10, bold: true, color: NAVY, align: 'right', lh: 1.0 });
+  },
+  titleSlide(pres, k) {
+    const s = pres.addSlide(); s.background = { color: NAVY };
+    RB.forEach((c, i) => { const r = 3.6 - i * 0.48; k.ring(s, 11.4 - r, 3.75 - r, r * 2, c, 7); });
+    k.dots(s, 0.9, 1.6);
+    k.tx(s, 'クロスボーダーキャリアパス　候補生発表', { x: 0.9, y: 1.9, w: 7, h: 0.4, fontSize: 15, color: 'A9B4C8' });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 0.9, y: 2.35, w: 7.2, h: 1.8, fontSize: 46, bold: true, color: WHITE, lh: 1.25 });
+    k.tx(s, 'その始まりを、愛媛から。', { x: 0.9, y: 4.3, w: 7, h: 0.5, fontSize: 21, bold: true, color: RB[2] });
+    k.tx(s, '放課後等デイサービス　管理者 兼 エリアマネージャー\n夢門塾ゆうゆう西条', { x: 0.9, y: 5.2, w: 7, h: 0.8, fontSize: 13, color: 'A9B4C8', lh: 1.5 });
+    return s;
+  },
+  closing(pres, k) {
+    const s = pres.addSlide(); s.background = { color: NAVY };
+    RB.forEach((c, i) => { const r = 3.6 - i * 0.48; k.ring(s, 1.6 - r, 3.75 - r, r * 2, c, 7); });
+    k.tx(s, 'その始まりを、愛媛で実践する人材に。', { x: 5.8, y: 2.5, w: W - M - 5.8, h: 0.5, fontSize: 19, color: 'A9B4C8', align: 'right' });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 5.8, y: 3.1, w: W - M - 5.8, h: 1.8, fontSize: 46, bold: true, color: WHITE, align: 'right', lh: 1.25 });
+    k.tx(s, 'ご清聴ありがとうございました', { x: 5.8, y: 5.35, w: W - M - 5.8, h: 0.4, fontSize: 15, color: 'A9B4C8', align: 'right' });
+    return s;
+  },
+});
+
+// ================= 候補D：パステル =================
+const D = Object.assign(Object.create(baseTheme), {
+  id: 'D', file: '候補D_パステル', name: '候補D　パステル',
+  desc: '淡い虹色の丸をあしらった、やわらかく温かい印象',
+  barHL() { return RB[0]; },
+  lineColor() { return DEEP[4]; },
+  chevColor() { return mix(RB[5], 0.4); },
+  card(s, k, x, y, w, h, i) { k.rrect(s, x, y, w, h, mix(RB[i], 0.16), 0.3); },
+  pill(s, k, x, y, w, h, text, i) {
+    k.rrect(s, x, y, w, h, mix(RB[i], 0.32), h / 2);
+    k.tx(s, text, { x, y, w, h, fontSize: 15, align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  take(s, k, text, y, ctx, o = {}) {
+    const x = o.x ?? M, w = o.w ?? CW, h = o.h ?? 0.66, fs = o.fontSize ?? 19;
+    k.rrect(s, x, y, w, h, mix(RB[5], 0.14), Math.min(h / 2, 0.4));
+    k.tx(s, text, { x: x + 0.4, y, w: w - 0.8, h, fontSize: fs, bold: true, color: DEEP[5], valign: 'middle', lh: o.lh });
+  },
+  base(s, k, ctx, title, n) {
+    s.background = { color: WHITE };
+    const a = (n + 3) % 7, b = (n + 5) % 7, c = (n + 1) % 7;
+    k.oval(s, W - 1.55, -1.25, 2.6, mix(RB[a], 0.26));
+    k.oval(s, W - 2.85, 0.35, 1.15, mix(RB[b], 0.32));
+    k.oval(s, W - 3.35, 1.25, 0.32, RB[c]);
+    k.oval(s, 0.36, 0.5, 0.82, mix(RB[n % 7], 0.45));
+    k.tx(s, title, { x: M, y: 0.62, w: 9.3, h: 0.7, fontSize: 30, bold: true });
+    k.oval(s, W - M - 0.46, 6.88, 0.46, mix(RB[n % 7], 0.35));
+    k.tx(s, String(n), { x: W - M - 0.46, y: 6.88, w: 0.46, h: 0.46, fontSize: 12, bold: true, align: 'center', valign: 'middle', lh: 1.0 });
+  },
+  titleSlide(pres, k) {
+    const s = pres.addSlide(); s.background = { color: WHITE };
+    [[8.2, 0.7, 3.3, 4, 0.22], [10.6, 2.9, 2.9, 2, 0.3], [8.7, 4.3, 2.3, 0, 0.22], [11.3, 0.2, 1.6, 3, 0.28], [7.9, 3.75, 1.15, 6, 0.3]]
+      .forEach(([x, y, d, ci, a]) => k.oval(s, x, y, d, mix(RB[ci], a)));
+    [[10.7, 2.35, 0.3, 1], [8.1, 2.95, 0.22, 4], [12.4, 6.3, 0.28, 6], [7.5, 6.0, 0.2, 3], [11.0, 6.7, 0.18, 5]]
+      .forEach(([x, y, d, ci]) => k.oval(s, x, y, d, RB[ci]));
+    k.tx(s, 'クロスボーダーキャリアパス　候補生発表', { x: 0.9, y: 1.9, w: 6.8, h: 0.4, fontSize: 16, color: SUB });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 0.9, y: 2.35, w: 6.8, h: 1.8, fontSize: 46, bold: true, lh: 1.25 });
+    k.tx(s, 'その始まりを、愛媛から。', { x: 0.9, y: 4.3, w: 6.8, h: 0.5, fontSize: 22, bold: true, color: DEEP[5] });
+    k.tx(s, '放課後等デイサービス　管理者 兼 エリアマネージャー\n夢門塾ゆうゆう西条', { x: 0.9, y: 5.15, w: 6.8, h: 0.8, fontSize: 14, color: SUB, lh: 1.5 });
+    return s;
+  },
+  closing(pres, k) {
+    const s = pres.addSlide(); s.background = { color: WHITE };
+    [[-0.8, -0.9, 3.0, 5, 0.22], [1.7, 0.45, 1.0, 1, 0.32], [10.9, 5.0, 3.2, 3, 0.24], [10.1, 6.35, 0.9, 6, 0.3], [11.9, 0.5, 1.3, 2, 0.3]]
+      .forEach(([x, y, d, ci, a]) => k.oval(s, x, y, d, mix(RB[ci], a)));
+    [[2.9, 1.3, 0.24, 0], [10.3, 1.5, 0.2, 4], [1.2, 6.3, 0.26, 6], [9.6, 5.9, 0.18, 1]].forEach(([x, y, d, ci]) => k.oval(s, x, y, d, RB[ci]));
+    k.tx(s, 'その始まりを、愛媛で実践する人材に。', { x: 1.5, y: 2.3, w: W - 3, h: 0.5, fontSize: 20, color: SUB, align: 'center' });
+    k.tx(s, '全国に\nトータルサポートを。', { x: 1.5, y: 2.9, w: W - 3, h: 1.8, fontSize: 46, bold: true, align: 'center', lh: 1.25 });
+    k.tx(s, 'ご清聴ありがとうございました', { x: 1.5, y: 4.95, w: W - 3, h: 0.4, fontSize: 15, color: SUB, align: 'center' });
+    return s;
+  },
+});
+
+// ---------------- 本文スライド（全候補共通のレイアウト） ----------------
+function buildDeck(T) {
+  const pres = new pptxgen();
+  pres.layout = 'LAYOUT_WIDE';
+  pres.title = '全国にトータルサポートを。';
+  const k = makeKit(pres);
+  const add = (ctx, title, n) => { const s = pres.addSlide(); T.base(s, k, ctx, title, n); return s; };
+
+  // 1. 表紙
+  T.titleSlide(pres, k).addNotes(NOTES[0]);
+
+  // 2. これまでの歩み
+  {
+    const ctx = { no: 1, key: 0, tag: 'PROFILE' }; const s = add(ctx, 'これまでの歩み', 2);
+    const items = [
+      ['入社', '2019.10.28', '夢門塾ゆうゆう\n奈良津1組', '放課後等デイサービスの\n現場からスタート', 0],
+      ['異動', '2024.4.1', '愛媛県今治市\n夢門塾ゆうゆう日吉', '困難も経験しながら、愛媛で\n利用者の居場所づくりに向き合う', 3],
+      ['異動', '2026.9.1', '愛媛県西条市\n夢門塾ゆうゆう西条', '管理者 兼 エリアマネージャー\nとして愛媛エリアを担う', 5],
+    ];
+    const cw = 3.8, gap = (CW - 3 * cw) / 2, ly = 3.25;
+    k.hline(s, M, ly, CW, LINE, 2);
+    items.forEach(([lab, d, place, desc, ci], i) => {
+      const x = M + i * (cw + gap);
+      k.tx(s, lab, { x, y: 1.95, w: cw, h: 0.32, fontSize: 13, color: SUB });
+      k.tx(s, d, { x, y: 2.27, w: cw, h: 0.55, fontSize: 26, bold: true, color: T.d(ci, ctx), lh: 1.1 });
+      T.node(s, k, x + 0.2, ly, ci, ctx);
+      T.card(s, k, x, 3.65, cw, 2.5, ci, ctx);
+      k.tx(s, place, { x: x + 0.3, y: 3.92, w: cw - 0.6, h: 0.9, fontSize: 18, bold: true });
+      k.tx(s, desc, { x: x + 0.3, y: 4.98, w: cw - 0.6, h: 1.2, fontSize: 14, color: SUB, lh: 1.45 });
+    });
+    s.addNotes(NOTES[1]);
+  }
+
+  // 3. きっかけ① 保護者の声
+  {
+    const ctx = { no: 2, key: 1, tag: 'WHY' }; const s = add(ctx, 'きっかけ ①　保護者の声', 3);
+    k.tx(s, '異動先ではさまざまな困難もあった。それでも愛媛の地にもキャレオス・夢門塾はあり、\n利用者の「居場所」として確立していた。', { x: M, y: 1.72, w: CW, h: 0.85, fontSize: 15, color: SUB, lh: 1.45 });
+    [['「ゆうゆうを卒業したあとが\nとても不安」', 0], ['「愛媛にキャレオスの就労が\nあったらとっても安心する」', 4]].forEach(([t, ci], i) => {
+      const w = (CW - 0.33) / 2, x = M + i * (w + 0.33);
+      T.card(s, k, x, 2.75, w, 2.3, ci, ctx);
+      k.tx(s, '“', { x: x + 0.3, y: 2.82, w: 1, h: 0.8, fontSize: 60, bold: true, color: T.mark(ci, ctx), lh: 1.0 });
+      k.tx(s, t, { x: x + 0.45, y: 3.55, w: w - 0.8, h: 1.25, fontSize: 21, bold: true, lh: 1.4 });
+    });
+    k.tx(s, '― 高校生になる利用者の保護者より', { x: M, y: 5.15, w: CW, h: 0.35, fontSize: 12, color: SUB, align: 'right' });
+    T.take(s, k, '嬉しい、けれど胸の痛いことば。卒業後の「次の居場所」を愛媛に。', 5.72, ctx);
+    s.addNotes(NOTES[2]);
+  }
+
+  // 4. きっかけ② 支給量の決定基準
+  {
+    const ctx = { no: 3, key: 2, tag: 'WHY' }; const s = add(ctx, 'きっかけ ②　サービス支給量の決定基準の制定', 4);
+    const cols = [
+      ['制度の変化', '受給者証の支給日数の上限が、\n手帳や個別サポートの有無で\n決まるように。', 1],
+      ['現場の不安', '・支給日数が減り、お留守番が\n　できるか不安\n・次の行き場がすぐに見つからない\n・放デイ利用中を理由に、\n　児童クラブを断られた', 0],
+      ['参入の機会', 'キャレオスには放課後\n児童クラブの委託事業がある。\n愛媛でも受け皿になれないか。', 3],
+    ];
+    const cw = 3.8, gap = (CW - 3 * cw) / 2, y = 1.8, h = 3.55;
+    cols.forEach(([hd, body, ci], i) => {
+      const x = M + i * (cw + gap);
+      T.card(s, k, x, y, cw, h, ci, ctx);
+      T.badge(s, k, x + 0.3, y + 0.3, 0.55, String(i + 1), ci, ctx);
+      k.tx(s, hd, { x: x + 1.02, y: y + 0.3, w: cw - 1.2, h: 0.55, fontSize: 19, bold: true, valign: 'middle', lh: 1.1 });
+      const bodyText = Array.isArray(body)
+        ? body.map((t, j) => ({ text: t, options: { bullet: { indent: 14 }, breakLine: j < body.length - 1, paraSpaceAfter: 8 } }))
+        : body;
+      k.tx(s, bodyText, { x: x + 0.3, y: y + 1.1, w: cw - 0.6, h: h - 1.3, fontSize: 14, lh: 1.5 });
+      if (i < 2) k.chev(s, x + cw + (gap - 0.18) / 2, y + h / 2 - 0.18, 0.18, 0.36, T.chevColor(ctx));
+    });
+    T.take(s, k, '放デイだけでは支えきれない。地域の「放課後の受け皿」にキャレオスが。', 5.72, ctx);
+    s.addNotes(NOTES[3]);
+  }
+
+  // 5. きっかけ③ 愛媛でナンバーワン
+  {
+    const ctx = { no: 4, key: 3, tag: 'WHY' }; const s = add(ctx, 'きっかけ ③　愛媛でナンバーワンになるために', 5);
+    T.card(s, k, M, 1.8, 5.9, 4.35, 4, ctx);
+    k.tx(s, '愛媛の福祉を支える地域大手（例：来島会）', { x: M + 0.35, y: 2.1, w: 5.2, h: 0.45, fontSize: 16, bold: true, valign: 'middle' });
+    ['児童発達支援', '就労継続支援', '相談支援', 'グループホーム', '介護'].forEach((v, i) => {
+      T.pill(s, k, M + 0.35 + (i % 2) * 2.65, 2.8 + Math.floor(i / 2) * 0.82, 2.45, 0.6, v, i + 2, ctx);
+    });
+    k.tx(s, 'ライフステージを通して多数展開', { x: M + 0.35, y: 5.38, w: 5.2, h: 0.35, fontSize: 13, color: SUB });
+    const rx = 6.9, rw = W - M - rx;
+    k.tx(s, '10年後・20年後を見据えると', { x: rx, y: 1.85, w: rw, h: 0.45, fontSize: 19, bold: true, valign: 'middle' });
+    ['総量規制のはじまり', '人口減少', '「選ばれ続ける」ための、地域に根差した福祉'].forEach((t, i) => {
+      const y = 2.6 + i * 0.78;
+      k.oval(s, rx, y + 0.13, 0.26, T.mark([0, 1, 3][i], ctx));
+      k.tx(s, t, { x: rx + 0.45, y, w: rw - 0.45, h: 0.52, fontSize: 16, valign: 'middle', lh: 1.2 });
+    });
+    T.take(s, k, '同等、それ以上の\nトータルサポートが必要。', 4.95, ctx, { x: rx, w: rw, h: 1.2, fontSize: 23, lh: 1.35, bullet: false });
+    s.addNotes(NOTES[4]);
+  }
+
+  // 6. クロスボーダーで関わりたい部署
+  {
+    const ctx = { no: 5, key: 4, tag: 'LEARN' }; const s = add(ctx, 'クロスボーダーで関わりたい部署', 6);
+    k.tx(s, '愛媛などで福祉施設を広げるための「知識」と「動き方」を身につける', { x: M, y: 1.7, w: CW, h: 0.45, fontSize: 16, color: SUB, valign: 'middle' });
+    const units = [
+      ['第三管理部　事業開発課', '地域共創係', 'FaHandshake', 3, [
+        ['知識', '新規事業の立ち上げ方\n（市場調査・事業計画・収支・指定申請）'],
+        ['動き方', '自治体・地域企業・学校と関係を築き、\n地域に根差した事業をつくる']]],
+      ['第三管理部　マーケティング課', 'トータルサポート推進係', 'FaRoute', 4, [
+        ['知識', 'トータルサポートの全体像と、\n事業部どうしのつなぎ方'],
+        ['動き方', '利用者・保護者の声から、\n放デイ→就労へ切れ目なくつなぐ導線づくり']]],
+    ];
+    const cw = (CW - 0.33) / 2, y = 2.3;
+    units.forEach(([dept, team, ic, ci, rows], i) => {
+      const x = M + i * (cw + 0.33);
+      T.card(s, k, x, y, cw, 3.4, ci, ctx);
+      T.iconBadge(s, k, x + 0.35, y + 0.32, 0.72, ic, ci, ctx);
+      k.tx(s, dept, { x: x + 1.3, y: y + 0.3, w: cw - 1.5, h: 0.32, fontSize: 13, color: SUB });
+      k.tx(s, team, { x: x + 1.3, y: y + 0.62, w: cw - 1.5, h: 0.5, fontSize: 22, bold: true, lh: 1.2 });
+      rows.forEach(([lab, t], j) => {
+        const yy = y + 1.45 + j * 0.95;
+        T.label(s, k, x + 0.35, yy, 0.95, 0.38, lab, ci, ctx);
+        k.tx(s, t, { x: x + 1.47, y: yy - 0.02, w: cw - 1.72, h: 0.85, fontSize: 14, lh: 1.4 });
+      });
+    });
+    T.take(s, k, '現場（愛媛）の声 × 本部の知識と動き方 ＝ 自分のボーダーを越える', 5.95, ctx);
+    s.addNotes(NOTES[5]);
+  }
+
+  // 7. まずは、愛媛に就労継続支援B型を（B型のいま・作業設計）
+  {
+    const ctx = { no: 6, key: 5, tag: 'ACTION' }; const s = add(ctx, 'まずは、愛媛に就労継続支援B型を', 7);
+    T.card(s, k, M, 1.75, 6.35, 4.5, 5, ctx);
+    const grey = 'C9CFDA';
+    s.addChart(pres.charts.BAR, [{ name: '実施している事業所の割合', labels: ['軽作業', '清掃', '雑貨製造', '菓子製造', '農業', 'リサイクル'], values: [63.6, 27.8, 23.1, 15.2, 12.0, 10.8] }], {
+      x: M + 0.15, y: 1.85, w: 6.05, h: 4.3, barDir: 'bar',
+      chartColors: [T.barHL(ctx), grey, grey, grey, grey, grey],
+      catAxisOrientation: 'maxMin', valAxisHidden: true, valAxisMinVal: 0, valAxisMaxVal: 75,
+      valGridLine: { style: 'none' }, catGridLine: { style: 'none' }, catAxisLineShow: false,
+      catAxisLabelFontFace: F, catAxisLabelFontSize: 13, catAxisLabelColor: INK,
+      showValue: true, dataLabelPosition: 'outEnd', dataLabelFormatCode: '0.0"%"', dataLabelColor: INK, dataLabelFontFace: F, dataLabelFontSize: 12, dataLabelFontBold: true,
+      barGapWidthPct: 55, showLegend: false,
+      showTitle: true, title: 'B型事業所が取り組む作業（上位6・複数回答）', titleFontFace: F, titleFontSize: 13, titleColor: INK,
+    });
+    const rx = 7.25, rw = W - M - rx, tw = (rw - 0.2) / 2;
+    T.stat(s, k, rx, 1.75, tw, 1.5, '24,141円', '全国の平均工賃\n（月額・令和6年度）', 0, ctx);
+    T.stat(s, k, rx + tw + 0.2, 1.75, tw, 1.5, '23,396円', '愛媛の平均工賃\n（令和6年度・253事業所）', 5, ctx);
+    k.tx(s, '私たちの作業設計', { x: rx, y: 3.5, w: rw, h: 0.4, fontSize: 17, bold: true, valign: 'middle' });
+    [['FaBoxOpen', '立ち上げ期', '企業からの軽作業（検品・袋詰めなど）で仕事を確保', 1],
+      ['FaSeedling', '工賃を上げる柱', '施設外就労（清掃・農福連携）や自主製品（菓子など）', 3],
+      ['FaLaptop', '放デイ卒業生に合わせて', 'IT・PC作業や接客など、一般就労につながる作業', 4]].forEach(([ic, lab, t, ci], j) => {
+      const y = 4.05 + j * 0.78;
+      T.iconBadge(s, k, rx, y, 0.56, ic, ci, ctx);
+      k.tx(s, lab, { x: rx + 0.72, y: y - 0.03, w: rw - 0.72, h: 0.3, fontSize: 14, bold: true, lh: 1.1 });
+      k.tx(s, t, { x: rx + 0.72, y: y + 0.29, w: rw - 0.72, h: 0.32, fontSize: 13, color: SUB, lh: 1.1 });
+    });
+    k.tx(s, '出典：厚生労働省「工賃（賃金）の実績」（令和6年度）・「生産活動の活性化に関する調査研究」（令和5年度）、愛媛県「月額平均工賃」（令和6年度）', { x: M, y: 6.45, w: CW, h: 0.3, fontSize: 10, color: MUTED, lh: 1.1 });
+    s.addNotes(NOTES[6]);
+  }
+
+  // 8. B型の試算
+  {
+    const ctx = { no: 7, key: 6, tag: 'SIMULATION' }; const s = add(ctx, 'B型開設の試算（西条市・定員20名）', 8);
+    T.card(s, k, M, 1.75, 6.95, 4.0, 6, ctx);
+    s.addChart(pres.charts.LINE, [{ name: '資金残高（万円）', labels: CASH.map((_, i) => (i % 6 === 0 ? String(i) : '')), values: CASH }], {
+      x: M + 0.15, y: 1.85, w: 6.65, h: 3.8,
+      chartColors: [T.lineColor(ctx)], lineSize: 2.5, lineDataSymbol: 'none',
+      valAxisMinVal: -1600, valAxisMaxVal: 1200, valAxisMajorUnit: 400, valAxisLabelFormatCode: '#,##0',
+      valAxisLabelFontFace: F, valAxisLabelFontSize: 10, valAxisLabelColor: SUB, valAxisLineShow: false,
+      catAxisLabelFontFace: F, catAxisLabelFontSize: 10, catAxisLabelColor: SUB, catAxisLabelRotate: 0, catAxisLabelPos: 'low',
+      catAxisLineColor: '9AA3B2',
+      valGridLine: { color: 'E3E7EE', size: 0.75 }, catGridLine: { style: 'none' },
+      showLegend: false,
+      showTitle: true, title: '資金残高の推移（万円）　横軸：開設からの月数', titleFontFace: F, titleFontSize: 13, titleColor: INK,
+    });
+    const rx = 7.8, tw = (W - M - rx - 0.2) / 2;
+    [['18人', '1日の平均利用者数\n（安定期）', 0], ['6か月目', '単月で黒字化', 1], ['27か月目', '初期投資900万円を回収', 3], ['1,140万円', '3年目の営業利益\n（概算）', 5]]
+      .forEach(([v, l, ci], i) => T.stat(s, k, rx + (i % 2) * (tw + 0.2), 1.75 + Math.floor(i / 2) * 2.1, tw, 1.9, v, l, ci, ctx));
+    T.take(s, k, '黒字ラインは1日11人前後。工賃が愛媛平均（2.3万円）に届けば、年間約100万円の上乗せ。', 5.98, ctx, { h: 0.52, fontSize: 17 });
+    k.tx(s, '※標準シナリオ（定員20名・人員配置6:1・2027年4月開設・初期投資900万円）。人件費・家賃は仮置き。報酬は令和8年6月の見直しと新規指定の特例（984/1000）を反映。', { x: M, y: 6.6, w: CW, h: 0.28, fontSize: 10, color: MUTED, lh: 1.1 });
+    s.addNotes(NOTES[7]);
+  }
+
+  // 9. 描く未来
+  {
+    const ctx = { no: 8, key: 'all', tag: 'VISION' }; const s = add(ctx, '描く未来　― 愛媛から全国へ（仮構想）', 9);
+    const steps = [
+      ['STEP 1', '愛媛で実践', 'B型を第一歩に、\n放デイ・児童クラブ・\n就労をつなぐ', 'FaSeedling', 0],
+      ['STEP 2', '四国支社', '愛媛から四国全域へ\n（インドネシアの特定技能\n等の人材も含めて）', 'FaMapMarkedAlt', 2],
+      ['STEP 3', '関西・中部支社', 'エリアごとの拠点を\n各地に広げていく', 'FaBuilding', 4],
+      ['GOAL', '全国へ', '全国にキャレオスの\nトータルサポートを', 'FaFlag', 6],
+    ];
+    const cw = 2.85, gap = (CW - 4 * cw) / 3, y = 1.8, h = 3.35;
+    steps.forEach(([st, hd, body, ic, ci], i) => {
+      const x = M + i * (cw + gap);
+      T.card(s, k, x, y, cw, h, ci, ctx);
+      T.iconBadge(s, k, x + 0.3, y + 0.3, 0.78, ic, ci, ctx);
+      k.tx(s, st, { x: x + 1.25, y: y + 0.52, w: cw - 1.4, h: 0.35, fontSize: 13, bold: true, color: T.d(ci, ctx), valign: 'middle', lh: 1.0 });
+      k.tx(s, hd, { x: x + 0.3, y: y + 1.3, w: cw - 0.5, h: 0.5, fontSize: 21, bold: true, lh: 1.15 });
+      k.tx(s, body, { x: x + 0.3, y: y + 1.92, w: cw - 0.45, h: 1.3, fontSize: 13, color: SUB, lh: 1.45 });
+      if (i < 3) k.chev(s, x + cw + (gap - 0.13) / 2, y + h / 2 - 0.15, 0.13, 0.3, T.chevColor(ctx));
+    });
+    T.take(s, k, 'まだキャレオスにいない人材・ポジション。そこを確立させることに価値がある。', 5.45, ctx, { boxed: true, h: 0.95, fontSize: 19 });
+    s.addNotes(NOTES[8]);
+  }
+
+  // 10. 結び
+  T.closing(pres, k).addNotes(NOTES[9]);
+  return pres;
+}
+
+module.exports = { NOTES, SLIDE_TITLES, THEMES: [A, B, C, D] };
+
+if (require.main === module) {
+  (async () => {
+    await loadIcons();
+    for (const T of [A, B, C, D]) {
+      const f = await buildDeck(T).writeFile({ fileName: path.join(OUT, T.file + '.pptx') });
+      console.log(f);
+    }
+  })();
+}

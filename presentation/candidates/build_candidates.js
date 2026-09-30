@@ -442,6 +442,7 @@ const E = Object.assign(Object.create(baseTheme), {
     k.rrect(s, x, y, w, h, 'F4F8FF', 0.16, { shadow: { type: 'outer', color: '1F4FB0', opacity: 0.14, blur: 10, offset: 3, angle: 90 } });
   },
   axis(s, k, x, y, w) { s.addImage({ path: ASSET.axis, x, y: y - 0.03, w, h: 0.06 }); },
+  dot(s, k, x, y, d, i) { s.addImage({ path: ASSET.orb[i], x, y, w: d, h: d }); },
   node(s, k, x, cy, i) { k.oval(s, x - 0.04, cy - 0.22, 0.44, WHITE); s.addImage({ path: ASSET.orb[i], x, y: cy - 0.18, w: 0.36, h: 0.36 }); },
   badge(s, k, x, y, d, text, i) {
     s.addImage({ path: ASSET.orb[i], x, y, w: d, h: d });
@@ -581,7 +582,7 @@ function buildDeck(T) {
     k.tx(s, '10年後・20年後を見据えると', { x: rx, y: 1.85, w: rw, h: 0.45, fontSize: 19, bold: true, valign: 'middle' });
     ['総量規制のはじまり', '人口減少', '「選ばれ続ける」ための、地域に根差した福祉'].forEach((t, i) => {
       const y = 2.6 + i * 0.78;
-      k.oval(s, rx, y + 0.13, 0.26, T.mark([0, 1, 3][i], ctx));
+      if (T.dot) T.dot(s, k, rx, y + 0.13, 0.26, [0, 3, 5][i], ctx); else k.oval(s, rx, y + 0.13, 0.26, T.mark([0, 1, 3][i], ctx));
       k.tx(s, t, { x: rx + 0.45, y, w: rw - 0.45, h: 0.52, fontSize: 16, valign: 'middle', lh: 1.2 });
     });
     T.take(s, k, '同等、それ以上の\nトータルサポートが必要。', 4.95, ctx, { x: rx, w: rw, h: 1.2, fontSize: 23, lh: 1.35, bullet: false });
